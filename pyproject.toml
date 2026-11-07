@@ -7,7 +7,25 @@ authors = [
     { name = "eakgn", email = "akgune356@gmail.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "beautifulsoup4>=4.15.0",
+    "fastapi>=0.162.1",
+    "geopandas>=1.2.0",
+    "google-genai>=3.0.0",
+    "httpx>=0.28.1",
+    "numpy>=2.5.4",
+    "pandas>=3.1.1",
+    "pyarrow>=26.0.1",
+    "pyogrio>=0.13.0",
+    "pytest>=9.2.0",
+    "python-dotenv>=1.2.4",
+    "scikit-learn>=1.9.1",
+    "scipy>=1.18.1",
+    "shap>=0.54.1",
+    "shapely>=2.2.0",
+    "uvicorn>=0.54.0",
+    "xgboost-cpu>=3.4.1",
+]
 
 [project.scripts]
 ekozeka26 = "ekozeka26:main"

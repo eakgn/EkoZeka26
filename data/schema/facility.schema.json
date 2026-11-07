@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aquasanayi.ai/schemas/facility.schema.json",
+  "title": "AquaSanayi AI — Endüstriyel Tesis Su Profili Şeması",
+  "description": "Ticari platformlardan bağımsız, ISO 14046 / SYGM Su Verimliliği Yönetmeliği (RG 27.12.2024, No. 32765) ile eşlenebilir açık tesis su envanteri ve risk simülasyon şeması.",
+  "type": "object",
+  "required": [
+    "facility_id",
+    "facility_name",
+    "osb_id",
+    "sector_code",
+    "nace_code",
+    "annual_water_m3",
+    "water_source",
+    "process_shares",
+    "daily_downtime_cost_tl",
+    "capex_budget_tl"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "default": "1.0.0"
+    },
+    "facility_id": {
+      "type": "string",
+      "description": "Tesis tekil tanımlayıcısı"
+    },
+    "facility_name": {
+      "type": "string",
+      "description": "Fabrika / Tesis adı"
+    },
+    "osb_id": {
+      "type": "string",
+      "description": "OSB veya Alt-Havza kodu (örn. izmir_kemalpasa, manisa_osb, izmir_aliaga)"
+    },
+    "pfaf_id": {
+      "type": "integer",
+      "description": "WRI Aqueduct 4.0 Hidrolojik Alt-Havza Kodu (örn. 211055 - Gediz)"
+    },
+    "sector_code": {
+      "type": "string",
+      "enum": [
+        "textile",
+        "food",
+        "chemical",
+        "metal",
+        "energy",
+        "mining",
+        "semiconductor",
+        "general"
+      ],
+      "description": "Sektör anahtarı"
+    },
+    "nace_code": {
+      "type": "string",
+      "description": "SYGM Ek-2 NACE Rev.2 kodu (örn. C13.3 Tekstil Terbiye, C10.3 Meyve-Sebze İşleme, C20.1 Temel Kimyasal)"
+    },
+    "employee_count": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 250,
+      "description": "Çalışan sayısı (50+ çalışanlı Ek-2 tesisleri için 27.12.2029 Yeşil Su Verimliliği Belgesi zorunludur)"
+    },
+    "annual_water_m3": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "Yıllık toplam su çekimi (m³/yıl)"
+    },
+    "water_source": {
+      "type": "string",
+      "enum": ["izsu_grid", "osb_grid", "groundwater_well", "hybrid"],
+      "description": "Ana su temin kaynağı"
+    },
+    "grid_share_pct": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 50,
+      "description": "Karma (hybrid) seçildiğinde şebeke suyu oranı (%)"
+    },
+    "process_shares": {
+      "type": "object",
+      "required": ["cooling", "process", "boiler", "domestic"],
+      "properties": {
+        "cooling": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Soğutma kulesi ve ısı değiştirici su payı (%)"
+        },
+        "process": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Yıkama, boyama, durulama ve ürün proses suyu payı (%)"
+        },
+        "boiler": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Kazan besleme ve buhar üretimi su payı (%)"
+        },
+        "domestic": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Evsel, yemekhane ve saha temizlik su payı (%)"
+        }
+      }
+    },
+    "daily_downtime_cost_tl": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Su kesintisi nedeniyle fabrikanın 1 tam gün durmasının ekonomik maliyeti (TL/gün)"
+    },
+    "capex_budget_tl": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Su verimliliği yatırımları için ayrılan maksimum CAPEX bütçesi (TL)"
+    },
+    "target_year": {
+      "type": "integer",
+      "enum": [2030, 2050, 2080],
+      "default": 2030
+    },
+    "scenario": {
+      "type": "string",
+      "enum": ["OPT", "BAU", "PES"],
+      "default": "BAU"
+    }
+  }
+}
