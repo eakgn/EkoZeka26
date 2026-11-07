@@ -37,6 +37,9 @@ def test_all_rest_endpoints_200_ok_and_fast_fallback() -> None:
     c_data = r_comp.json()
     assert c_data["candidate_count"] >= 4
     assert "safest_osb" in c_data
+    # set_index("string_id") sonrası kimlik kaybı regresyonu: her satır dolu string_id taşımalı
+    assert all(row["string_id"] for row in c_data["rankings"])
+    assert c_data["safest_osb"]["string_id"]
 
     # 4. /api/predict-location (hem OSB hem deniz tıklaması koruması)
     r_pred = client.post(

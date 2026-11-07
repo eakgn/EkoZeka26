@@ -332,11 +332,14 @@ def fit_kmeans_basin_archetypes() -> dict[str, Any]:
     }
 
 
-def train_and_evaluate_models() -> dict[str, Any]:
+def train_and_evaluate_models(persist: bool = True) -> dict[str, Any]:
     """
     1.392 havza-ay satırı üzerinde 5-katlı `GroupKFold(n_splits=5, groups=pfaf_id)` ile
     Naive (Kaba Yıllık), Ridge Doğrusal Regresyon ve XGBoost Downscaler modellerini
     karşılaştırır, tam modeli kaydeder, SHAP değerlerini ve Gediz hidrolojik backtest'ini üretir.
+
+    `persist=False` yalnızca testlerde kullanılır: SHAP gecikmesi gibi ölçüm değerleri her
+    koşuda milisaniye düzeyinde değiştiği için repodaki `model_metrics.json` kirlenmez.
     """
     global _MODEL_CACHE, _EXPLAINER_CACHE
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
@@ -465,9 +468,10 @@ def train_and_evaluate_models() -> dict[str, Any]:
         "kmeans_basin_archetypes": archetypes_res,
     }
 
-    (PROCESSED_DIR / "model_metrics.json").write_text(
-        json.dumps(metrics_payload, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    if persist:
+        (PROCESSED_DIR / "model_metrics.json").write_text(
+            json.dumps(metrics_payload, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
     return metrics_payload
 
 

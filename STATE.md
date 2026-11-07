@@ -14,8 +14,9 @@
   8. `llm_agent.py`: Gemini (`gemini-2.5-flash`) yapılandırılmış yönetici özeti + deterministik çevrimdışı yedek (offline fallback).
 
 ## Aktif Görev
-- **Faz: WBS-0 → WBS-8 tüm iş paketleri tamamlandı ve doğrulandı.**
+- **Faz: WBS-0 → WBS-9 tüm iş paketleri tamamlandı ve doğrulandı.**
 - Uygulama `bash scripts/run.sh` (veya `uv run uvicorn ekozeka26.app:app --host 127.0.0.1 --port 8000`) ile canlı sunuma hazırdır.
+- **Son doğrulama (7 Kasım 2026):** `uv run pytest -q` → **19 passed**; canlı UI tarayıcı testinde **0 konsol hatası / 0 başarısız ağ isteği**, masaüstü (1600×1000) ve mobil (420 px) görünümde yatay taşma yok.
 
 ## Tamamlanan Adımlar
 - [x] Proje iskeleti (`uv`, `pyproject.toml`, `src/ekozeka26/`, `.gitignore`)
@@ -28,6 +29,8 @@
 - [x] CarbonEmit bağımlılığı kaldırıldı; kendi açık tesis şeması + örnek dosya + JSON/CSV dışa aktarım kararı alındı
 - [x] Yapay zeka çekirdeği **fizik-öncelikli + ML destekli** hibrite geçirildi (şeffaf indeks + XGBoost yanlılık düzeltme + KMeans + Isolation Forest)
 - [x] WBS 9 iş paketine genişletildi (veri snapshot, backtest, `run.sh`/`.env.example`, prova + yedek video eklendi)
+- [x] WBS-9 tamamlandı: veri şeffaflık rozetleri, 5 kök-neden senaryosu, kriter tabanlı 2029 belgesi, OSB dışı havza düzeltmesi, yerel `vendor/` varlıkları ve 5 adımlı rehber tur
+- [x] WBS-9 son doğrulaması: `/api/osb-compare` satırlarında kaybolan `string_id` kimliği düzeltildi (regresyon testi eklendi); `train_and_evaluate_models(persist=False)` ile testlerin `model_metrics.json` üzerinde gürültü üretmesi engellendi; `docs/demo/` ekran görüntüleri güncel UI ile yenilendi
 
 ## Proje Yönetimi İlerleme Şablonu (WBS & Definition of Done)
 > `build` oturumunda her görev tamamlandığında `Durum` sütunu `[x]` yapılacak, `git commit` atılacak ve yeni sayılar `SUNUM.md`'ye işlenecektir.

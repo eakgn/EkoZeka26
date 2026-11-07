@@ -335,7 +335,12 @@ def optimize_facility_roi(
         gw_dep_input: float | None = None
     else:
         sid = osb_info["string_id"]
-        basin_row = df_basins.loc[sid].to_dict() if sid in df_basins.index else osb_info
+        if sid in df_basins.index:
+            basin_row = df_basins.loc[sid].to_dict()
+            # set_index("string_id") sonrası to_dict() indeksi düşürür; kimliği geri ekle.
+            basin_row["string_id"] = sid
+        else:
+            basin_row = osb_info
         gw_dep_input = float(osb_info["groundwater_dependency_pct"])
 
     sec_key = sector if sector in osb_meta["sector_defaults"] else "general"

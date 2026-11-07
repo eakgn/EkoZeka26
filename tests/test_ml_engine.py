@@ -11,7 +11,7 @@ from ekozeka26.risk_index import find_basin_by_coords
 
 
 def test_xgboost_downscaler_groupkfold_and_backtest() -> None:
-    metrics = train_and_evaluate_models()
+    metrics = train_and_evaluate_models(persist=False)
     assert (PROCESSED_DIR / "xgb_downscaler.json").exists()
     assert (PROCESSED_DIR / "model_metrics.json").exists()
 

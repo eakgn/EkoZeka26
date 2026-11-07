@@ -349,7 +349,12 @@ def compare_candidate_osbs(
             continue
         o_info = all_osbs[oid]
         sid = o_info["string_id"]
-        basin_row = df_basins.loc[sid].to_dict() if sid in df_basins.index else o_info
+        if sid in df_basins.index:
+            basin_row = df_basins.loc[sid].to_dict()
+            # set_index("string_id") sonrası to_dict() indeksi düşürür; kimliği geri ekle.
+            basin_row["string_id"] = sid
+        else:
+            basin_row = o_info
 
         c_proj = climate_meta.get(oid, {}).get("scenarios", {}).get(scenario.upper(), {})
         decadal_wb_trend = float(c_proj.get("decadal_trend_mm", -32.0))
