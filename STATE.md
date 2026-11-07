@@ -14,7 +14,7 @@
   8. `llm_agent.py`: Gemini (`gemini-2.5-flash`) yapılandırılmış yönetici özeti + deterministik çevrimdışı yedek (offline fallback).
 
 ## Aktif Görev
-- **Faz: WBS-7 (Uçtan Uca Test & Performans Cilası) yürütülüyor.**
+- **Faz: WBS-8 (Otomatik Ekran Görüntüleri, `README.md` & `SUNUM.md`) yürütülüyor.**
 - **Sürekli Kural:** Her faz sonunda `STATE.md` ve üretilen gerçek metriklerle `SUNUM.md` güncellenecek.
 
 ## Tamamlanan Adımlar
@@ -41,7 +41,7 @@
 | **WBS-4** | ROI & Portföy Optimizasyon Motoru (~1,5 saat) | `src/ekozeka26/roi_optimizer.py` | Azalan verim ($1-\prod(1-r_i) \le 0.78$) çalışıyor; 0-1 Knapsack bütçeyi aşmadan maksimum NPV'li önlemleri seçiyor; kuyu vs şebeke farkını ve 2029 Yeşil Belge kademesini hesaplıyor; tüm edge-case testleri geçiyor. | `uv run pytest tests/test_roi_optimizer.py` | `[x]` |
 | **WBS-5** | FastAPI Backend & Gemini/Fallback Ajanı (~1,5 saat) | `src/ekozeka26/app.py`, `src/ekozeka26/llm_agent.py`, `scripts/run.sh`, `.env.example` | Tüm REST uç noktaları (`/api/basins`, `/api/osb-compare`, `/api/predict-location`, `/api/simulate-roi`, `/api/executive-summary`, `/api/izsu-live`, `/api/facility-sample`, `/api/export/{json,csv}`) 200 OK dönüyor; `.env` yokken veya internet kapalıyken zengin deterministik fallback <100 ms'de çalışıyor; `scripts/run.sh` tek komutla uygulamayı `127.0.0.1:8000`'de ayağa kaldırıyor. | `uv run pytest tests/test_api.py` + `timeout 5 bash scripts/run.sh` | `[x]` |
 | **WBS-6** | 2 Sekmeli Web Arayüzü (UI) (~2,5 saat) | `src/ekozeka26/static/index.html` | Sekme 1 (639 alt-havza haritası + OSB tablosu + şeffaf risk kırılımı + SHAP + CMIP6 P10–P90 + İZSU kartları & anomali rozetleri) ve Sekme 2 (Sektör Şablonu / Örnek Tesis Verisi Yükle + Fabrika ROI + Kuyu/Şebeke + Nakit akışı + 2029 Belgesi + Yönetici Özeti + JSON/CSV indir) hatasız çalışıyor. | `uv run uvicorn ekozeka26.app:app --host 127.0.0.1 --port 8000` + tarayıcı/curl kontrolü | `[x]` |
-| **WBS-7** | Uçtan Uca Test & Performans Cilası (~1 saat) | `tests/`, `README.md` (taslak) | Tüm birim/entegrasyon testleri yeşil; harita yükleme <2 s; API yanıtları <200 ms; boş/geçersiz girdi, deniz tıklaması, çok düşük bütçe senaryoları doğrulandı. | `uv run pytest` + `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/api/basins` | `[ ]` |
+| **WBS-7** | Uçtan Uca Test & Performans Cilası (~1 saat) | `tests/`, `README.md` (taslak) | Tüm birim/entegrasyon testleri yeşil; harita yükleme <2 s; API yanıtları <200 ms; boş/geçersiz girdi, deniz tıklaması, çok düşük bütçe senaryoları doğrulandı. | `uv run pytest` + `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/api/basins` | `[x]` |
 | **WBS-8** | Otomatik Ekran Görüntüleri, `README.md` & `SUNUM.md` (~1 saat) | `README.md`, `SUNUM.md`, `docs/demo/` (ekran görüntüleri + demo doğrulama çıktısı) | `SUNUM.md` içindeki tüm `[BUILD'DE GÜNCELLENECEK]` alanları gerçek çıktılarla dolduruldu; `google-chrome --headless` / `grim` / `wf-recorder` ile `docs/demo/` ekran görüntüleri alındı; temiz git durumu. (4 dk sözlü prova kullanıcı tarafından yapılacak.) | `uv run pytest` && `git status` && `ls docs/demo/` | `[ ]` |
 
 ## Bilinen Sorunlar / Fallback Notları
