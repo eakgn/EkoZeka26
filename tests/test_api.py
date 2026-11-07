@@ -10,6 +10,15 @@ client = TestClient(app)
 
 
 def test_all_rest_endpoints_200_ok_and_fast_fallback() -> None:
+    # 0. Ana Sayfa (2 sekmeli Web UI)
+    r_ui = client.get("/")
+    assert r_ui.status_code == 200
+    html_text = r_ui.text
+    assert "AquaSanayi AI" in html_text
+    assert "1. Yatırım & Yer Seçimi" in html_text
+    assert "2. Mevcut Fabrika ROI & 2029 Yeşil Belge Simülatörü" in html_text
+    assert "CarbonEmit" not in html_text  # Ticari platform bağımsızlığı kuralı
+
     # 1. /api/health
     r_health = client.get("/api/health")
     assert r_health.status_code == 200

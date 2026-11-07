@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AquaSanayi AI — Endüstriyel Su Kıtlığı Risk, Yer Seçimi ve 2029 ROI Karar Platformu</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    body {
+      background-color: #07111e;
+      color: #e2e8f0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .glass-card {
+      background: rgba(15, 29, 48, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.18);
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 28px -8px rgba(0, 0, 0, 0.55);
+    }
+    .leaflet-container {
+      background: #061527 !important;
+      border-radius: 0.65rem;
+    }
+    .tab-active {
+      background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
+      color: #ffffff;
+      border-color: #38bdf8;
+      box-shadow: 0 0 18px rgba(14, 165, 233, 0.35);
+    }
+    .tab-inactive {
+      background: rgba(15, 23, 42, 0.8);
+      color: #94a3b8;
+      border-color: rgba(148, 163, 184, 0.25);
+    }
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: #0b1626; }
+    ::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 4px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- ÜST BAŞLIK & CANLI İZSU KRİZ ŞERİDİ -->
+  <header class="border-b border-sky-900/60 bg-slate-950/90 sticky top-0 z-50 backdrop-blur-md">
+    <div class="max-w-[1600px] mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-teal-500 flex items-center justify-center font-black text-slate-950 text-lg shadow-lg">
+          AQ
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg md:text-xl font-extrabold tracking-tight text-white">AquaSanayi AI</h1>
+            <span class="text-[11px] font-semibold uppercase px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/40">
+              EkoZeka26 · Fizik + ML Hibrit
+            </span>
+            <span id="badge-offline" class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30">
+              Son Doğrulanmış Veri: 6 Kasım 2026
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">
+            Endüstriyel Su Kıtlığı Risk Tahmini, Yatırım Yer Seçimi (639 Alt-Havza) ve 27.12.2029 Yeşil Belge ROI Optimizasyon Platformu
+          </p>
+        </div>
+      </div>
+
+      <!-- SEKME GEÇİŞ BUTONLARI -->
+      <div class="flex items-center gap-2">
+        <button id="btn-tab-1" onclick="switchTab(1)" class="tab-active px-4 py-2 rounded-lg text-xs md:text-sm font-bold border transition-all">
+          1. Yatırım & Yer Seçimi (639 Havza + Şeffaf Risk + SHAP)
+        </button>
+        <button id="btn-tab-2" onclick="switchTab(2)" class="tab-inactive px-4 py-2 rounded-lg text-xs md:text-sm font-bold border transition-all">
+          2. Mevcut Fabrika ROI & 2029 Yeşil Belge Simülatörü
+        </button>
+      </div>
+    </div>
+
+    <!-- İZSU CANLI BARAJ & ISOLATION FOREST ANOMALİ ŞERİDİ -->
+    <div class="bg-slate-900/95 border-t border-slate-800/80">
+      <div class="max-w-[1600px] mx-auto px-4 py-2 grid grid-cols-1 md:grid-cols-4 gap-2 text-xs">
+        <div class="flex items-center justify-between bg-slate-950/70 px-3 py-1.5 rounded-lg border border-amber-500/30">
+          <div>
+            <span class="text-slate-400">İzmir Barajları Ağırlıklı Doluluk:</span>
+            <span id="hdr-weighted-occ" class="font-extrabold text-amber-400 text-sm ml-1">%34,01</span>
+            <span class="text-[11px] text-slate-500 ml-1">(Basit Ort: %44,24 yanıltıcı!)</span>
+          </div>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold">257,2 / 756,2 Mm³</span>
+        </div>
+
+        <div class="flex items-center justify-between bg-slate-950/70 px-3 py-1.5 rounded-lg border border-red-500/30">
+          <div>
+            <span class="text-slate-400">Gördes (%57,9 Kapasite):</span>
+            <span id="hdr-gordes-occ" class="font-extrabold text-red-400 text-sm ml-1">%27,96</span>
+            <span class="text-[11px] text-slate-400 ml-1">| Tahtalı: <b class="text-sky-300">%41,39</b> (2025: <b class="text-red-400">%1,54</b>)</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between bg-slate-950/70 px-3 py-1.5 rounded-lg border border-rose-500/40">
+          <div class="truncate">
+            <span class="px-1.5 py-0.5 rounded bg-rose-500/25 text-rose-300 font-bold text-[10px] mr-1">ISOLATION FOREST ANOMALİ</span>
+            <span id="hdr-anomaly-text" class="text-slate-300">Kas 2025 Tahtalı -%76,5 (6,91→1,62 Mm³), Kuyu Payı %69,3</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between bg-slate-950/70 px-3 py-1.5 rounded-lg border border-teal-500/30">
+          <div>
+            <span class="text-slate-400">Gediz Sanayi Kuyu Bağımlılığı:</span>
+            <span class="font-bold text-teal-300 ml-1">%100</span>
+            <span class="text-slate-400 ml-1">| Kuraklık Kesintisi:</span>
+            <span class="font-extrabold text-rose-400 ml-1">%62,9</span>
+            <span class="text-slate-400 ml-1">| İZSU: <b class="text-white">403,79 TL/m³</b></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ANA İÇERİK -->
+  <main class="max-w-[1600px] w-full mx-auto px-4 py-4 flex-1">
+
+    <!-- =================================================================== -->
+    <!-- SEKME 1: YATIRIM & YER SEÇİMİ (639 ALT-HAVZA + ŞEFFAF RİSK + SHAP) -->
+    <!-- =================================================================== -->
+    <section id="tab-content-1" class="space-y-4">
+
+      <!-- KONTROL ÇUBUĞU -->
+      <div class="glass-card p-3.5 flex flex-wrap items-end justify-between gap-3">
+        <div class="flex flex-wrap items-end gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Hedef Sanayi Sektörü (NACE)</label>
+            <select id="t1-sector" onchange="refreshTab1()" class="bg-slate-900 border border-slate-700 text-white text-xs rounded-lg px-3 py-2 focus:border-sky-400 outline-none">
+              <option value="textile">Tekstil & Boyahane (C13-C14)</option>
+              <option value="food">Gıda & İçecek İşleme (C10-C11)</option>
+              <option value="chemical">Kimya, Petrokimya & İlaç (C20-C21)</option>
+              <option value="metal">Metal, Makine & Otomotiv (C24-C29)</option>
+              <option value="semiconductor">Yarı İletken & Elektronik (C26)</option>
+              <option value="energy">Elektrik & Enerji Üretimi (D35)</option>
+              <option value="mining">Madencilik & Taş Ocakçılığı (B05-B09)</option>
+              <option value="general">Genel İmalat Sanayi</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Projeksiyon Yılı</label>
+            <select id="t1-year" onchange="refreshTab1()" class="bg-slate-900 border border-slate-700 text-white text-xs rounded-lg px-3 py-2 focus:border-sky-400 outline-none">
+              <option value="baseline">Baseline (Mevcut Gözlem)</option>
+              <option value="2030">2030 (2029 Belge Sonrası Kısa Vade)</option>
+              <option value="2050" selected>2050 (Orta-Uzun Vadeli Tesis Ömrü)</option>
+              <option value="2080">2080 (Uzun Vadeli Stres Testi)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">İklim Senaryosu (CMIP6 / Aqueduct)</label>
+            <select id="t1-scenario" onchange="refreshTab1()" class="bg-slate-900 border border-slate-700 text-white text-xs rounded-lg px-3 py-2 focus:border-sky-400 outline-none">
+              <option value="BAU" selected>Normal / Mevcut Eğilim (BAU / SSP2-4.5)</option>
+              <option value="PES">Kötümser / Yüksek Emisyon (PES / SSP3-7.0)</option>
+              <option value="OPT">İyimser / Sürdürülebilir (OPT / SSP1-2.6)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Odak OSB / Sanayi Bölgesi</label>
+            <select id="t1-osb" onchange="onSelectOSBFromDropdown()" class="bg-slate-900 border border-sky-600/60 text-sky-200 text-xs font-semibold rounded-lg px-3 py-2 focus:border-sky-400 outline-none">
+              <option value="izmir_kemalpasa" selected>İzmir Kemalpaşa OSB (KOSBİ) — Gediz</option>
+              <option value="manisa_osb">Manisa OSB (MOSB) — Gediz</option>
+              <option value="izmir_aliaga">İzmir Aliağa OSB (ALOSBİ) — Kuzey Ege</option>
+              <option value="izmir_iaosb">İzmir Atatürk OSB (Çiğli) — Gediz Deltası</option>
+              <option value="bursa_osb">Bursa OSB (BOSB) — Susurluk/Nilüfer</option>
+              <option value="konya_osb">Konya OSB (KOS) — Konya Kapalı Havzası</option>
+              <option value="adana_osb">Adana Hacı Sabancı OSB — Seyhan</option>
+              <option value="gaziantep_osb">Gaziantep OSB (GAOSB) — Fırat</option>
+              <option value="ankara_aso1">Ankara ASO 1. OSB (Sincan) — Sakarya</option>
+              <option value="kocaeli_gosb">Kocaeli Gebze OSB (GOSB) — Marmara</option>
+              <option value="denizli_osb">Denizli OSB — Büyük Menderes</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="transferLocationToTab2()" class="bg-gradient-to-r from-teal-500 to-sky-600 hover:from-teal-400 hover:to-sky-500 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg shadow-md transition">
+            Bu Lokasyonu Sekme 2'de (Fabrika ROI) Simüle Et →
+          </button>
+        </div>
+      </div>
+
+      <!-- COĞRAFİ SINIR KORUMASI UYARI KUTUSU (EDGE-CASE #1) -->
+      <div id="t1-boundary-alert" class="hidden bg-amber-950/80 border border-amber-500/60 text-amber-200 px-4 py-2.5 rounded-lg text-xs flex items-center justify-between">
+        <span id="t1-boundary-alert-text"></span>
+        <button onclick="document.getElementById('t1-boundary-alert').classList.add('hidden')" class="text-amber-300 font-bold ml-4">Kapat ✕</button>
+      </div>
+
+      <!-- HARİTA + ŞEFFAF RİSK KIRILIMI (ÜST İKİLİ PANEL) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+        <!-- SOL 7 SÜTUN: ETKİLEŞİMLİ TÜRKİYE 639 ALT-HAVZA HARİTASI -->
+        <div class="lg:col-span-7 glass-card p-3.5 flex flex-col">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <div>
+              <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>Türkiye 639 Hidrolojik Alt-Havza Su Stresi & OSB Risk Haritası</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono">WRI Aqueduct 4.0 GDB (string_id)</span>
+              </h2>
+              <p class="text-[11px] text-slate-400">
+                Herhangi bir alt-havza poligonuna veya OSB işaretçisine tıklayarak şeffaf risk kırılımını ve SHAP sürücülerini inceleyin.
+              </p>
+            </div>
+            <!-- Harita Lejantı -->
+            <div class="flex items-center gap-2 text-[10px] font-semibold">
+              <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm inline-block bg-emerald-500"></i>Düşük (&lt;0.4)</span>
+              <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm inline-block bg-yellow-400"></i>Orta (0.4–0.8)</span>
+              <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm inline-block bg-orange-500"></i>Yüksek (0.8–1.4)</span>
+              <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm inline-block bg-red-600"></i>Aşırı (&gt;1.4)</span>
+            </div>
+          </div>
+
+          <div id="turkey-map" class="w-full h-[430px] border border-slate-800"></div>
+
+          <!-- İZSU 5 Baraj Mini Kartları -->
+          <div class="mt-3 pt-2.5 border-t border-slate-800/80">
+            <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1.5">
+              <span class="font-semibold text-sky-300">İZSU 5 Ana Baraj Kesiti (6 Kasım 2026 vs 14 Ekim 2026 — 23 Günlük Değişim & 2025 Karşılaştırması)</span>
+              <span class="text-[10px] text-rose-300">Balçova 23 günde -7,43 puan düştü | Gördes & Balçova üretim: 0 m³/gün</span>
+            </div>
+            <div id="izsu-dams-strip" class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs"></div>
+          </div>
+        </div>
+
+        <!-- SAĞ 5 SÜTUN: ŞEFFAF BİLEŞİK RİSK İNDEKSİ & BİLEŞEN KIRILIMI -->
+        <div class="lg:col-span-5 glass-card p-4 flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-start justify-between gap-2 border-b border-slate-800 pb-3">
+              <div>
+                <span id="t1-loc-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-sky-500/20 text-sky-300">
+                  Havza #211056 · string_id: 211056-TUR.41_1-1272
+                </span>
+                <h2 id="t1-loc-title" class="text-base font-extrabold text-white mt-1">
+                  İzmir Kemalpaşa OSB (KOSBİ)
+                </h2>
+                <p id="t1-archetype-label" class="text-[11px] text-teal-300 font-medium mt-0.5">
+                  Arketip C — Aşırı Yeraltı Suyu Çöküşü & Yaz Pik Kriz Havzası
+                </p>
+              </div>
+              <div class="text-right">
+                <div class="text-[10px] uppercase text-slate-400 font-semibold">Şeffaf Bileşik Risk</div>
+                <div class="flex items-baseline justify-end gap-1">
+                  <span id="t1-risk-score" class="text-3xl font-black text-rose-400">78.4</span>
+                  <span class="text-xs text-slate-400">/ 100</span>
+                </div>
+                <span id="t1-risk-cat" class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">
+                  Çok Yüksek / Kritik Risk
+                </span>
+              </div>
+            </div>
+
+            <!-- Beklenen Yıllık Kısıt/Kesinti Günü (P10 / P50 / P90) -->
+            <div class="grid grid-cols-3 gap-2 my-3 bg-slate-950/75 p-2.5 rounded-lg border border-slate-800">
+              <div class="text-center">
+                <div class="text-[10px] text-emerald-400 font-semibold">P10 (İyimser Yıl)</div>
+                <div id="t1-days-p10" class="text-base font-extrabold text-white">15.2 gün/yıl</div>
+                <div class="text-[10px] text-slate-500">Kısıt / Kesinti</div>
+              </div>
+              <div class="text-center border-x border-slate-800">
+                <div class="text-[10px] text-amber-400 font-bold">P50 (Beklenen Medyan)</div>
+                <div id="t1-days-p50" class="text-lg font-black text-amber-300">29.3 gün/yıl</div>
+                <div class="text-[10px] text-slate-400">Yıllık Tahsis Kısıtı</div>
+              </div>
+              <div class="text-center">
+                <div class="text-[10px] text-rose-400 font-semibold">P90 (Kurak Kriz Yılı)</div>
+                <div id="t1-days-p90" class="text-base font-extrabold text-rose-400">53.7 gün/yıl</div>
+                <div class="text-[10px] text-slate-500">%62,9 Gediz Kesintisi</div>
+              </div>
+            </div>
+
+            <!-- 5 Bileşenin Şeffaf Ağırlık ve Katkı Kırılımı -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-xs font-bold text-sky-300 uppercase tracking-wider">
+                  Şeffaf Risk İndeksi Ağırlık Kırılımı (Kara Kutu Değil!)
+                </h3>
+                <span class="text-[10px] text-slate-400">Toplam = 100 Puan</span>
+              </div>
+              <div id="t1-components-list" class="space-y-2.5"></div>
+            </div>
+          </div>
+
+          <!-- Fiziksel Gösterge Özeti -->
+          <div class="pt-2 border-t border-slate-800/80 grid grid-cols-4 gap-2 text-[11px]">
+            <div class="bg-slate-950/60 p-2 rounded">
+              <span class="text-slate-400 block text-[10px]">Yıllık Su Stresi</span>
+              <b id="t1-ind-bws" class="text-white">1.50x</b>
+            </div>
+            <div class="bg-slate-950/60 p-2 rounded">
+              <span class="text-slate-400 block text-[10px]">Yaz Pik Stresi</span>
+              <b id="t1-ind-summer" class="text-amber-300">2.38x</b>
+            </div>
+            <div class="bg-slate-950/60 p-2 rounded">
+              <span class="text-slate-400 block text-[10px]">Yeraltı Düşüşü (gtd)</span>
+              <b id="t1-ind-gtd" class="text-rose-300">0.148 cm/yıl</b>
+            </div>
+            <div class="bg-slate-950/60 p-2 rounded">
+              <span class="text-slate-400 block text-[10px]">SPEI-12 Eğimi</span>
+              <b id="t1-ind-spei" class="text-sky-300">-0.34 /10yıl</b>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALT İKİLİ PANEL: SHAP AÇIKLANABİLİRLİK + CMIP6 P10-P50-P90 SU DENGESİ ZAMAN SERİSİ -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+        <!-- SOL 6 SÜTUN: XGBOOST + SHAP MEVSİMSEL ÖLÇEK İNDİRME (DOWNSCALER) -->
+        <div class="lg:col-span-6 glass-card p-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <div>
+              <h3 class="text-sm font-bold text-white">
+                XGBoost Mevsimsel Ölçek İndirme (Annual→Monthly Peak Downscaler) & SHAP
+              </h3>
+              <p class="text-[11px] text-slate-400">
+                116 TR havzası × 12 ay = 1.392 gerçek gözlem | 5-Katlı <code class="text-sky-300">GroupKFold(groups=pfaf_id)</code> (Mekânsal sızıntı = 0)
+              </p>
+            </div>
+            <span id="t1-shap-latency" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
+              SHAP: 3.2 ms
+            </span>
+          </div>
+
+          <!-- Model Doğrulama Karşılaştırma Şeridi -->
+          <div class="grid grid-cols-3 gap-2 mb-3 text-[11px] bg-slate-950/80 p-2 rounded-lg border border-slate-800">
+            <div>
+              <span class="text-slate-400 block text-[10px]">1. Naive (Kaba Yıllık)</span>
+              <span class="font-bold text-slate-300">MAE: 0.4789 | R²: -0.004</span>
+            </div>
+            <div class="border-x border-slate-800 px-2">
+              <span class="text-slate-400 block text-[10px]">2. Ridge Regresyon</span>
+              <span class="font-bold text-sky-300">MAE: 0.2940 | R²: 0.630</span>
+            </div>
+            <div class="pl-1">
+              <span class="text-emerald-400 font-bold block text-[10px]">3. XGBoost Downscaler</span>
+              <span class="font-extrabold text-emerald-300">MAE: 0.1534 | R²: 0.796 (-%68 Hata)</span>
+            </div>
+          </div>
+
+          <div class="h-[220px]">
+            <canvas id="chart-shap"></canvas>
+          </div>
+        </div>
+
+        <!-- SAĞ 6 SÜTUN: 7 CMIP6 MODELİ P10-P50-P90 İKLİM SU DENGESİ (P - ET0) -->
+        <div class="lg:col-span-6 glass-card p-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <div>
+              <h3 class="text-sm font-bold text-white">
+                7 CMIP6 İklim Modeli Topluluğu Su Dengesi (P − ET₀, 2026–2050)
+              </h3>
+              <p class="text-[11px] text-slate-400">
+                FAO-56 / Hargreaves-Samani <code class="text-sky-300">ET₀</code> + <code class="text-teal-300">Quantile Delta Mapping (QDM)</code> ERA5 Dağılımsal Kalibrasyonu
+              </p>
+            </div>
+            <span id="t1-cmip-agreement" class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">
+              Model Mutabakatı: %85.7 (6/7 Model Kuraklaşma Yönünde)
+            </span>
+          </div>
+
+          <div class="h-[255px]">
+            <canvas id="chart-climate"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADAY LOKASYON (OSB) KARŞILAŞTIRMA TABLOSU VE ÖNERİ BANNER'I -->
+      <div class="glass-card p-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <h3 class="text-sm font-bold text-white">
+              Aday OSB / Yatırım Lokasyonu Karşılaştırma Tablosu ve Karar Önerisi
+            </h3>
+            <p id="t1-recommendation-banner" class="text-xs text-emerald-300 font-semibold mt-1"></p>
+          </div>
+          <span class="text-[11px] text-slate-400">En düşük riskten en yüksek riske sıralanmıştır</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 text-[11px] uppercase">
+                <th class="py-2 px-3">Güvenlik Sırası</th>
+                <th class="py-2 px-3">OSB / Sanayi Bölgesi</th>
+                <th class="py-2 px-3">Hidrolojik Havza (pfaf_id)</th>
+                <th class="py-2 px-3">Şeffaf Bileşik Risk (0–100)</th>
+                <th class="py-2 px-3">Beklenen Kesinti (P10 / P50 / P90)</th>
+                <th class="py-2 px-3">Yeraltı Düşüşü (gtd)</th>
+                <th class="py-2 px-3">Kuraklık Tahsis Kesintisi</th>
+                <th class="py-2 px-3">Aksiyon</th>
+              </tr>
+            </thead>
+            <tbody id="t1-osb-table-body" class="divide-y divide-slate-800/60"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- SEKME 2: MEVCUT FABRİKA RİSK & ROI SİMÜLATÖRÜ (2029 BELGESİ + KNAPSACK) -->
+    <!-- =================================================================== -->
+    <section id="tab-content-2" class="hidden space-y-4">
+
+      <!-- ÖRNEK TESİS VERİSİ YÜKLEME ŞERİDİ (AÇIK ŞEMA v1.0 — TİCARİ BAĞIMSIZ) -->
+      <div class="glass-card p-3.5 flex flex-wrap items-center justify-between gap-3 border-l-4 border-l-teal-400">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-extrabold text-white uppercase tracking-wide">
+              Hızlı Senaryo & Açık Tesis Şeması (`data/schema/facility.schema.json`)
+            </span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 font-semibold">
+              Ticari Platformlardan Bağımsız · ISO 14046 & SYGM Eşlenebilir
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-0.5">
+            SYGM NACE rehberlerine uyumlu örnek tesis profillerini tek tıkla yükleyin veya kendi fabrika değerlerinizi girin:
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="loadSampleFacility('kemalpasa_textile')" class="bg-sky-600/30 hover:bg-sky-600/50 border border-sky-400/50 text-sky-200 text-xs font-bold px-3 py-2 rounded-lg transition">
+            Örnek Tesis Yükle #1: Kemalpaşa Tekstil (150.000 m³ · Şebeke)
+          </button>
+          <button onclick="loadSampleFacility('manisa_food')" class="bg-amber-600/25 hover:bg-amber-600/45 border border-amber-400/50 text-amber-200 text-xs font-bold px-3 py-2 rounded-lg transition">
+            Örnek Tesis Yükle #2: Manisa Gıda (220.000 m³ · Kendi Kuyusu)
+          </button>
+          <button onclick="loadSampleFacility('aliaga_chemical')" class="bg-teal-600/25 hover:bg-teal-600/45 border border-teal-400/50 text-teal-200 text-xs font-bold px-3 py-2 rounded-lg transition">
+            Örnek Tesis Yükle #3: Aliağa Kimya (310.000 m³ · Karma)
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+        <!-- SOL 4 SÜTUN: FABRİKA PARAMETRE GİRDİ FORMU -->
+        <div class="lg:col-span-4 glass-card p-4 space-y-3">
+          <h2 class="text-sm font-extrabold text-white border-b border-slate-800 pb-2">
+            Tesis Su Envanteri & Yatırım Kısıtları
+          </h2>
+
+          <div>
+            <label class="block text-[11px] text-slate-400 font-semibold mb-1">Fabrika / Tesis Adı</label>
+            <input id="t2-name" type="text" value="EgeDokuma Tekstil Terbiye & Boyahane A.Ş. (Kemalpaşa OSB)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-[11px] text-slate-400 font-semibold mb-1">OSB / Lokasyon</label>
+              <select id="t2-osb" onchange="runROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                <option value="izmir_kemalpasa" selected>İzmir Kemalpaşa OSB</option>
+                <option value="manisa_osb">Manisa OSB</option>
+                <option value="izmir_aliaga">İzmir Aliağa OSB</option>
+                <option value="izmir_iaosb">İzmir Atatürk OSB</option>
+                <option value="bursa_osb">Bursa OSB</option>
+                <option value="konya_osb">Konya OSB</option>
+                <option value="adana_osb">Adana Hacı Sabancı OSB</option>
+                <option value="gaziantep_osb">Gaziantep OSB</option>
+                <option value="ankara_aso1">Ankara ASO 1. OSB</option>
+                <option value="kocaeli_gosb">Kocaeli Gebze OSB</option>
+                <option value="denizli_osb">Denizli OSB</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 font-semibold mb-1">Sektör (SYGM NACE)</label>
+              <select id="t2-sector" onchange="runROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                <option value="textile" selected>Tekstil & Boyahane (C13)</option>
+                <option value="food">Gıda & İçecek (C10)</option>
+                <option value="chemical">Kimya & Polimer (C20)</option>
+                <option value="metal">Metal & Otomotiv (C24-29)</option>
+                <option value="semiconductor">Yarı İletken & Elektronik</option>
+                <option value="energy">Elektrik & Enerji</option>
+                <option value="mining">Madencilik</option>
+                <option value="general">Genel İmalat</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-[11px] text-slate-400 font-semibold mb-1">Yıllık Su Çekimi (m³/yıl)</label>
+              <input id="t2-water" type="number" min="1000" step="5000" value="150000" onchange="runROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-bold" />
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 font-semibold mb-1">Çalışan Sayısı (50+ Zorunlu)</label>
+              <input id="t2-emp" type="number" min="1" step="10" value="320" onchange="runROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] text-sky-300 font-bold mb-1">Su Temin Kaynağı (Şebeke vs Yeraltı Kuyusu Ayrımı)</label>
+            <select id="t2-source" onchange="runROISimulation()" class="w-full bg-slate-900 border border-sky-500/60 rounded-lg px-3 py-2 text-xs text-white font-semibold">
+              <option value="izsu_grid" selected>İZSU Sanayi (1c) Şebeke Suyu — 403,79 TL/m³</option>
+              <option value="groundwater_well">Kendi Yeraltı Kuyusu — 24,80 TL/m³ Pompaj + %62,9 Tahsis Kesintisi Riski!</option>
+              <option value="osb_grid">OSB Merkezi Şebeke Suyu — 118,50 TL/m³</option>
+              <option value="hybrid">Karma Kaynak (%60 Şebeke + %40 Yeraltı Kuyusu)</option>
+            </select>
+            <p id="t2-source-note" class="text-[10px] text-amber-300 mt-1"></p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-[11px] text-rose-300 font-bold mb-1">1 Günlük Üretim Durma Zararı (TL)</label>
+              <input id="t2-downtime" type="number" min="0" step="50000" value="750000" onchange="runROISimulation()" class="w-full bg-slate-900 border border-rose-500/50 rounded-lg px-3 py-1.5 text-xs text-white font-bold" />
+            </div>
+            <div>
+              <label class="block text-[11px] text-emerald-300 font-bold mb-1">Maksimum Yatırım Bütçesi (CAPEX TL)</label>
+              <input id="t2-budget" type="number" min="0" step="100000" value="3500000" onchange="runROISimulation()" class="w-full bg-slate-900 border border-emerald-500/60 rounded-lg px-3 py-1.5 text-xs text-emerald-200 font-extrabold" />
+            </div>
+          </div>
+
+          <!-- Proses Su Dağılımı (%) -->
+          <div class="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
+            <div class="flex items-center justify-between text-[11px] text-slate-300 font-semibold mb-1.5">
+              <span>Proses Bazlı Su Dağılımı (%)</span>
+              <span class="text-[10px] text-slate-400">Azalan verim: 1 − ∏(1 − rᵢ) ≤ %78</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1.5 text-[11px]">
+              <div>
+                <label class="text-[10px] text-slate-400 block">Soğutma %</label>
+                <input id="t2-p-cool" type="number" value="22" onchange="runROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-center" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block">Proses %</label>
+                <input id="t2-p-proc" type="number" value="58" onchange="runROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-center" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block">Kazan %</label>
+                <input id="t2-p-boil" type="number" value="14" onchange="runROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-center" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block">Evsel %</label>
+                <input id="t2-p-dom" type="number" value="6" onchange="runROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-center" />
+              </div>
+            </div>
+          </div>
+
+          <button onclick="runROISimulation()" class="w-full bg-gradient-to-r from-sky-500 to-teal-500 hover:from-sky-400 hover:to-teal-400 text-slate-950 font-black text-xs py-2.5 rounded-lg shadow-lg transition">
+            0-1 Knapsack Portföy Optimizasyonunu Çalıştır
+          </button>
+
+          <!-- Dışa Aktarım Butonları -->
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <button onclick="downloadReport('json')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-sky-300 text-xs font-bold py-2 rounded-lg transition">
+              ⬇ JSON İndir (Açık Şema)
+            </button>
+            <button onclick="downloadReport('csv')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-teal-300 text-xs font-bold py-2 rounded-lg transition">
+              ⬇ CSV İndir (Envanter)
+            </button>
+          </div>
+        </div>
+
+        <!-- SAĞ 8 SÜTUN: DO-NOTHING MALİYETİ + 2029 BELGESİ + KNAPSACK PORTFÖY + NAKİT AKIŞI -->
+        <div class="lg:col-span-8 space-y-4">
+
+          <!-- ÜST METRİK KARTLARI (4 KART) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+            <!-- Kart 1: Hiçbir Şey Yapmama (Do-Nothing) Yıllık Riski -->
+            <div class="glass-card p-3.5 border-t-4 border-t-rose-500">
+              <div class="text-[11px] font-bold text-rose-300 uppercase">Hiçbir Şey Yapmama Maliyeti</div>
+              <div id="t2-dn-total" class="text-xl font-black text-white mt-1">76.69 Milyon TL/yıl</div>
+              <div id="t2-dn-band" class="text-[10px] text-slate-400 mt-0.5">P10: 68.97M – P90: 90.04M TL</div>
+              <div id="t2-dn-breakdown" class="text-[10px] text-rose-300 mt-1.5 pt-1.5 border-t border-slate-800">
+                Su Faturası: 60.57M + Duruş: 16.13M TL
+              </div>
+            </div>
+
+            <!-- Kart 2: Net Çarpımsal Su Tasarrufu -->
+            <div class="glass-card p-3.5 border-t-4 border-t-sky-400">
+              <div class="text-[11px] font-bold text-sky-300 uppercase">Net Çarpımsal Su Tasarrufu</div>
+              <div id="t2-saved-m3" class="text-xl font-black text-white mt-1">79,920 m³/yıl</div>
+              <div id="t2-saved-pct" class="text-xs font-extrabold text-sky-300 mt-0.5">%53.28 Azalan Verimli Tasarruf</div>
+              <div id="t2-avoided-days" class="text-[10px] text-slate-400 mt-1.5 pt-1.5 border-t border-slate-800">
+                Önlenen Üretim Duruşu: 13.2 gün/yıl
+              </div>
+            </div>
+
+            <!-- Kart 3: 5 Yıllık NPV & Geri Ödeme (Payback) -->
+            <div class="glass-card p-3.5 border-t-4 border-t-emerald-400">
+              <div class="text-[11px] font-bold text-emerald-300 uppercase">5 Yıllık NPV & Geri Ödeme</div>
+              <div id="t2-npv" class="text-xl font-black text-emerald-300 mt-1">+128.95 Milyon TL</div>
+              <div id="t2-payback" class="text-xs font-extrabold text-white mt-0.5">Geri Ödeme: 1.0 Ay</div>
+              <div id="t2-annual-benefit" class="text-[10px] text-slate-400 mt-1.5 pt-1.5 border-t border-slate-800">
+                Yıllık Net Kazanç: 42.29M TL/yıl
+              </div>
+            </div>
+
+            <!-- Kart 4: 27 Aralık 2029 Su Verimliliği Belgesi Kademesi -->
+            <div class="glass-card p-3.5 border-t-4 border-t-cyan-400">
+              <div class="text-[11px] font-bold text-cyan-300 uppercase">27.12.2029 Yasal Belge Uyumu</div>
+              <div id="t2-cert-tier" class="text-base font-black text-cyan-300 mt-1">Turkuaz Su Verimliliği Belgesi</div>
+              <div id="t2-cert-status" class="text-[10px] text-emerald-300 font-semibold mt-0.5">
+                ÜSTÜN UYUM (RG 32765 Zorunluluğu Aşıldı)
+              </div>
+              <div class="text-[10px] text-slate-400 mt-1.5 pt-1.5 border-t border-slate-800">
+                Yeşil Eşik: %15 | Turkuaz Eşik: %30
+              </div>
+            </div>
+          </div>
+
+          <!-- DÜŞÜK BÜTÇE UYARI KUTUSU (EDGE-CASE #6) -->
+          <div id="t2-low-budget-alert" class="hidden bg-amber-950/80 border border-amber-500/60 text-amber-200 px-4 py-2.5 rounded-lg text-xs"></div>
+
+          <!-- OPTİMUM ÖNLEM PORTFÖYÜ TABLOSU -->
+          <div class="glass-card p-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+              <div>
+                <h3 class="text-sm font-bold text-white">
+                  Bütçe Kısıtlı Optimum Önlem Portföyü (SYGM NACE MET & IFC Kataloğu)
+                </h3>
+                <p id="t2-solver-info" class="text-[11px] text-slate-400">
+                  0-1 Knapsack Kesin Çözümü · Toplam CAPEX: 3,460,000 TL (%98.9 bütçe kullanımı)
+                </p>
+              </div>
+              <div id="t2-process-rates-pills" class="flex flex-wrap gap-1.5 text-[10px]"></div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="border-b border-slate-800 text-slate-400 text-[11px] uppercase">
+                    <th class="py-2 px-2.5">Kod</th>
+                    <th class="py-2 px-2.5">Endüstriyel Su Verimliliği Önlemi (MET)</th>
+                    <th class="py-2 px-2.5">Hedef Proses</th>
+                    <th class="py-2 px-2.5">Proses Tasarrufu</th>
+                    <th class="py-2 px-2.5">CAPEX (TL)</th>
+                    <th class="py-2 px-2.5">OPEX Etkisi/yıl</th>
+                    <th class="py-2 px-2.5">Geri Ödeme</th>
+                  </tr>
+                </thead>
+                <tbody id="t2-measures-tbody" class="divide-y divide-slate-800/60"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ALT İKİLİ PANEL: 5 YILLIK NAKİT AKIŞI GRAFİĞİ + GEMINI / DETERMİNİSTİK YÖNETİM KURULU ÖZETİ -->
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-4">
+            <div class="xl:col-span-6 glass-card p-4">
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-1">
+                5 Yıllık Kümülatif Nakit Akışı & Başabaş (Payback) Analizi
+              </h3>
+              <p class="text-[11px] text-slate-400 mb-2">
+                Optimum Yatırım Portföyü Net Nakit Akışı vs Hiçbir Şey Yapmama Kümülatif Zararı (TL)
+              </p>
+              <div class="h-[230px]">
+                <canvas id="chart-cashflow"></canvas>
+              </div>
+            </div>
+
+            <div class="xl:col-span-6 glass-card p-4 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-2">
+                  <h3 class="text-xs font-bold text-teal-300 uppercase tracking-wider">
+                    Yönetim Kurulu & Yeşil Kredi Komitesi Karar Özeti
+                  </h3>
+                  <span id="t2-llm-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-500/20 text-teal-300">
+                    STRICT_JSON_LOCKED
+                  </span>
+                </div>
+                <div id="t2-exec-summary-box" class="text-xs text-slate-200 space-y-2 max-h-[210px] overflow-y-auto pr-1 leading-relaxed bg-slate-950/60 p-3 rounded-lg border border-slate-800"></div>
+              </div>
+
+              <div class="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px]">
+                <span class="text-slate-400">Sayı uydurma koruması aktif (Yalnızca doğrulanmış JSON rakamları)</span>
+                <button onclick="requestOnlineGeminiSummary()" class="text-sky-300 hover:text-sky-200 font-bold underline">
+                  Özeti Yenile ↻
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let mapInstance = null;
+    let geojsonLayer = null;
+    let osbMarkersLayer = null;
+    let shapChart = null;
+    let climateChart = null;
+    let cashflowChart = null;
+    let currentTab = 1;
+    let currentSelectedOSB = "izmir_kemalpasa";
+    let lastSimResult = null;
+
+    function fmtNum(n, dec = 0) {
+      if (n === null || n === undefined || isNaN(n)) return "-";
+      return Number(n).toLocaleString("tr-TR", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    }
+
+    function fmtMillionsTL(n) {
+      const m = Number(n) / 1e6;
+      return `${fmtNum(m, 2)} Milyon TL`;
+    }
+
+    function wsColor(ws) {
+      const v = Number(ws || 0);
+      if (v >= 1.4) return "#dc2626";
+      if (v >= 0.8) return "#f97316";
+      if (v >= 0.4) return "#facc15";
+      return "#10b981";
+    }
+
+    function switchTab(tabNum) {
+      currentTab = tabNum;
+      const t1 = document.getElementById("tab-content-1");
+      const t2 = document.getElementById("tab-content-2");
+      const b1 = document.getElementById("btn-tab-1");
+      const b2 = document.getElementById("btn-tab-2");
+      if (tabNum === 1) {
+        t1.classList.remove("hidden");
+        t2.classList.add("hidden");
+        b1.className = "tab-active px-4 py-2 rounded-lg text-xs md:text-sm font-bold border transition-all";
+        b2.className = "tab-inactive px-4 py-2 rounded-lg text-xs md:text-sm font-bold border transition-all";
+        if (mapInstance) setTimeout(() => mapInstance.invalidateSize(), 120);
+      } else {
+        t1.classList.add("hidden");
+        t2.classList.remove("hidden");
+        b2.className = "tab-active px-4 py-2 rounded-lg text-xs md:text-sm font-bold border transition-all";
+        b1.className = "tab-inactive px-4 py-2 rounded-lg text-xs md:text-sm font-bold border transition-all";
+        runROISimulation();
+      }
+    }
+
+    function transferLocationToTab2() {
+      const osbVal = document.getElementById("t1-osb").value;
+      const secVal = document.getElementById("t1-sector").value;
+      document.getElementById("t2-osb").value = osbVal;
+      document.getElementById("t2-sector").value = secVal;
+      switchTab(2);
+    }
+
+    async function loadIZSUBanner() {
+      try {
+        const res = await fetch("/api/izsu-live");
+        const data = await res.json();
+        const hm = data.headline_metrics;
+        document.getElementById("hdr-weighted-occ").textContent = `%${fmtNum(hm.capacity_weighted_occupancy_pct, 2)}`;
+        document.getElementById("hdr-gordes-occ").textContent = `%${fmtNum(hm.gordes_occupancy_pct, 2)}`;
+
+        const strip = document.getElementById("izsu-dams-strip");
+        strip.innerHTML = data.dams.map(d => {
+          const deltaColor = d.delta_23d_pct_points <= -5 ? "text-rose-400" : "text-amber-300";
+          return `
+            <div class="bg-slate-950/80 p-2 rounded border border-slate-800">
+              <div class="font-bold text-white truncate" title="${d.name}">${d.name.replace(" Barajı", "")}</div>
+              <div class="flex items-baseline justify-between mt-0.5">
+                <span class="text-sm font-extrabold text-sky-300">%${fmtNum(d.occupancy_pct, 2)}</span>
+                <span class="text-[10px] ${deltaColor} font-bold">${d.delta_23d_pct_points > 0 ? "+" : ""}${fmtNum(d.delta_23d_pct_points, 2)}p (23g)</span>
+              </div>
+              <div class="text-[10px] text-slate-400 mt-0.5">
+                Geçen Yıl: <b>%${fmtNum(d.last_year_occupancy_pct, 2)}</b> | Kap: %${fmtNum(d.capacity_share_pct, 1)}
+              </div>
+            </div>
+          `;
+        }).join("");
+      } catch (e) {
+        console.error("IZSU yükleme hatası:", e);
+      }
+    }
+
+    async function initMapAndBasins() {
+      if (!mapInstance) {
+        mapInstance = L.map("turkey-map", { center: [38.9, 34.8], zoom: 6, minZoom: 5, maxZoom: 11 });
+        L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+          attribution: "&copy; OpenStreetMap & CartoDB | WRI Aqueduct 4.0"
+        }).addTo(mapInstance);
+
+        mapInstance.on("click", async (ev) => {
+          const { lat, lng } = ev.latlng;
+          await predictLocation({ lat, lon: lng });
+        });
+      }
+      await loadBasinsLayer();
+    }
+
+    async function loadBasinsLayer() {
+      const sector = document.getElementById("t1-sector").value;
+      const year = document.getElementById("t1-year").value;
+      const scenario = document.getElementById("t1-scenario").value;
+
+      const res = await fetch(`/api/basins?sector=${sector}&year=${year}&scenario=${scenario}`);
+      const data = await res.json();
+      const wsCol = data.metadata.active_ws_column;
+
+      if (geojsonLayer) mapInstance.removeLayer(geojsonLayer);
+      if (osbMarkersLayer) mapInstance.removeLayer(osbMarkersLayer);
+
+      geojsonLayer = L.geoJSON(data.features, {
+        style: (feature) => {
+          const wsVal = feature.properties[wsCol] ?? feature.properties.bws_raw ?? 0.5;
+          return {
+            fillColor: wsColor(wsVal),
+            weight: 0.7,
+            opacity: 0.85,
+            color: "#1e293b",
+            fillOpacity: 0.62
+          };
+        },
+        onEachFeature: (feature, layer) => {
+          const p = feature.properties;
+          const wsVal = p[wsCol] ?? p.bws_raw ?? 0.5;
+          layer.bindTooltip(
+            `<div class="text-xs"><b>${p.name_1 || "Türkiye"} — Havza #${p.pfaf_id}</b><br/>` +
+            `Kimlik: <code>${p.string_id}</code><br/>` +
+            `Su Stresi (${year} ${scenario}): <b>${fmtNum(wsVal, 2)}x</b> | Yaz Pik: <b>${fmtNum(p.summer_bws_raw, 2)}x</b></div>`,
+            { sticky: true }
+          );
+          layer.on("click", (ev) => {
+            L.DomEvent.stopPropagation(ev);
+            predictLocation({ string_id: p.string_id });
+          });
+        }
+      }).addTo(mapInstance);
+
+      osbMarkersLayer = L.layerGroup().addTo(mapInstance);
+      (data.osb_markers || []).forEach(o => {
+        const marker = L.circleMarker([o.lat, o.lon], {
+          radius: 7,
+          fillColor: "#38bdf8",
+          color: "#ffffff",
+          weight: 2,
+          fillOpacity: 0.95
+        });
+        marker.bindTooltip(`<b>🏭 ${o.name}</b><br/>Havza #${o.pfaf_id} | Kuyu Bağımlılığı: %${o.groundwater_dependency_pct}`);
+        marker.on("click", (ev) => {
+          L.DomEvent.stopPropagation(ev);
+          document.getElementById("t1-osb").value = o.osb_id;
+          predictLocation({ osb_id: o.osb_id });
+        });
+        marker.addTo(osbMarkersLayer);
+      });
+    }
+
+    async function predictLocation(params = {}) {
+      const sector = document.getElementById("t1-sector").value;
+      const year = document.getElementById("t1-year").value;
+      const scenario = document.getElementById("t1-scenario").value;
+      const payload = {
+        sector,
+        year,
+        scenario,
+        osb_id: params.osb_id || currentSelectedOSB,
+        string_id: params.string_id || null,
+        lat: params.lat ?? null,
+        lon: params.lon ?? null
+      };
+
+      const res = await fetch("/api/predict-location", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      // Coğrafi Sınır Koruması (Edge-Case #1)
+      const alertBox = document.getElementById("t1-boundary-alert");
+      if (!data.inside_turkey && data.boundary_warning) {
+        alertBox.classList.remove("hidden");
+        document.getElementById("t1-boundary-alert-text").textContent = "⚠️ " + data.boundary_warning;
+      } else {
+        alertBox.classList.add("hidden");
+      }
+
+      const r = data.transparent_risk;
+      const shapData = data.xgboost_shap_explanation;
+      const osb = data.selected_osb;
+      currentSelectedOSB = osb.osb_id;
+
+      document.getElementById("t1-loc-badge").textContent = `Havza #${r.pfaf_id} · string_id: ${r.string_id}`;
+      document.getElementById("t1-loc-title").textContent = params.string_id || params.lat
+        ? `${r.province_name} Alt-Havzası (#${r.pfaf_id}) — En Yakın OSB: ${osb.name}`
+        : osb.name;
+      document.getElementById("t1-archetype-label").textContent = shapData.archetype.archetype_label;
+
+      document.getElementById("t1-risk-score").textContent = fmtNum(r.composite_risk_score, 1);
+      document.getElementById("t1-risk-cat").textContent = r.risk_category;
+
+      document.getElementById("t1-days-p10").textContent = `${fmtNum(r.expected_cutback_days.p10, 1)} gün/yıl`;
+      document.getElementById("t1-days-p50").textContent = `${fmtNum(r.expected_cutback_days.p50, 1)} gün/yıl`;
+      document.getElementById("t1-days-p90").textContent = `${fmtNum(r.expected_cutback_days.p90, 1)} gün/yıl`;
+
+      document.getElementById("t1-ind-bws").textContent = `${fmtNum(r.indicators.projected_annual_ws_raw, 2)}x`;
+      document.getElementById("t1-ind-summer").textContent = `${fmtNum(r.indicators.projected_summer_peak_ws_raw, 2)}x`;
+      document.getElementById("t1-ind-gtd").textContent = `${fmtNum(r.indicators.gtd_raw, 3)} cm/yıl`;
+      document.getElementById("t1-ind-spei").textContent = `${fmtNum(r.indicators.spei12_decadal_trend, 2)} /10yıl`;
+
+      // Şeffaf 5 bileşen listesi
+      const compContainer = document.getElementById("t1-components-list");
+      compContainer.innerHTML = r.component_breakdown.map(c => {
+        const pct = Math.min(100, Math.round((c.points / c.weight_max) * 100));
+        return `
+          <div class="bg-slate-950/60 p-2 rounded border border-slate-800/80">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold text-slate-200">${c.label}</span>
+              <span class="font-extrabold text-sky-300">+${fmtNum(c.points, 1)} / ${fmtNum(c.weight_max, 0)} puan</span>
+            </div>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full my-1 overflow-hidden">
+              <div class="bg-gradient-to-r from-sky-400 to-rose-500 h-1.5 rounded-full" style="width:${pct}%"></div>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-slate-400">
+              <span>Gösterge: ${c.raw_indicator}</span>
+              <span class="font-mono text-slate-500">${c.formula_note}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // SHAP Grafiği
+      document.getElementById("t1-shap-latency").textContent = `SHAP: ${fmtNum(shapData.inference_latency_ms, 1)} ms`;
+      renderSHAPChart(shapData.top_drivers);
+
+      // CMIP6 Su Dengesi Grafiği
+      const cwb = data.climate_water_balance_2026_2050;
+      if (cwb && cwb.years) {
+        document.getElementById("t1-cmip-agreement").textContent =
+          `Model Mutabakatı: %${fmtNum(cwb.drying_agreement_pct, 1)} (${cwb.models_agreeing_count}/${cwb.total_models_count} Model Kuraklaşma Yönünde)`;
+        renderClimateChart(cwb);
+      }
+    }
+
+    function renderSHAPChart(drivers) {
+      const ctx = document.getElementById("chart-shap").getContext("2d");
+      if (shapChart) shapChart.destroy();
+      const labels = drivers.map(d => d.label_tr);
+      const vals = drivers.map(d => d.shap_value);
+      const colors = vals.map(v => v >= 0 ? "rgba(244, 63, 94, 0.85)" : "rgba(16, 185, 129, 0.85)");
+
+      shapChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "Yaz Pik Su Stresi SHAP Katkısı",
+            data: vals,
+            backgroundColor: colors,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { color: "rgba(148,163,184,0.1)" } },
+            y: { ticks: { color: "#e2e8f0", font: { size: 10 } }, grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function renderClimateChart(cwb) {
+      const ctx = document.getElementById("chart-climate").getContext("2d");
+      if (climateChart) climateChart.destroy();
+      climateChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: cwb.years,
+          datasets: [
+            {
+              label: "P90 (İyimser Üst Bant, mm/yıl)",
+              data: cwb.water_balance_p90_mm,
+              borderColor: "rgba(56, 189, 248, 0.5)",
+              borderDash: [4, 4],
+              pointRadius: 0,
+              fill: false
+            },
+            {
+              label: "P50 (7 CMIP6 Model Medyanı P − ET₀, mm/yıl)",
+              data: cwb.water_balance_p50_mm,
+              borderColor: "#38bdf8",
+              backgroundColor: "rgba(56, 189, 248, 0.15)",
+              borderWidth: 2.5,
+              pointRadius: 2,
+              fill: "-1"
+            },
+            {
+              label: "P10 (Kurak Kötümser Alt Bant, mm/yıl)",
+              data: cwb.water_balance_p10_mm,
+              borderColor: "#f43f5e",
+              backgroundColor: "rgba(244, 63, 94, 0.15)",
+              borderWidth: 1.8,
+              pointRadius: 0,
+              fill: "-1"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: "#cbd5e1", font: { size: 10 } } }
+          },
+          scales: {
+            x: { ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { color: "rgba(148,163,184,0.08)" } },
+            y: { ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { color: "rgba(148,163,184,0.1)" } }
+          }
+        }
+      });
+    }
+
+    async function loadOSBComparisonTable() {
+      const sector = document.getElementById("t1-sector").value;
+      const year = document.getElementById("t1-year").value;
+      const scenario = document.getElementById("t1-scenario").value;
+      const res = await fetch(`/api/osb-compare?sector=${sector}&year=${year}&scenario=${scenario}`);
+      const data = await res.json();
+
+      document.getElementById("t1-recommendation-banner").textContent = "✅ " + data.recommendation_summary;
+
+      const tbody = document.getElementById("t1-osb-table-body");
+      tbody.innerHTML = data.rankings.map(row => {
+        const badgeColor = row.composite_risk_score >= 70
+          ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
+          : (row.composite_risk_score >= 50 ? "bg-amber-500/20 text-amber-300 border-amber-500/40" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40");
+        return `
+          <tr class="hover:bg-slate-900/80 transition">
+            <td class="py-2.5 px-3 font-extrabold text-sky-300">#${row.safety_rank}</td>
+            <td class="py-2.5 px-3 font-bold text-white">${row.name}</td>
+            <td class="py-2.5 px-3 text-slate-300">${row.basin_name} <span class="text-slate-500">(#${row.pfaf_id})</span></td>
+            <td class="py-2.5 px-3">
+              <span class="px-2 py-0.5 rounded border font-extrabold ${badgeColor}">${fmtNum(row.composite_risk_score, 1)} / 100</span>
+            </td>
+            <td class="py-2.5 px-3 text-slate-200">
+              <span class="text-emerald-400">${fmtNum(row.expected_cutback_days.p10, 1)}</span> /
+              <b class="text-amber-300">${fmtNum(row.expected_cutback_days.p50, 1)}</b> /
+              <span class="text-rose-400">${fmtNum(row.expected_cutback_days.p90, 1)} gün</span>
+            </td>
+            <td class="py-2.5 px-3 text-slate-300">${fmtNum(row.indicators.gtd_raw, 3)} cm/yıl</td>
+            <td class="py-2.5 px-3 text-rose-300 font-bold">%${fmtNum(row.drought_cutback_risk_pct, 1)}</td>
+            <td class="py-2.5 px-3">
+              <button onclick="selectOSBFromTable('${row.osb_id}')" class="text-[11px] bg-sky-500/20 hover:bg-sky-500/40 text-sky-300 font-bold px-2.5 py-1 rounded">
+                İncele & ROI →
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function selectOSBFromTable(osbId) {
+      document.getElementById("t1-osb").value = osbId;
+      onSelectOSBFromDropdown();
+    }
+
+    async function onSelectOSBFromDropdown() {
+      const osbId = document.getElementById("t1-osb").value;
+      currentSelectedOSB = osbId;
+      await predictLocation({ osb_id: osbId });
+    }
+
+    async function refreshTab1() {
+      await Promise.all([
+        loadBasinsLayer(),
+        predictLocation({ osb_id: document.getElementById("t1-osb").value }),
+        loadOSBComparisonTable()
+      ]);
+    }
+
+    // =====================================================================
+    // SEKME 2 FONKSİYONLARI (MEVCUT FABRİKA ROI & 2029 BELGESİ)
+    // =====================================================================
+    async function loadSampleFacility(profileId) {
+      const res = await fetch(`/api/facility-sample?profile_id=${profileId}`);
+      const data = await res.json();
+      const f = data.facility_data;
+      document.getElementById("t2-name").value = f.facility_name;
+      document.getElementById("t2-osb").value = f.osb_id;
+      document.getElementById("t2-sector").value = f.sector_code;
+      document.getElementById("t2-water").value = f.annual_water_m3;
+      document.getElementById("t2-emp").value = f.employee_count;
+      document.getElementById("t2-source").value = f.water_source;
+      document.getElementById("t2-downtime").value = f.daily_downtime_cost_tl;
+      document.getElementById("t2-budget").value = f.capex_budget_tl;
+      document.getElementById("t2-p-cool").value = f.process_shares.cooling;
+      document.getElementById("t2-p-proc").value = f.process_shares.process;
+      document.getElementById("t2-p-boil").value = f.process_shares.boiler;
+      document.getElementById("t2-p-dom").value = f.process_shares.domestic;
+      await runROISimulation();
+    }
+
+    function getTab2Payload() {
+      return {
+        facility_name: document.getElementById("t2-name").value,
+        osb_id: document.getElementById("t2-osb").value,
+        sector: document.getElementById("t2-sector").value,
+        annual_water_m3: Number(document.getElementById("t2-water").value || 150000),
+        employee_count: Number(document.getElementById("t2-emp").value || 250),
+        water_source: document.getElementById("t2-source").value,
+        grid_share_pct: 60.0,
+        process_shares: {
+          cooling: Number(document.getElementById("t2-p-cool").value || 22),
+          process: Number(document.getElementById("t2-p-proc").value || 58),
+          boiler: Number(document.getElementById("t2-p-boil").value || 14),
+          domestic: Number(document.getElementById("t2-p-dom").value || 6)
+        },
+        daily_downtime_cost_tl: Number(document.getElementById("t2-downtime").value || 750000),
+        capex_budget_tl: Number(document.getElementById("t2-budget").value || 3500000),
+        target_year: 2030,
+        scenario: "BAU"
+      };
+    }
+
+    async function runROISimulation() {
+      const payload = getTab2Payload();
+      const res = await fetch("/api/simulate-roi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) return;
+      const sim = await res.json();
+      lastSimResult = sim;
+
+      const dn = sim.do_nothing_projection;
+      const opt = sim.optimized_portfolio;
+      const cert = sim.certification_2029;
+      const src = sim.water_source_economics;
+
+      document.getElementById("t2-source-note").textContent = src.allocation_note;
+      document.getElementById("t2-dn-total").textContent = `${fmtMillionsTL(dn.total_annual_exposure_tl.p50)}/yıl`;
+      document.getElementById("t2-dn-band").textContent =
+        `P10: ${fmtMillionsTL(dn.total_annual_exposure_tl.p10)} – P90: ${fmtMillionsTL(dn.total_annual_exposure_tl.p90)}`;
+      document.getElementById("t2-dn-breakdown").textContent =
+        `Su Faturası: ${fmtMillionsTL(dn.annual_water_bill_tl)} + Duruş (${dn.expected_cutback_days.p50}g): ${fmtMillionsTL(dn.expected_downtime_loss_tl.p50)}`;
+
+      document.getElementById("t2-saved-m3").textContent = `${fmtNum(opt.annual_water_saved_m3, 0)} m³/yıl`;
+      document.getElementById("t2-saved-pct").textContent =
+        `%${fmtNum(opt.multiplicative_savings_breakdown.total_saving_pct, 2)} Net Çarpımsal Tasarruf`;
+      document.getElementById("t2-avoided-days").textContent =
+        `Önlenen Üretim Duruşu: ${fmtNum(opt.avoided_cutback_days_p50, 1)} gün/yıl (${fmtMillionsTL(opt.avoided_downtime_loss_p50_tl)})`;
+
+      document.getElementById("t2-npv").textContent = `+${fmtMillionsTL(opt.npv_5yr_tl)}`;
+      document.getElementById("t2-payback").textContent = `Geri Ödeme Süresi: ${fmtNum(opt.payback_months, 1)} Ay`;
+      document.getElementById("t2-annual-benefit").textContent =
+        `Yıllık Net Kazanç: ${fmtMillionsTL(opt.net_annual_financial_benefit_tl)}/yıl`;
+
+      document.getElementById("t2-cert-tier").textContent = cert.achieved_tier;
+      document.getElementById("t2-cert-status").textContent = cert.compliance_status;
+
+      // Düşük bütçe uyarısı (Edge-Case #6)
+      const lowAlert = document.getElementById("t2-low-budget-alert");
+      if (opt.low_budget_advisory) {
+        lowAlert.classList.remove("hidden");
+        lowAlert.textContent = "⚠️ " + opt.low_budget_advisory;
+      } else {
+        lowAlert.classList.add("hidden");
+      }
+
+      document.getElementById("t2-solver-info").textContent =
+        `${opt.solver_method} · Seçilen: ${opt.selected_measures_count} Önlem · Toplam CAPEX: ${fmtNum(opt.total_capex_tl, 0)} TL (%${fmtNum(opt.budget_utilization_pct, 1)} Bütçe Kullanımı)`;
+
+      const pr = opt.multiplicative_savings_breakdown.process_saving_rates;
+      document.getElementById("t2-process-rates-pills").innerHTML = `
+        <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-sky-300">Soğutma: %${fmtNum(pr.cooling * 100, 1)}</span>
+        <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-teal-300">Proses: %${fmtNum(pr.process * 100, 1)}</span>
+        <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-amber-300">Kazan: %${fmtNum(pr.boiler * 100, 1)}</span>
+        <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-emerald-300">Evsel: %${fmtNum(pr.domestic * 100, 1)}</span>
+      `;
+
+      const tbody = document.getElementById("t2-measures-tbody");
+      tbody.innerHTML = opt.selected_measures.map(m => `
+        <tr class="hover:bg-slate-900/75">
+          <td class="py-2 px-2.5 font-mono font-bold text-sky-300">${m.measure_id}</td>
+          <td class="py-2 px-2.5">
+            <div class="font-bold text-white">${m.name}</div>
+            <div class="text-[10px] text-slate-400">${m.nace_reference}</div>
+          </td>
+          <td class="py-2 px-2.5 text-slate-300">${m.target_process_label}</td>
+          <td class="py-2 px-2.5 font-bold text-teal-300">%${fmtNum(m.process_saving_rate_pct, 1)}</td>
+          <td class="py-2 px-2.5 font-bold text-white">${fmtNum(m.capex_tl, 0)} TL</td>
+          <td class="py-2 px-2.5 ${m.annual_opex_change_tl <= 0 ? 'text-emerald-300' : 'text-amber-300'}">
+            ${m.annual_opex_change_tl > 0 ? "+" : ""}${fmtNum(m.annual_opex_change_tl, 0)} TL
+          </td>
+          <td class="py-2 px-2.5 font-extrabold text-emerald-300">~${fmtNum(m.estimated_payback_months, 1)} ay</td>
+        </tr>
+      `).join("");
+
+      renderCashflowChart(sim.cashflow_5yr);
+      renderExecutiveSummary(sim.executive_summary);
+    }
+
+    function renderCashflowChart(cf) {
+      const ctx = document.getElementById("chart-cashflow").getContext("2d");
+      if (cashflowChart) cashflowChart.destroy();
+      cashflowChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: cf.years.map(y => `Yıl ${y}`),
+          datasets: [
+            {
+              label: "Optimum Portföy Kümülatif Net Nakit Akışı (TL)",
+              data: cf.cumulative_net_cashflow_tl,
+              borderColor: "#10b981",
+              backgroundColor: "rgba(16, 185, 129, 0.18)",
+              borderWidth: 2.5,
+              fill: true
+            },
+            {
+              label: "Hiçbir Şey Yapmama Kümülatif Kayıp (TL)",
+              data: cf.cumulative_do_nothing_loss_tl,
+              borderColor: "#f43f5e",
+              borderDash: [5, 4],
+              borderWidth: 2,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: "#cbd5e1", font: { size: 10 } } }
+          },
+          scales: {
+            x: { ticks: { color: "#94a3b8", font: { size: 10 } } },
+            y: {
+              ticks: {
+                color: "#94a3b8",
+                font: { size: 10 },
+                callback: (v) => `${(Number(v) / 1e6).toFixed(0)}M TL`
+              },
+              grid: { color: "rgba(148,163,184,0.1)" }
+            }
+          }
+        }
+      });
+    }
+
+    function renderExecutiveSummary(exec) {
+      if (!exec) return;
+      document.getElementById("t2-llm-badge").textContent = `${exec.source_mode} (${fmtNum(exec.latency_ms, 1)} ms)`;
+      const box = document.getElementById("t2-exec-summary-box");
+      const html = (exec.markdown_report || "")
+        .replace(/^### (.*$)/gim, '<h4 class="font-extrabold text-sky-300 mt-2">$1</h4>')
+        .replace(/\*\*(.*?)\*\*/g, '<b class="text-white">$1</b>')
+        .replace(/`(.*?)`/g, '<code class="text-teal-300 bg-slate-900 px-1 rounded">$1</code>')
+        .replace(/\n/g, "<br/>");
+      box.innerHTML = html;
+    }
+
+    async function requestOnlineGeminiSummary() {
+      if (!lastSimResult) return;
+      const res = await fetch("/api/executive-summary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ simulation_result: lastSimResult, prefer_online_llm: true })
+      });
+      if (res.ok) {
+        const exec = await res.json();
+        renderExecutiveSummary(exec);
+      }
+    }
+
+    async function downloadReport(fmt) {
+      const payload = getTab2Payload();
+      const res = await fetch(`/api/export/${fmt}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `aquasanayi_roi_raporu.${fmt}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      await loadIZSUBanner();
+      await initMapAndBasins();
+      await predictLocation({ osb_id: "izmir_kemalpasa" });
+      await loadOSBComparisonTable();
+    });
+  </script>
+</body>
+</html>
