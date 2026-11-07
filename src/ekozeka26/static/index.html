@@ -27,6 +27,9 @@
       background: #061527 !important;
       border-radius: 0.65rem;
     }
+    .osm-dark-filter {
+      filter: invert(100%) hue-rotate(180deg) brightness(85%) contrast(90%);
+    }
     .tab-active {
       background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
       color: #ffffff;
@@ -770,10 +773,20 @@
 
     async function initMapAndBasins() {
       if (!mapInstance) {
-        mapInstance = L.map("turkey-map", { center: [38.9, 34.8], zoom: 6, minZoom: 5, maxZoom: 11 });
-        L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-          attribution: "&copy; OpenStreetMap & CartoDB | WRI Aqueduct 4.0"
-        }).addTo(mapInstance);
+        mapInstance = L.map("turkey-map", {
+          center: [39.0, 35.2],
+          zoom: 6,
+          minZoom: 5,
+          maxZoom: 11,
+          attributionControl: true
+        });
+        // Çevrimdışı da kusursuz çalışan, API anahtarı / filigran içermeyen temiz vektör/koordinat ızgarası + OSM katmanı
+        const osmLayer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap | WRI Aqueduct 4.0 (639 TR Alt-Havza)",
+          opacity: 0.22,
+          className: "osm-dark-filter"
+        });
+        osmLayer.addTo(mapInstance);
 
         mapInstance.on("click", async (ev) => {
           const { lat, lng } = ev.latlng;
@@ -1285,6 +1298,9 @@
       await initMapAndBasins();
       await predictLocation({ osb_id: "izmir_kemalpasa" });
       await loadOSBComparisonTable();
+      if (new URLSearchParams(window.location.search).get("tab") === "2") {
+        switchTab(2);
+      }
     });
   </script>
 </body>

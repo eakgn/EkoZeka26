@@ -69,7 +69,7 @@
       "xgb_r2": 0.9194
     }
   ],
-  "shap_latency_ms": 1.97,
+  "shap_latency_ms": 1.82,
   "global_shap_importance": [
     {
       "feature": "summer_x_bws",

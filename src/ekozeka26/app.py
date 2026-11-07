@@ -240,6 +240,7 @@ def _evaluate_location_payload(req: LocationPredictRequest) -> dict[str, Any]:
         matched_osb = all_osbs[best_oid]
     elif req.string_id and req.string_id in df_basins.index:
         basin_row = df_basins.loc[req.string_id].to_dict()
+        basin_row["string_id"] = req.string_id
         best_oid = next(
             (k for k, v in all_osbs.items() if v["pfaf_id"] == int(basin_row["pfaf_id"])),
             "izmir_kemalpasa",
@@ -249,7 +250,11 @@ def _evaluate_location_payload(req: LocationPredictRequest) -> dict[str, Any]:
         oid = req.osb_id if (req.osb_id and req.osb_id in all_osbs) else "izmir_kemalpasa"
         matched_osb = all_osbs[oid]
         sid = matched_osb["string_id"]
-        basin_row = df_basins.loc[sid].to_dict() if sid in df_basins.index else matched_osb
+        if sid in df_basins.index:
+            basin_row = df_basins.loc[sid].to_dict()
+            basin_row["string_id"] = sid
+        else:
+            basin_row = dict(matched_osb)
 
     assert matched_osb is not None
     c_osb = osb_projs.get(matched_osb["osb_id"], {})

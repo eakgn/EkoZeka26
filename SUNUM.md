@@ -1,6 +1,6 @@
 # SUNUM — EkoZeka26: AquaSanayi AI Sunum ve Savunma Rehberi
 
-> **KURAL (`build` oturumu için):** Projede yeni bir metrik üretildiğinde (ör. XGBoost `R²`/`MAE` skorları, örnek OSB'lerin tam risk puanları, örnek fabrika simülasyonunun tam TL/m³ çıktıları), bu dosyadaki ilgili yer tutucular (`[BUILD'DE GÜNCELLENECEK]`) gerçek sayılarla güncellenmelidir.
+> **Durum (`build` oturumu tamamlandı):** Tüm model metrikleri (5-katlı `GroupKFold` XGBoost `R² = 0,7958`, `MAE = 0,1534`; Gediz hidrolojik backtest `R² = 0,6732`; Isolation Forest İZSU anomali skoru `0,5932`), aday OSB karşılaştırma skorları ve örnek fabrika ROI simülasyon çıktıları (`%53,28` net tasarruf, `128,95 Milyon TL` 5 yıllık NPV, `Turkuaz Belge`) gerçek ve doğrulanmış sayılarla güncellenmiştir.
 > **Süre:** 3–5 Dakika (Soru-Cevap dahil) · **Format:** Canlı Sunum + Canlı Demo (`127.0.0.1:8000`)
 
 ---
@@ -63,9 +63,9 @@
 - **Göster:** Türkiye'nin **639 gerçek hidrolojik alt-havzasını** içeren haritada 2050 Kötümser/Normal su stresi katmanı. Sağ üstte İZSU canlı baraj kartları.
 - **Aksiyon:** *"Diyelim ki tekstil veya gıda sektöründe yeni bir fabrika kuracağız veya bir banka olarak kredi vereceğiz. İzmir Kemalpaşa, Manisa, Bursa ve Konya OSB'lerini karşılaştırıyoruz."*
 - **Yapay Zeka Vurgusu:**
-  1. **Şeffaf Bileşik Risk İndeksi:** Tek bir kara kutu sayısı değil; skorun **her bileşeni ve ağırlığı** ekranda. *"Kemalpaşa'da risk 74 çıktı çünkü yeraltı suyu düşüş trendi +28, SPEI-12 kuraklık trendi +19, sektörel tahsis baskısı +15 puan ekledi."*
-  2. **Belirsizlik (P10–P90):** 7 CMIP6 modelinin dağılımından **P10 (İyimser) / P50 (Beklenen) / P90 (Kötümser)** yıllık kesinti günü aralığı + "modellerin %X'i aynı yönde" mutabakat oranı.
-  3. **XGBoost + SHAP (dürüst rolü):** *"XGBoost'u iklimi taklit etsin diye değil, CMIP6'yı ERA5 gerçeklerine **kalibre etsin** diye kullandık. SHAP grafiği bu havzada düzeltmeyi en çok hangi mevsim ve yaz buharlaşmasının (`ET₀`) sürüklediğini gösteriyor."*
+  1. **Şeffaf Bileşik Risk İndeksi:** Tek bir kara kutu sayısı değil; skorun **her bileşeni ve ağırlığı** ekranda. *"Kemalpaşa OSB'de 2050 (BAU) risk skoru **82,8 / 100** çıktı çünkü gelecek/yaz pik su stresi +25,0, yeraltı suyu düşüşü ve kuyu bağımlılığı +22,4, SPEI-12 kuraklık trendi +18,0 ve sektörel tahsis baskısı +13,4 puan ekledi (Bursa OSB 58,3, Gebze OSB 55,0)."*
+  2. **Belirsizlik (P10–P90):** 7 CMIP6 modelinin dağılımından **P10 (İyimser: 17,4 gün) / P50 (Beklenen: 33,5 gün) / P90 (Kötümser: 60,7 gün)** yıllık kesinti günü aralığı + "7 modelin %100'ü kuraklaşma yönünde" mutabakat oranı.
+  3. **XGBoost + SHAP (dürüst rolü):** *"XGBoost'u iklimi taklit etsin diye değil, kaba yıllık projeksiyonları **yaz pik su stresine ölçek indirsin (downscaling)** diye kullandık; CMIP6'yı ise ERA5'e **QDM** ile kalibre ettik. SHAP grafiği (`<15 ms`) bu havzada yaz pik stresini en çok hangi fiziksel sürücülerin (`summer_x_bws`, `month`, `bws_raw`, `sev_raw`) artırdığını gösteriyor."*
 
 ### 1:50 – 3:10 | 3. Perde: Canlı Demo — Sekme 2 (Mevcut Fabrika ROI Optimizasyonu & 2029 Belgesi)
 - **Aksiyon:** *"Peki fabrikamız zaten buradaysa? İkinci sekmeye geçiyoruz."*

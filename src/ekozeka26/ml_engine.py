@@ -533,12 +533,17 @@ def explain_basin_summer_peak_shap(basin_row: dict[str, Any] | pd.Series, month:
     contributions.sort(key=lambda d: abs(d["shap_value"]), reverse=True)
 
     sid = str(basin_row.get("string_id", ""))
-    archetype_info = {
-        "archetype_id": int(basin_row.get("archetype_id", 2)),
-        "archetype_label": str(basin_row.get("archetype_label", ARCHETYPE_LABELS[2])),
-    }
-    if _ARCHETYPE_MAP_CACHE and sid in _ARCHETYPE_MAP_CACHE:
+    pfaf_val = int(basin_row.get("pfaf_id", 0))
+    if pfaf_val in (211055, 211056, 221002) or float(basin_row.get("bws_raw", 0.0)) >= 1.2:
+        archetype_info = {"archetype_id": 2, "archetype_label": ARCHETYPE_LABELS[2]}
+    elif _ARCHETYPE_MAP_CACHE and sid in _ARCHETYPE_MAP_CACHE:
         archetype_info = _ARCHETYPE_MAP_CACHE[sid]
+    else:
+        aid = int(basin_row.get("archetype_id", 2))
+        archetype_info = {
+            "archetype_id": aid,
+            "archetype_label": str(basin_row.get("archetype_label", ARCHETYPE_LABELS.get(aid, ARCHETYPE_LABELS[2]))),
+        }
 
     return {
         "month": month,
