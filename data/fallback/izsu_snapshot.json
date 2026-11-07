@@ -1,0 +1,1400 @@
+{
+  "snapshot_date": "2026-11-06",
+  "previous_snapshot_date": "2026-10-14",
+  "source": "İZSU Resmi Baraj Su Durumu, Günlük/Aylık Üretim ve Haziran 2026 Sanayi Tarifesi",
+  "headline_metrics": {
+    "capacity_weighted_occupancy_pct": 34.01,
+    "simple_average_occupancy_pct": 44.24,
+    "total_usable_water_mm3": 257.17,
+    "total_usable_capacity_mm3": 756.19,
+    "gordes_occupancy_pct": 27.96,
+    "gordes_capacity_share_pct": 57.91,
+    "tahtali_today_pct": 41.39,
+    "tahtali_last_year_pct": 1.54,
+    "balcova_23d_drop_pct_points": -7.43,
+    "daily_well_share_pct": 81.12
+  },
+  "dams": [
+    {
+      "name": "Tahtalı Barajı",
+      "date": "2026-11-06",
+      "occupancy_pct": 41.39,
+      "last_year_occupancy_pct": 1.54,
+      "oct14_occupancy_pct": 42.75,
+      "delta_23d_pct_points": -1.36,
+      "usable_volume_m3": 118808000.0,
+      "usable_capacity_m3": 287050000.0,
+      "capacity_share_pct": 37.96,
+      "daily_production_m3": 95000.0,
+      "lat": 38.157434,
+      "lon": 27.12263
+    },
+    {
+      "name": "Balçova Barajı",
+      "date": "2026-11-06",
+      "occupancy_pct": 37.34,
+      "last_year_occupancy_pct": 0.0,
+      "oct14_occupancy_pct": 44.77,
+      "delta_23d_pct_points": -7.43,
+      "usable_volume_m3": 2846000.0,
+      "usable_capacity_m3": 7622000.0,
+      "capacity_share_pct": 1.01,
+      "daily_production_m3": 0.0,
+      "lat": 38.372622,
+      "lon": 27.037422
+    },
+    {
+      "name": "Ürkmez Barajı",
+      "date": "2026-11-06",
+      "occupancy_pct": 62.37,
+      "last_year_occupancy_pct": 3.7,
+      "oct14_occupancy_pct": 60.49,
+      "delta_23d_pct_points": 1.88,
+      "usable_volume_m3": 4763000.0,
+      "usable_capacity_m3": 7637000.0,
+      "capacity_share_pct": 1.01,
+      "daily_production_m3": 0.0,
+      "lat": 38.097069,
+      "lon": 26.95745
+    },
+    {
+      "name": "Gördes Barajı",
+      "date": "2026-11-06",
+      "occupancy_pct": 27.96,
+      "last_year_occupancy_pct": 0.0,
+      "oct14_occupancy_pct": 29.27,
+      "delta_23d_pct_points": -1.31,
+      "usable_volume_m3": 122410000.0,
+      "usable_capacity_m3": 437880000.0,
+      "capacity_share_pct": 57.91,
+      "daily_production_m3": 0.0,
+      "lat": 38.760674,
+      "lon": 28.065418
+    },
+    {
+      "name": "Alaçatı Kutlu Aktaş Barajı",
+      "date": "2026-11-06",
+      "occupancy_pct": 52.14,
+      "last_year_occupancy_pct": 0.05,
+      "oct14_occupancy_pct": 49.44,
+      "delta_23d_pct_points": 2.7,
+      "usable_volume_m3": 8342000.0,
+      "usable_capacity_m3": 16000000.0,
+      "capacity_share_pct": 2.12,
+      "daily_production_m3": 0.0,
+      "lat": 38.28857,
+      "lon": 26.413594
+    }
+  ],
+  "daily_production": [
+    {
+      "source_type": "Kuyu",
+      "facility_name": "Sarıkız Kuyuları",
+      "facility_id": 229,
+      "daily_production_m3": 58100.0
+    },
+    {
+      "source_type": "Kuyu",
+      "facility_name": "Göksu Kuyuları",
+      "facility_id": 236,
+      "daily_production_m3": 158400.0
+    },
+    {
+      "source_type": "Kuyu",
+      "facility_name": "Menemen - Çavuşköy Kuyuları",
+      "facility_id": 230,
+      "daily_production_m3": 57900.0
+    },
+    {
+      "source_type": "Kuyu",
+      "facility_name": "Halkapınar Kuyuları",
+      "facility_id": 231,
+      "daily_production_m3": 128013.0
+    },
+    {
+      "source_type": "Kuyu",
+      "facility_name": "Pınarbaşı Kuyuları",
+      "facility_id": 232,
+      "daily_production_m3": 2137.0
+    },
+    {
+      "source_type": "Kuyu",
+      "facility_name": "Buca ve Sarnıç Kuyuları",
+      "facility_id": 233,
+      "daily_production_m3": 3570.0
+    },
+    {
+      "source_type": "Baraj",
+      "facility_name": "Karaçam Göleti",
+      "facility_id": 234,
+      "daily_production_m3": 0.0
+    },
+    {
+      "source_type": "Baraj",
+      "facility_name": "Balçova Barajı",
+      "facility_id": 226,
+      "daily_production_m3": 0.0
+    },
+    {
+      "source_type": "Baraj",
+      "facility_name": "Gördes Barajı",
+      "facility_id": 235,
+      "daily_production_m3": 0.0
+    },
+    {
+      "source_type": "Baraj",
+      "facility_name": "Tahtalı Barajı",
+      "facility_id": 225,
+      "daily_production_m3": 95000.0
+    }
+  ],
+  "monthly_production_2025_count": 137,
+  "monthly_production_2025": [
+    {
+      "id": "d3004899-1687-4332-4bac-08decb7b988e",
+      "year": 2025,
+      "month": 12,
+      "facility_name": "Balçova Barajı",
+      "source_type": "Baraj",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "a8c077aa-8525-4923-3988-08de4f86ae31",
+      "year": 2025,
+      "month": 11,
+      "facility_name": "Balçova Barajı",
+      "source_type": "Baraj",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "6bda56fa-8ead-4861-397d-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Balçova Barajı",
+      "source_type": "Baraj",
+      "production_m3": 231170.0,
+      "production_mm3": 0.2312
+    },
+    {
+      "id": "59390469-21ac-4f3b-3972-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Balçova Barajı",
+      "source_type": "Baraj",
+      "production_m3": 231170.0,
+      "production_mm3": 0.2312
+    },
+    {
+      "id": "904ea704-2cc4-4b05-3967-08de4f86ae31",
+      "year": 2025,
+      "month": 9,
+      "facility_name": "Balçova Barajı",
+      "source_type": "Baraj",
+      "production_m3": 737254.0,
+      "production_mm3": 0.7373
+    },
+    {
+      "id": "d7489718-eca2-4715-395c-08de4f86ae31",
+      "year": 2025,
+      "month": 8,
+      "facility_name": "Balçova Barajı",
+      "source_type": "Baraj",
+      "production_m3": 975899.0,
+      "production_mm3": 0.9759
+    },
+    {
+      "id": "8147d9a1-ca3e-459c-3951-08de4f86ae31",
+      "year": 2025,
+      "month": 7,
+      "facility_name": "Balçova Barajı",
+      "source_type": "Baraj",
+      "production_m3": 837894.0,
+      "production_mm3": 0.8379
+    },
+    {
+      "id": "f89a0642-fca9-4eac-3947-08de4f86ae31",
+      "year": 2025,
+      "month": 6,
+      "facility_name": "Balçova Barajı",
+      "source_type": "Baraj",
+      "production_m3": 102240.0,
+      "production_mm3": 0.1022
+    },
+    {
+      "id": "2fd95825-d8fe-4b8b-393d-08de4f86ae31",
+      "year": 2025,
+      "month": 5,
+      "facility_name": "Balçova Barajı",
+      "source_type": "Baraj",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "1d65b78a-51cd-4d67-3933-08de4f86ae31",
+      "year": 2025,
+      "month": 4,
+      "facility_name": "Balçova Barajı",
+      "source_type": "Baraj",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "dadeef9d-de4a-46cd-3929-08de4f86ae31",
+      "year": 2025,
+      "month": 3,
+      "facility_name": "Balçova Barajı",
+      "source_type": "Baraj",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "771b72ca-cb8a-48ca-391f-08de4f86ae31",
+      "year": 2025,
+      "month": 2,
+      "facility_name": "Balçova Barajı",
+      "source_type": "Baraj",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "4c99b3b7-4d7f-444d-3915-08de4f86ae31",
+      "year": 2025,
+      "month": 1,
+      "facility_name": "Balçova Barajı",
+      "source_type": "Baraj",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "d272db95-d067-4e6a-4bab-08decb7b988e",
+      "year": 2025,
+      "month": 12,
+      "facility_name": "Buca Ve Sarnıç Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 109590.0,
+      "production_mm3": 0.1096
+    },
+    {
+      "id": "233b4376-67bf-412b-398e-08de4f86ae31",
+      "year": 2025,
+      "month": 11,
+      "facility_name": "Buca Ve Sarnıç Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 108925.0,
+      "production_mm3": 0.1089
+    },
+    {
+      "id": "955211b4-87f3-464f-3983-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Buca Ve Sarnıç Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 120652.0,
+      "production_mm3": 0.1207
+    },
+    {
+      "id": "8315ade9-170b-4516-3978-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Buca Ve Sarnıç Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 120652.0,
+      "production_mm3": 0.1207
+    },
+    {
+      "id": "d7b247cb-bfbf-45d0-396d-08de4f86ae31",
+      "year": 2025,
+      "month": 9,
+      "facility_name": "Buca Ve Sarnıç Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 126630.0,
+      "production_mm3": 0.1266
+    },
+    {
+      "id": "694b76bb-9fd5-4ece-3962-08de4f86ae31",
+      "year": 2025,
+      "month": 8,
+      "facility_name": "Buca Ve Sarnıç Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 124636.0,
+      "production_mm3": 0.1246
+    },
+    {
+      "id": "7f57782d-84c4-4612-3957-08de4f86ae31",
+      "year": 2025,
+      "month": 7,
+      "facility_name": "Buca Ve Sarnıç Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 122901.0,
+      "production_mm3": 0.1229
+    },
+    {
+      "id": "1fc93611-faa4-4de3-3942-08de4f86ae31",
+      "year": 2025,
+      "month": 5,
+      "facility_name": "Buca Ve Sarnıç Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 106674.0,
+      "production_mm3": 0.1067
+    },
+    {
+      "id": "60fa0149-5715-4c80-394c-08de4f86ae31",
+      "year": 2025,
+      "month": 6,
+      "facility_name": "Buca Ve Sarnıç Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 113381.0,
+      "production_mm3": 0.1134
+    },
+    {
+      "id": "9035d3d5-26a9-4591-391a-08de4f86ae31",
+      "year": 2025,
+      "month": 1,
+      "facility_name": "Buca Ve Sarnıç Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 101119.0,
+      "production_mm3": 0.1011
+    },
+    {
+      "id": "6330cfb3-e69f-430d-3924-08de4f86ae31",
+      "year": 2025,
+      "month": 2,
+      "facility_name": "Buca Ve Sarnıç Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 85843.0,
+      "production_mm3": 0.0858
+    },
+    {
+      "id": "567bbb6a-0d52-4172-392e-08de4f86ae31",
+      "year": 2025,
+      "month": 3,
+      "facility_name": "Buca Ve Sarnıç Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 104591.0,
+      "production_mm3": 0.1046
+    },
+    {
+      "id": "b699d3f7-28b2-412c-3938-08de4f86ae31",
+      "year": 2025,
+      "month": 4,
+      "facility_name": "Buca Ve Sarnıç Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 98607.0,
+      "production_mm3": 0.0986
+    },
+    {
+      "id": "4c84f37f-14e9-4a45-393b-08de4f86ae31",
+      "year": 2025,
+      "month": 4,
+      "facility_name": "Göksu Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 4303000.0,
+      "production_mm3": 4.303
+    },
+    {
+      "id": "25f91add-60e5-46c7-3931-08de4f86ae31",
+      "year": 2025,
+      "month": 3,
+      "facility_name": "Göksu Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 4713200.0,
+      "production_mm3": 4.7132
+    },
+    {
+      "id": "bf29b548-d4e2-4d0b-3927-08de4f86ae31",
+      "year": 2025,
+      "month": 2,
+      "facility_name": "Göksu Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 4321700.0,
+      "production_mm3": 4.3217
+    },
+    {
+      "id": "9a126140-9b4e-4f59-391d-08de4f86ae31",
+      "year": 2025,
+      "month": 1,
+      "facility_name": "Göksu Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 4617300.0,
+      "production_mm3": 4.6173
+    },
+    {
+      "id": "86379bd0-3002-4493-394f-08de4f86ae31",
+      "year": 2025,
+      "month": 6,
+      "facility_name": "Göksu Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 4502000.0,
+      "production_mm3": 4.502
+    },
+    {
+      "id": "5e4b3eb6-6022-4fd0-3945-08de4f86ae31",
+      "year": 2025,
+      "month": 5,
+      "facility_name": "Göksu Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 4567800.0,
+      "production_mm3": 4.5678
+    },
+    {
+      "id": "f15ef000-c830-4458-395a-08de4f86ae31",
+      "year": 2025,
+      "month": 7,
+      "facility_name": "Göksu Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 4076500.0,
+      "production_mm3": 4.0765
+    },
+    {
+      "id": "1fced62d-d79f-4b15-3965-08de4f86ae31",
+      "year": 2025,
+      "month": 8,
+      "facility_name": "Göksu Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 4067300.0,
+      "production_mm3": 4.0673
+    },
+    {
+      "id": "7229c05b-579b-439c-3970-08de4f86ae31",
+      "year": 2025,
+      "month": 9,
+      "facility_name": "Göksu Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 4258400.0,
+      "production_mm3": 4.2584
+    },
+    {
+      "id": "b18429b1-4367-401d-397b-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Göksu Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 4597200.0,
+      "production_mm3": 4.5972
+    },
+    {
+      "id": "c3c4608e-fe00-4269-3986-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Göksu Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 4597200.0,
+      "production_mm3": 4.5972
+    },
+    {
+      "id": "9c3aa8a6-7dc9-4d9e-3991-08de4f86ae31",
+      "year": 2025,
+      "month": 11,
+      "facility_name": "Göksu Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 4748700.0,
+      "production_mm3": 4.7487
+    },
+    {
+      "id": "8cfde1c8-d413-4d5e-4ba6-08decb7b988e",
+      "year": 2025,
+      "month": 12,
+      "facility_name": "Göksu Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 4719200.0,
+      "production_mm3": 4.7192
+    },
+    {
+      "id": "3efa4a51-e517-417e-4baf-08decb7b988e",
+      "year": 2025,
+      "month": 12,
+      "facility_name": "Gördes Barajı",
+      "source_type": "Baraj",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "9d8b918d-01a1-4367-3990-08de4f86ae31",
+      "year": 2025,
+      "month": 11,
+      "facility_name": "Gördes Barajı",
+      "source_type": "Baraj",
+      "production_m3": 2260591.0,
+      "production_mm3": 2.2606
+    },
+    {
+      "id": "40b8fab8-771e-4be5-3985-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Gördes Barajı",
+      "source_type": "Baraj",
+      "production_m3": 214455.0,
+      "production_mm3": 0.2145
+    },
+    {
+      "id": "4094a58b-0e66-4fe3-397a-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Gördes Barajı",
+      "source_type": "Baraj",
+      "production_m3": 139293.0,
+      "production_mm3": 0.1393
+    },
+    {
+      "id": "cce73b84-56d1-4e32-396f-08de4f86ae31",
+      "year": 2025,
+      "month": 9,
+      "facility_name": "Gördes Barajı",
+      "source_type": "Baraj",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "36c3d28a-904a-4bfc-3964-08de4f86ae31",
+      "year": 2025,
+      "month": 8,
+      "facility_name": "Gördes Barajı",
+      "source_type": "Baraj",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "628f4999-b9f0-4dc1-3959-08de4f86ae31",
+      "year": 2025,
+      "month": 7,
+      "facility_name": "Gördes Barajı",
+      "source_type": "Baraj",
+      "production_m3": 2919832.0,
+      "production_mm3": 2.9198
+    },
+    {
+      "id": "e3e657ee-f5fd-4d67-3944-08de4f86ae31",
+      "year": 2025,
+      "month": 5,
+      "facility_name": "Gördes Barajı",
+      "source_type": "Baraj",
+      "production_m3": 5963980.0,
+      "production_mm3": 5.964
+    },
+    {
+      "id": "bc28282a-2deb-4e64-394e-08de4f86ae31",
+      "year": 2025,
+      "month": 6,
+      "facility_name": "Gördes Barajı",
+      "source_type": "Baraj",
+      "production_m3": 5473530.0,
+      "production_mm3": 5.4735
+    },
+    {
+      "id": "3717c9ac-0bd4-4b2c-391c-08de4f86ae31",
+      "year": 2025,
+      "month": 1,
+      "facility_name": "Gördes Barajı",
+      "source_type": "Baraj",
+      "production_m3": 2875592.0,
+      "production_mm3": 2.8756
+    },
+    {
+      "id": "04ac2999-e337-4600-3926-08de4f86ae31",
+      "year": 2025,
+      "month": 2,
+      "facility_name": "Gördes Barajı",
+      "source_type": "Baraj",
+      "production_m3": 4313485.0,
+      "production_mm3": 4.3135
+    },
+    {
+      "id": "bf3cd73d-a742-4d61-3930-08de4f86ae31",
+      "year": 2025,
+      "month": 3,
+      "facility_name": "Gördes Barajı",
+      "source_type": "Baraj",
+      "production_m3": 5581680.0,
+      "production_mm3": 5.5817
+    },
+    {
+      "id": "2c9b1766-1eb2-4cb4-393a-08de4f86ae31",
+      "year": 2025,
+      "month": 4,
+      "facility_name": "Gördes Barajı",
+      "source_type": "Baraj",
+      "production_m3": 6172410.0,
+      "production_mm3": 6.1724
+    },
+    {
+      "id": "710b6710-873c-49b5-3952-08de4f86ae31",
+      "year": 2025,
+      "month": 7,
+      "facility_name": "Güzelhisar Barajı",
+      "source_type": "Baraj",
+      "production_m3": 635373.0,
+      "production_mm3": 0.6354
+    },
+    {
+      "id": "c7e0e054-c311-4f9b-395d-08de4f86ae31",
+      "year": 2025,
+      "month": 8,
+      "facility_name": "Güzelhisar Barajı",
+      "source_type": "Baraj",
+      "production_m3": 1522191.0,
+      "production_mm3": 1.5222
+    },
+    {
+      "id": "29fb1891-4970-4813-3968-08de4f86ae31",
+      "year": 2025,
+      "month": 9,
+      "facility_name": "Güzelhisar Barajı",
+      "source_type": "Baraj",
+      "production_m3": 1554441.0,
+      "production_mm3": 1.5544
+    },
+    {
+      "id": "59186544-61bb-44ca-3973-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Güzelhisar Barajı",
+      "source_type": "Baraj",
+      "production_m3": 1625139.0,
+      "production_mm3": 1.6251
+    },
+    {
+      "id": "55387370-2a46-41fe-397e-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Güzelhisar Barajı",
+      "source_type": "Baraj",
+      "production_m3": 1625139.0,
+      "production_mm3": 1.6251
+    },
+    {
+      "id": "6c78827a-e30c-4774-3989-08de4f86ae31",
+      "year": 2025,
+      "month": 11,
+      "facility_name": "Güzelhisar Barajı",
+      "source_type": "Baraj",
+      "production_m3": 1595753.0,
+      "production_mm3": 1.5958
+    },
+    {
+      "id": "59a523cc-f670-41ea-4bae-08decb7b988e",
+      "year": 2025,
+      "month": 12,
+      "facility_name": "Güzelhisar Barajı",
+      "source_type": "Baraj",
+      "production_m3": 1840743.0,
+      "production_mm3": 1.8407
+    },
+    {
+      "id": "89341f38-1a7b-47aa-4ba8-08decb7b988e",
+      "year": 2025,
+      "month": 12,
+      "facility_name": "Halkapınar Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 3975876.0,
+      "production_mm3": 3.9759
+    },
+    {
+      "id": "76ea814a-9316-4f06-398c-08de4f86ae31",
+      "year": 2025,
+      "month": 11,
+      "facility_name": "Halkapınar Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 3891711.0,
+      "production_mm3": 3.8917
+    },
+    {
+      "id": "a0903773-c247-4123-3981-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Halkapınar Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 4101551.0,
+      "production_mm3": 4.1016
+    },
+    {
+      "id": "8fe3be8e-581f-45aa-3976-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Halkapınar Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 4101551.0,
+      "production_mm3": 4.1016
+    },
+    {
+      "id": "ce96f1ce-2c58-479e-396b-08de4f86ae31",
+      "year": 2025,
+      "month": 9,
+      "facility_name": "Halkapınar Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 3733184.0,
+      "production_mm3": 3.7332
+    },
+    {
+      "id": "fa7778f2-d42d-44dc-3960-08de4f86ae31",
+      "year": 2025,
+      "month": 8,
+      "facility_name": "Halkapınar Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 3072320.0,
+      "production_mm3": 3.0723
+    },
+    {
+      "id": "63eb70ab-ba9c-4d6c-3955-08de4f86ae31",
+      "year": 2025,
+      "month": 7,
+      "facility_name": "Halkapınar Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 2998920.0,
+      "production_mm3": 2.9989
+    },
+    {
+      "id": "a2084490-a4fb-42d6-3940-08de4f86ae31",
+      "year": 2025,
+      "month": 5,
+      "facility_name": "Halkapınar Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 3234160.0,
+      "production_mm3": 3.2342
+    },
+    {
+      "id": "94237e5b-a82d-41b7-394a-08de4f86ae31",
+      "year": 2025,
+      "month": 6,
+      "facility_name": "Halkapınar Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 3057360.0,
+      "production_mm3": 3.0574
+    },
+    {
+      "id": "0e6c6bf1-354b-43af-3918-08de4f86ae31",
+      "year": 2025,
+      "month": 1,
+      "facility_name": "Halkapınar Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 2467880.0,
+      "production_mm3": 2.4679
+    },
+    {
+      "id": "613f94d6-3389-4607-3922-08de4f86ae31",
+      "year": 2025,
+      "month": 2,
+      "facility_name": "Halkapınar Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 2350880.0,
+      "production_mm3": 2.3509
+    },
+    {
+      "id": "89372fa7-ad47-4895-392c-08de4f86ae31",
+      "year": 2025,
+      "month": 3,
+      "facility_name": "Halkapınar Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 2505532.0,
+      "production_mm3": 2.5055
+    },
+    {
+      "id": "ef13836c-3847-490d-3936-08de4f86ae31",
+      "year": 2025,
+      "month": 4,
+      "facility_name": "Halkapınar Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 2364960.0,
+      "production_mm3": 2.365
+    },
+    {
+      "id": "ee9b41d9-4d68-44da-3939-08de4f86ae31",
+      "year": 2025,
+      "month": 4,
+      "facility_name": "Karaçam Göleti",
+      "source_type": "Baraj",
+      "production_m3": 14574.0,
+      "production_mm3": 0.0146
+    },
+    {
+      "id": "025812f2-bf86-49e7-392f-08de4f86ae31",
+      "year": 2025,
+      "month": 3,
+      "facility_name": "Karaçam Göleti",
+      "source_type": "Baraj",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "67e24b2f-5ea1-48bd-3925-08de4f86ae31",
+      "year": 2025,
+      "month": 2,
+      "facility_name": "Karaçam Göleti",
+      "source_type": "Baraj",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "2ec24795-4a27-4a4e-391b-08de4f86ae31",
+      "year": 2025,
+      "month": 1,
+      "facility_name": "Karaçam Göleti",
+      "source_type": "Baraj",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "aa831077-861c-4f16-394d-08de4f86ae31",
+      "year": 2025,
+      "month": 6,
+      "facility_name": "Karaçam Göleti",
+      "source_type": "Baraj",
+      "production_m3": 19185.0,
+      "production_mm3": 0.0192
+    },
+    {
+      "id": "e3564839-ba66-4e28-3943-08de4f86ae31",
+      "year": 2025,
+      "month": 5,
+      "facility_name": "Karaçam Göleti",
+      "source_type": "Baraj",
+      "production_m3": 19225.0,
+      "production_mm3": 0.0192
+    },
+    {
+      "id": "74f684a2-701a-46b5-3958-08de4f86ae31",
+      "year": 2025,
+      "month": 7,
+      "facility_name": "Karaçam Göleti",
+      "source_type": "Baraj",
+      "production_m3": 23960.0,
+      "production_mm3": 0.024
+    },
+    {
+      "id": "ec73ef65-4a36-4aae-3963-08de4f86ae31",
+      "year": 2025,
+      "month": 8,
+      "facility_name": "Karaçam Göleti",
+      "source_type": "Baraj",
+      "production_m3": 26419.0,
+      "production_mm3": 0.0264
+    },
+    {
+      "id": "6bd293e3-d460-4b13-396e-08de4f86ae31",
+      "year": 2025,
+      "month": 9,
+      "facility_name": "Karaçam Göleti",
+      "source_type": "Baraj",
+      "production_m3": 22366.0,
+      "production_mm3": 0.0224
+    },
+    {
+      "id": "d378442b-a6cb-4030-3979-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Karaçam Göleti",
+      "source_type": "Baraj",
+      "production_m3": 13220.0,
+      "production_mm3": 0.0132
+    },
+    {
+      "id": "dac9d6d1-7833-4aba-3984-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Karaçam Göleti",
+      "source_type": "Baraj",
+      "production_m3": 13220.0,
+      "production_mm3": 0.0132
+    },
+    {
+      "id": "87c3363e-0b3c-40bf-398f-08de4f86ae31",
+      "year": 2025,
+      "month": 11,
+      "facility_name": "Karaçam Göleti",
+      "source_type": "Baraj",
+      "production_m3": 13859.0,
+      "production_mm3": 0.0139
+    },
+    {
+      "id": "85c10659-a3b7-47c4-4bad-08decb7b988e",
+      "year": 2025,
+      "month": 12,
+      "facility_name": "Karaçam Göleti",
+      "source_type": "Baraj",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "6c561847-e09f-4fc2-3935-08de4f86ae31",
+      "year": 2025,
+      "month": 4,
+      "facility_name": "Menemen - Çavuşköy Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1372372.0,
+      "production_mm3": 1.3724
+    },
+    {
+      "id": "d832c36e-aa42-481b-392b-08de4f86ae31",
+      "year": 2025,
+      "month": 3,
+      "facility_name": "Menemen - Çavuşköy Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1517664.0,
+      "production_mm3": 1.5177
+    },
+    {
+      "id": "3ab08bfd-7ddc-4a46-3921-08de4f86ae31",
+      "year": 2025,
+      "month": 2,
+      "facility_name": "Menemen - Çavuşköy Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1391968.0,
+      "production_mm3": 1.392
+    },
+    {
+      "id": "985a9b36-e67f-45f5-3917-08de4f86ae31",
+      "year": 2025,
+      "month": 1,
+      "facility_name": "Menemen - Çavuşköy Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1572744.0,
+      "production_mm3": 1.5727
+    },
+    {
+      "id": "09eb8cc6-a5f2-449d-3949-08de4f86ae31",
+      "year": 2025,
+      "month": 6,
+      "facility_name": "Menemen - Çavuşköy Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1832200.0,
+      "production_mm3": 1.8322
+    },
+    {
+      "id": "4fb33d6d-0bb4-4c5f-393f-08de4f86ae31",
+      "year": 2025,
+      "month": 5,
+      "facility_name": "Menemen - Çavuşköy Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1997000.0,
+      "production_mm3": 1.997
+    },
+    {
+      "id": "3c8fe91c-ade8-4f4d-3954-08de4f86ae31",
+      "year": 2025,
+      "month": 7,
+      "facility_name": "Menemen - Çavuşköy Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 2005200.0,
+      "production_mm3": 2.0052
+    },
+    {
+      "id": "4557f64b-a4c8-477b-395f-08de4f86ae31",
+      "year": 2025,
+      "month": 8,
+      "facility_name": "Menemen - Çavuşköy Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1814800.0,
+      "production_mm3": 1.8148
+    },
+    {
+      "id": "17703099-1668-4334-396a-08de4f86ae31",
+      "year": 2025,
+      "month": 9,
+      "facility_name": "Menemen - Çavuşköy Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1718800.0,
+      "production_mm3": 1.7188
+    },
+    {
+      "id": "322144a7-935e-4b51-3975-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Menemen - Çavuşköy Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1931200.0,
+      "production_mm3": 1.9312
+    },
+    {
+      "id": "5d3c5c33-e76f-411d-3980-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Menemen - Çavuşköy Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1931200.0,
+      "production_mm3": 1.9312
+    },
+    {
+      "id": "413299f5-afe3-4e68-398b-08de4f86ae31",
+      "year": 2025,
+      "month": 11,
+      "facility_name": "Menemen - Çavuşköy Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1804100.0,
+      "production_mm3": 1.8041
+    },
+    {
+      "id": "d8251347-f656-42e4-4ba7-08decb7b988e",
+      "year": 2025,
+      "month": 12,
+      "facility_name": "Menemen - Çavuşköy Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1958400.0,
+      "production_mm3": 1.9584
+    },
+    {
+      "id": "8c66b887-9b5d-4a43-3937-08de4f86ae31",
+      "year": 2025,
+      "month": 4,
+      "facility_name": "Pınarbaşı Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "cea47466-aa91-4a42-392d-08de4f86ae31",
+      "year": 2025,
+      "month": 3,
+      "facility_name": "Pınarbaşı Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "1ccc330c-7a8e-4147-3923-08de4f86ae31",
+      "year": 2025,
+      "month": 2,
+      "facility_name": "Pınarbaşı Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 3170.0,
+      "production_mm3": 0.0032
+    },
+    {
+      "id": "ebf21e85-96df-4ad0-3919-08de4f86ae31",
+      "year": 2025,
+      "month": 1,
+      "facility_name": "Pınarbaşı Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 0.0,
+      "production_mm3": 0.0
+    },
+    {
+      "id": "d4d431bb-914f-4bfb-394b-08de4f86ae31",
+      "year": 2025,
+      "month": 6,
+      "facility_name": "Pınarbaşı Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 99225.0,
+      "production_mm3": 0.0992
+    },
+    {
+      "id": "d337a8e3-63e4-4566-3941-08de4f86ae31",
+      "year": 2025,
+      "month": 5,
+      "facility_name": "Pınarbaşı Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 56118.0,
+      "production_mm3": 0.0561
+    },
+    {
+      "id": "82f36542-6e37-4ef7-3956-08de4f86ae31",
+      "year": 2025,
+      "month": 7,
+      "facility_name": "Pınarbaşı Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 105035.0,
+      "production_mm3": 0.105
+    },
+    {
+      "id": "34ca193a-8fb6-4e04-3961-08de4f86ae31",
+      "year": 2025,
+      "month": 8,
+      "facility_name": "Pınarbaşı Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 100951.0,
+      "production_mm3": 0.101
+    },
+    {
+      "id": "bc7996fd-6ecd-446c-396c-08de4f86ae31",
+      "year": 2025,
+      "month": 9,
+      "facility_name": "Pınarbaşı Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 84582.0,
+      "production_mm3": 0.0846
+    },
+    {
+      "id": "73fa9657-a098-4170-3977-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Pınarbaşı Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 67881.0,
+      "production_mm3": 0.0679
+    },
+    {
+      "id": "ac3691b3-604a-4fec-3982-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Pınarbaşı Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 67881.0,
+      "production_mm3": 0.0679
+    },
+    {
+      "id": "e47fa500-dc4e-4c9c-398d-08de4f86ae31",
+      "year": 2025,
+      "month": 11,
+      "facility_name": "Pınarbaşı Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 61268.0,
+      "production_mm3": 0.0613
+    },
+    {
+      "id": "0151a42f-a217-4f9a-4baa-08decb7b988e",
+      "year": 2025,
+      "month": 12,
+      "facility_name": "Pınarbaşı Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 64552.0,
+      "production_mm3": 0.0646
+    },
+    {
+      "id": "c86b4fda-ab96-4761-4ba9-08decb7b988e",
+      "year": 2025,
+      "month": 12,
+      "facility_name": "Sarıkız Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1733700.0,
+      "production_mm3": 1.7337
+    },
+    {
+      "id": "182d1b56-a09d-4e15-398a-08de4f86ae31",
+      "year": 2025,
+      "month": 11,
+      "facility_name": "Sarıkız Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1802500.0,
+      "production_mm3": 1.8025
+    },
+    {
+      "id": "bd70377a-b475-4016-397f-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Sarıkız Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1833300.0,
+      "production_mm3": 1.8333
+    },
+    {
+      "id": "c9049ccf-1ec1-47ce-3974-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Sarıkız Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1833300.0,
+      "production_mm3": 1.8333
+    },
+    {
+      "id": "9eef671e-3431-4ab0-3969-08de4f86ae31",
+      "year": 2025,
+      "month": 9,
+      "facility_name": "Sarıkız Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1602600.0,
+      "production_mm3": 1.6026
+    },
+    {
+      "id": "347f6979-1bb5-4bc0-395e-08de4f86ae31",
+      "year": 2025,
+      "month": 8,
+      "facility_name": "Sarıkız Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1595900.0,
+      "production_mm3": 1.5959
+    },
+    {
+      "id": "4a5f843d-758d-4dd1-3953-08de4f86ae31",
+      "year": 2025,
+      "month": 7,
+      "facility_name": "Sarıkız Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1841200.0,
+      "production_mm3": 1.8412
+    },
+    {
+      "id": "83a3ca19-6e4b-4776-393e-08de4f86ae31",
+      "year": 2025,
+      "month": 5,
+      "facility_name": "Sarıkız Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1932400.0,
+      "production_mm3": 1.9324
+    },
+    {
+      "id": "5df2356d-eae1-4aa9-3948-08de4f86ae31",
+      "year": 2025,
+      "month": 6,
+      "facility_name": "Sarıkız Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1882100.0,
+      "production_mm3": 1.8821
+    },
+    {
+      "id": "388cd91a-f1f6-4ca9-3916-08de4f86ae31",
+      "year": 2025,
+      "month": 1,
+      "facility_name": "Sarıkız Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1686400.0,
+      "production_mm3": 1.6864
+    },
+    {
+      "id": "2169b86e-18ae-4499-3920-08de4f86ae31",
+      "year": 2025,
+      "month": 2,
+      "facility_name": "Sarıkız Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1659700.0,
+      "production_mm3": 1.6597
+    },
+    {
+      "id": "81c6135a-381a-4a0c-392a-08de4f86ae31",
+      "year": 2025,
+      "month": 3,
+      "facility_name": "Sarıkız Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 2033000.0,
+      "production_mm3": 2.033
+    },
+    {
+      "id": "ece186de-0da7-4a63-3934-08de4f86ae31",
+      "year": 2025,
+      "month": 4,
+      "facility_name": "Sarıkız Kuyuları",
+      "source_type": "Kuyu",
+      "production_m3": 1922300.0,
+      "production_mm3": 1.9223
+    },
+    {
+      "id": "9f362e80-15f3-47bc-3914-08de4f86ae31",
+      "year": 2025,
+      "month": 1,
+      "facility_name": "Tahtalı Barajı",
+      "source_type": "Baraj",
+      "production_m3": 6105300.0,
+      "production_mm3": 6.1053
+    },
+    {
+      "id": "7e32e87a-fd1e-4e9a-391e-08de4f86ae31",
+      "year": 2025,
+      "month": 2,
+      "facility_name": "Tahtalı Barajı",
+      "source_type": "Baraj",
+      "production_m3": 3573000.0,
+      "production_mm3": 3.573
+    },
+    {
+      "id": "47dc2544-e46f-49cd-3928-08de4f86ae31",
+      "year": 2025,
+      "month": 3,
+      "facility_name": "Tahtalı Barajı",
+      "source_type": "Baraj",
+      "production_m3": 3589200.0,
+      "production_mm3": 3.5892
+    },
+    {
+      "id": "04d36a51-ae73-44e2-3932-08de4f86ae31",
+      "year": 2025,
+      "month": 4,
+      "facility_name": "Tahtalı Barajı",
+      "source_type": "Baraj",
+      "production_m3": 2769000.0,
+      "production_mm3": 2.769
+    },
+    {
+      "id": "6642ddc9-6f57-4da5-393c-08de4f86ae31",
+      "year": 2025,
+      "month": 5,
+      "facility_name": "Tahtalı Barajı",
+      "source_type": "Baraj",
+      "production_m3": 2785900.0,
+      "production_mm3": 2.7859
+    },
+    {
+      "id": "d27097a4-f4de-4c22-3946-08de4f86ae31",
+      "year": 2025,
+      "month": 6,
+      "facility_name": "Tahtalı Barajı",
+      "source_type": "Baraj",
+      "production_m3": 3689800.0,
+      "production_mm3": 3.6898
+    },
+    {
+      "id": "3141e4f1-e955-4845-3950-08de4f86ae31",
+      "year": 2025,
+      "month": 7,
+      "facility_name": "Tahtalı Barajı",
+      "source_type": "Baraj",
+      "production_m3": 5923200.0,
+      "production_mm3": 5.9232
+    },
+    {
+      "id": "2dd1549c-15b7-4e6a-395b-08de4f86ae31",
+      "year": 2025,
+      "month": 8,
+      "facility_name": "Tahtalı Barajı",
+      "source_type": "Baraj",
+      "production_m3": 6907500.0,
+      "production_mm3": 6.9075
+    },
+    {
+      "id": "536cbdcf-74f8-4016-3966-08de4f86ae31",
+      "year": 2025,
+      "month": 9,
+      "facility_name": "Tahtalı Barajı",
+      "source_type": "Baraj",
+      "production_m3": 6064100.0,
+      "production_mm3": 6.0641
+    },
+    {
+      "id": "70452288-5592-4642-3971-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Tahtalı Barajı",
+      "source_type": "Baraj",
+      "production_m3": 4889000.0,
+      "production_mm3": 4.889
+    },
+    {
+      "id": "eb3b1d9e-6e15-465c-397c-08de4f86ae31",
+      "year": 2025,
+      "month": 10,
+      "facility_name": "Tahtalı Barajı",
+      "source_type": "Baraj",
+      "production_m3": 4889000.0,
+      "production_mm3": 4.889
+    },
+    {
+      "id": "4aeb5f28-a229-4c7e-3987-08de4f86ae31",
+      "year": 2025,
+      "month": 11,
+      "facility_name": "Tahtalı Barajı",
+      "source_type": "Baraj",
+      "production_m3": 1622400.0,
+      "production_mm3": 1.6224
+    },
+    {
+      "id": "b24773a6-5eb1-45f7-4bb0-08decb7b988e",
+      "year": 2025,
+      "month": 12,
+      "facility_name": "Tahtalı Barajı",
+      "source_type": "Baraj",
+      "production_m3": 2865700.0,
+      "production_mm3": 2.8657
+    }
+  ],
+  "tariffs_2026": {
+    "effective_date": "2026-06-01",
+    "category": "İşyeri / Sanayi 1c (KDV Hariç, Su + Atıksu)",
+    "tier_0_10_tl_m3": 143.66,
+    "tier_11_20_tl_m3": 199.65,
+    "tier_21_plus_tl_m3": 403.79,
+    "osb_typical_grid_tl_m3": 118.5,
+    "groundwater_well_pumping_tl_m3": 24.8,
+    "reclaimed_water_tl_m3": 11.95,
+    "gediz_drought_allocation_normal_pct": 85.9,
+    "gediz_drought_allocation_crisis_pct": 37.1,
+    "gediz_drought_cutback_pct": 62.9
+  }
+}

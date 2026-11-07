@@ -1,0 +1,196 @@
+{
+  "catalog_version": "2026.11",
+  "max_sectoral_saving_cap": 0.78,
+  "combining_formula": "S_p = min(cap_sector, 1 - prod_{i in M_p}(1 - r_i))",
+  "certification_thresholds_2029": {
+    "regulation": "Su Verimliliği Yönetmeliği (RG 27.12.2024, Sayı: 32765) — Son Uyum: 27.12.2029",
+    "mavi_min_saving_pct": 5.0,
+    "yesil_min_saving_pct": 15.0,
+    "turkuaz_min_saving_pct": 30.0
+  },
+  "measures": [
+    {
+      "measure_id": "M01",
+      "name": "Basınçlı Otomatik Kapanan Nozullar & Sensörlü Yıkama Hatları",
+      "target_process": "process",
+      "process_saving_rate": 0.24,
+      "capex_tl": 280000,
+      "annual_opex_change_tl": -35000,
+      "typical_payback_months": 3.5,
+      "applicable_sectors": [
+        "all"
+      ],
+      "nace_reference": "SYGM NACE C10/C13/C24 MET-04 & IFC Case #2 (<60 gün geri ödeme)",
+      "description": "Açık uçlu hortumların yüksek basınçlı/düşük debili tetikli nozullar ve fotoselli durulama valfleriyle değiştirilmesi."
+    },
+    {
+      "measure_id": "M02",
+      "name": "ISO 46001 Dijital Alt-Sayaç Ağı & Akustik/IoT Kaçak İzleme",
+      "target_process": "domestic",
+      "process_saving_rate": 0.38,
+      "capex_tl": 340000,
+      "annual_opex_change_tl": 15000,
+      "typical_payback_months": 7.5,
+      "applicable_sectors": [
+        "all"
+      ],
+      "nace_reference": "SYGM Genel MET-01 & Su Verimliliği Yönetmeliği (RG 32765) Zorunlu Ölçüm Kriteri",
+      "description": "Proses bazlı ultrasonik/elektromanyetik sayaçlandırma, basınç regülasyonu ve şebeke kaçaklarının gerçek zamanlı tespiti."
+    },
+    {
+      "measure_id": "M03",
+      "name": "Durulama / Yıkama Suyu Kaskad (Ters Akımlı) Geri Kazanım Sistemi",
+      "target_process": "process",
+      "process_saving_rate": 0.28,
+      "capex_tl": 680000,
+      "annual_opex_change_tl": 28000,
+      "typical_payback_months": 11.0,
+      "applicable_sectors": [
+        "textile",
+        "food",
+        "metal",
+        "chemical",
+        "semiconductor",
+        "general"
+      ],
+      "nace_reference": "SYGM Tekstil (C13) MET-11 & Gıda (C10) MET-08 (%15-35 proses tasarrufu)",
+      "description": "Son durulama banyosundan çıkan temiz suyun ilk yıkama kademelerinde ters akımlı (counter-current) yeniden kullanımı."
+    },
+    {
+      "measure_id": "M04",
+      "name": "Kazan Buhar Kondensi & Flash Buhar Kapalı Devre Geri Kazanımı",
+      "target_process": "boiler",
+      "process_saving_rate": 0.52,
+      "capex_tl": 590000,
+      "annual_opex_change_tl": -140000,
+      "typical_payback_months": 9.0,
+      "applicable_sectors": [
+        "all"
+      ],
+      "nace_reference": "SYGM Yardımcı Prosesler MET-19 & IFC Buhar Sistemi Vakası (Su + Doğalgaz tasarrufu)",
+      "description": "Kondensatın kazan besleme tankına geri döndürülmesi; hem yumuşatılmış su hem de 80°C termal enerji tasarrufu sağlar."
+    },
+    {
+      "measure_id": "M05",
+      "name": "Kapalı Devre Soğutma Kulesi Dönüşümü & Otomatik İletkenlik (Blöf) Kontrolü",
+      "target_process": "cooling",
+      "process_saving_rate": 0.58,
+      "capex_tl": 1150000,
+      "annual_opex_change_tl": 45000,
+      "typical_payback_months": 14.0,
+      "applicable_sectors": [
+        "all"
+      ],
+      "nace_reference": "SYGM Soğutma Sistemleri MET-14 & IFC (2017) (<2 yıl geri ödeme, soğutmada %95'e varan çevrim)",
+      "description": "Açık/tek geçişli soğutmanın kapalı devreye alınması, drift eliminatörleri ve otomatik iletkenlik sensörüyle blöf suyunun azaltılması."
+    },
+    {
+      "measure_id": "M06",
+      "name": "Otomatik CIP (Yerinde Temizlik) İletkenlik/Bulanıklık Sensörlü Geri Kazanım",
+      "target_process": "process",
+      "process_saving_rate": 0.22,
+      "capex_tl": 760000,
+      "annual_opex_change_tl": -40000,
+      "typical_payback_months": 13.0,
+      "applicable_sectors": [
+        "food",
+        "chemical",
+        "textile",
+        "general"
+      ],
+      "nace_reference": "SYGM Gıda (C10-C11) MET-12 & Kimya (C20) MET-09",
+      "description": "Tank ve hat yıkamada süre bazlı deşarj yerine iletkenlik sensörüyle kimyasal ve son durulama suyunun ayrıştırılıp tekrar kullanımı."
+    },
+    {
+      "measure_id": "M07",
+      "name": "Düşük Flotte Oranlı (1:5) Jet Boyama / Susuz Kuru Temizleme & Süpürme Prosesi",
+      "target_process": "process",
+      "process_saving_rate": 0.3,
+      "capex_tl": 1250000,
+      "annual_opex_change_tl": -65000,
+      "typical_payback_months": 16.5,
+      "applicable_sectors": [
+        "textile",
+        "food",
+        "metal",
+        "mining"
+      ],
+      "nace_reference": "SYGM Tekstil (C13.3) MET-06 (Flotte oranı 1:10 -> 1:5 düşüşü)",
+      "description": "Yüksek banyo oranlı yıkama/boyama ekipmanlarının düşük flotte oranlı nozul/vakum sistemleriyle modernizasyonu."
+    },
+    {
+      "measure_id": "M08",
+      "name": "Endüstriyel Çatı Yağmur Suyu Hasadı & Gri Su Filtrasyon Ünitesi",
+      "target_process": "domestic",
+      "process_saving_rate": 0.45,
+      "capex_tl": 620000,
+      "annual_opex_change_tl": 12000,
+      "typical_payback_months": 24.0,
+      "applicable_sectors": [
+        "all"
+      ],
+      "nace_reference": "IFC (2017) Yağmur Suyu Hasadı & Su Verimliliği Yönetmeliği Yeşil Belge Kriteri",
+      "description": "Fabrika çatı alanından toplanan yağmur suyunun ve lavabo gri sularının filtrelenerek rezervuar, bahçe ve kule beslemesinde kullanımı."
+    },
+    {
+      "measure_id": "M09",
+      "name": "UF + Ters Ozmoz (RO) İleri Proses Atıksuyu Geri Kazanım Tesisi",
+      "target_process": "process",
+      "process_saving_rate": 0.42,
+      "capex_tl": 1850000,
+      "annual_opex_change_tl": 135000,
+      "typical_payback_months": 18.0,
+      "applicable_sectors": [
+        "all"
+      ],
+      "nace_reference": "SYGM NACE Rehberleri İleri Arıtma MET-22 (Arıtılmış atıksuyun prosese geri dönüşü)",
+      "description": "Arıtma çıkış suyunun Ultrafiltrasyon ve Ters Ozmoz membranlarından geçirilerek yumuşak proses suyu kalitesinde tekrar kullanımı."
+    },
+    {
+      "measure_id": "M10",
+      "name": "Ters Ozmoz (RO) Konsantre (Reject) Suyunun Soğutma/Yıkama Beslemesine Geri Kazanımı",
+      "target_process": "cooling",
+      "process_saving_rate": 0.26,
+      "capex_tl": 440000,
+      "annual_opex_change_tl": 18000,
+      "typical_payback_months": 10.5,
+      "applicable_sectors": [
+        "all"
+      ],
+      "nace_reference": "SYGM Yardımcı Prosesler MET-16 (Su şartlandırma konsantre geri kazanımı)",
+      "description": "Kazan/proses su şartlandırma ünitesinden atılan %25-30 oranındaki RO konsantre suyunun soğutma kulesi ve saha yıkamada değerlendirilmesi."
+    },
+    {
+      "measure_id": "M11",
+      "name": "Hava Soğutmalı Eşanjör (Dry Cooler) Hibrit Tepe Yükü Modülü",
+      "target_process": "cooling",
+      "process_saving_rate": 0.36,
+      "capex_tl": 1480000,
+      "annual_opex_change_tl": 55000,
+      "typical_payback_months": 21.0,
+      "applicable_sectors": [
+        "chemical",
+        "energy",
+        "metal",
+        "food",
+        "semiconductor"
+      ],
+      "nace_reference": "SYGM Enerji/Kimya MET-17 (Islak-Kuru Hibrit Soğutma)",
+      "description": "Buharlaşmalı soğutma kulelerine adyabatik/kuru soğutucu ön kademesi eklenerek yaz aylarında buharlaşma kaybının %36 azaltılması."
+    },
+    {
+      "measure_id": "M12",
+      "name": "Kazan Blöf Suyu Isı ve Su Geri Kazanım Flaş Tankı",
+      "target_process": "boiler",
+      "process_saving_rate": 0.28,
+      "capex_tl": 360000,
+      "annual_opex_change_tl": -48000,
+      "typical_payback_months": 11.5,
+      "applicable_sectors": [
+        "all"
+      ],
+      "nace_reference": "SYGM Kazan Sistemleri MET-20",
+      "description": "Sürekli kazan blöfünden flaş buhar ve ısı geri kazanımı yapılarak ön ısıtmalı besleme suyuna karıştırılması."
+    }
+  ]
+}
