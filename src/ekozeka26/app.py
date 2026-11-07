@@ -21,7 +21,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
@@ -142,6 +142,46 @@ def serve_index() -> HTMLResponse:
     if index_file.exists():
         return HTMLResponse(index_file.read_text(encoding="utf-8"))
     return HTMLResponse("<h1>AquaSanayi AI Çalışıyor</h1>")
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon() -> Response:
+    """Tarayıcı/uptime monitörlerinin gereksiz 404 üretmesini engeller."""
+    svg = (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">'
+        '<rect width="32" height="32" rx="7" fill="#0284c7"/>'
+        '<path d="M16 5c-4.2 5.1-7 9-7 12.4A7 7 0 0 0 23 17.4C23 14 20.2 10.1 16 5z" fill="#67e8f9"/>'
+        "</svg>"
+    )
+    return Response(content=svg, media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=86400"})
+
+
+@app.get("/health", include_in_schema=False)
+def health_alias() -> dict[str, Any]:
+    """`/health` kısayolu (uptime monitörleri ve yük dengeleyiciler için /api/health ile aynı yanıt)."""
+    return api_health()
+
+
+@app.get("/api", include_in_schema=False)
+def api_index() -> dict[str, Any]:
+    """Kullanılabilir uç noktaların kısa dizini."""
+    return {
+        "service": "AquaSanayi AI",
+        "docs": "/docs",
+        "ui": "/",
+        "endpoints": [
+            "/api/health",
+            "/api/basins",
+            "/api/osb-compare",
+            "/api/predict-location",
+            "/api/simulate-roi",
+            "/api/executive-summary",
+            "/api/izsu-live",
+            "/api/facility-sample",
+            "/api/export/json",
+            "/api/export/csv",
+        ],
+    }
 
 
 @app.get("/api/health")
