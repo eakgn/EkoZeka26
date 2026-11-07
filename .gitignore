@@ -1,0 +1,30 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Gizli dosyalar
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.secret
+credentials.json
+*antigravity-accounts.json*
+
+# Node / frontend
+node_modules/
+dist/
+build/
+
+# OS / editör
+.DS_Store
+.idea/
+.vscode/
+
+# Hackathon
+STATE.md.lock
