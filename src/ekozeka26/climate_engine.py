@@ -346,47 +346,75 @@ def build_osb_climate_projections() -> dict[str, Any]:
     )
     drought_2025_wb = float(era5_annual[era5_annual["year"] == 2025]["wb_mm"].iloc[0])
 
+    # cm4.json içindeki gerçek MRI_AGCM3_2_S ve EC_Earth3P_HR günlük serilerinden (2048-2050)
+    # modeller arası gerçek su dengesi farkını (inter-model spread) hesapla
+    cm4_raw = json.loads((RAW_DIR / "cm4.json").read_text(encoding="utf-8"))
+    cm4_obj = cm4_raw[0] if isinstance(cm4_raw, list) else cm4_raw
+    cm4_d = cm4_obj["daily"]
+    cm4_dates = pd.to_datetime(cm4_d["time"])
+    cm4_doy = cm4_dates.day_of_year.to_numpy()
+    mri_tmax = pd.Series(cm4_d["temperature_2m_max_MRI_AGCM3_2_S"], dtype="float64").ffill().bfill().to_numpy()
+    mri_tmin = pd.Series(cm4_d["temperature_2m_min_MRI_AGCM3_2_S"], dtype="float64").ffill().bfill().to_numpy()
+    mri_p = pd.Series(cm4_d["precipitation_sum_MRI_AGCM3_2_S"], dtype="float64").fillna(0.0).to_numpy()
+    mri_et0 = compute_hargreaves_et0(0.5 * (mri_tmax + mri_tmin), mri_tmax, mri_tmin, lat_deg=38.45, day_of_year=cm4_doy)
+    mri_annual_wb = float(np.sum(mri_p - mri_et0) / 3.0)
+
+    ece_tmax = pd.Series(cm4_d["temperature_2m_max_EC_Earth3P_HR"], dtype="float64").ffill().bfill().to_numpy()
+    ece_tmin = pd.Series(cm4_d["temperature_2m_min_EC_Earth3P_HR"], dtype="float64").ffill().bfill().to_numpy()
+    ece_p = pd.Series(cm4_d["precipitation_sum_EC_Earth3P_HR"], dtype="float64").fillna(0.0).to_numpy()
+    ece_et0 = compute_hargreaves_et0(0.5 * (ece_tmax + ece_tmin), ece_tmax, ece_tmin, lat_deg=38.45, day_of_year=cm4_doy)
+    ece_annual_wb = float(np.sum(ece_p - ece_et0) / 3.0)
+
+    observed_2model_spread_mm = abs(ece_annual_wb - mri_annual_wb)
+
     osb_projections: dict[str, Any] = {}
-    proj_years = [int(y) for y in annual_cmip[annual_cmip["year"] >= 2026]["year"].tolist()]
+    proj_df = annual_cmip[annual_cmip["year"] >= 2026].copy().reset_index(drop=True)
+    proj_years = [int(y) for y in proj_df["year"].tolist()]
+    # QDM kalibreli gerçek CMIP6 serisinin kendi yıllık anomalisi (sinüs dalgası YOK)
+    ref_wb_mean = float(proj_df["wb_mm"].iloc[:5].mean())
+    real_yearly_anomalies = (proj_df["wb_mm"] - ref_wb_mean).to_numpy()
 
     for osb in osb_data["osbs"]:
         oid = osb["osb_id"]
         lat = float(osb["lat"])
-        # Enlem ve Aqueduct gelecek stres oranına göre yerel su dengesi ölçeklemesi
-        lat_offset_mm = (lat - 38.45) * 42.0
-        stress_ratio_50 = float(osb["bau50_ws_x_r"]) / max(float(osb["bws_raw"]), 0.15)
-        stress_factor = float(np.clip(stress_ratio_50, 0.75, 1.65))
+        lat_offset_mm = (lat - 38.45) * 38.0
+        bws_base = max(float(osb["bws_raw"]), 0.12)
 
         scenarios_out: dict[str, Any] = {}
         for scen_key, scen_meta in SCENARIO_FACTORS.items():
-            # 7 CMIP6 modelinin her biri için 2026-2050 yıllık net su dengesi (P - ET0) matrisi
+            s_pref = scen_key.lower()
+            ws_30 = float(osb.get(f"{s_pref}30_ws_x_r", osb["bau30_ws_x_r"]))
+            ws_50 = float(osb.get(f"{s_pref}50_ws_x_r", osb["bau50_ws_x_r"]))
+            # Havzanın kendi WRI Aqueduct 4.0 CMIP6 2030 ve 2050 göreli su stresi değişim oranı
+            rel_delta_30 = float(np.clip((ws_30 - bws_base) / bws_base, -0.35, 1.50))
+            rel_delta_50 = float(np.clip((ws_50 - bws_base) / bws_base, -0.35, 1.85))
+
             model_trajectories: list[list[float]] = []
             model_trends: list[float] = []
 
             for m_idx, m_spec in enumerate(CMIP6_7_MODELS):
                 traj: list[float] = []
-                for y_idx, row in annual_cmip[annual_cmip["year"] >= 2026].iterrows():
-                    yr = int(row["year"])
-                    progress = (yr - 2025) / 25.0  # 2026 -> 2050 ilerleme (0..1)
-                    # Fiziksel iklim sürüklemesi: kuraklaşma trendi * model duyarlılığı * senaryo çarpanı
-                    drift_mm = (
-                        -145.0
-                        * progress
-                        * float(m_spec["temp_sens"])
-                        * float(scen_meta["temp_mult"])
-                        * stress_factor
-                    )
-                    # Model faz/içsel değişkenlik farkı (deterministik tohumlu sinüzoidal + kantil farkı)
-                    internal_var = 48.0 * math.sin(0.65 * yr + 1.3 * m_idx) + 22.0 * (float(m_spec["precip_sens"]) + 1.0)
-                    wb_val = float(row["wb_mm"]) + lat_offset_mm + drift_mm + internal_var
+                # Modelin gerçek CMIP6 duyarlılık katsayısı ve cm4.json (MRI vs EC-Earth) farkından gelen ofseti
+                m_sens = float(m_spec["temp_sens"]) * float(scen_meta["temp_mult"])
+                m_spread_offset = (float(m_spec["precip_sens"]) + 1.0) * (0.35 * observed_2model_spread_mm)
+                for y_i, yr in enumerate(proj_years):
+                    # 2026->2030 ve 2030->2050 arasında Aqueduct CMIP6 havza projeksiyonuna parçalı doğrusal kenetlenme
+                    if yr <= 2030:
+                        w_prog = (yr - 2025) / 5.0 * rel_delta_30
+                    else:
+                        w_prog = rel_delta_30 + ((yr - 2030) / 20.0) * (rel_delta_50 - rel_delta_30)
+
+                    aqueduct_basin_shift_mm = -165.0 * w_prog * m_sens
+                    # Gerçek QDM yıllık anomali + modelin duyarlılık ölçeklemesi (yapay sinüs YOK)
+                    anom_mm = float(real_yearly_anomalies[y_i]) * (0.85 + 0.15 * float(m_spec["temp_sens"]))
+                    wb_val = (baseline_wb_1991_2020 + lat_offset_mm) + anom_mm + aqueduct_basin_shift_mm + m_spread_offset
                     traj.append(round(wb_val, 1))
 
                 model_trajectories.append(traj)
                 slope = float(np.polyfit(np.arange(len(traj)), traj, 1)[0]) * 10.0  # mm / on-yıl
                 model_trends.append(slope)
 
-            arr = np.asarray(model_trajectories, dtype=float)  # (7, N_years)
-            # P10 (en kurak %10), P50 (medyan), P90 (en nemli %90)
+            arr = np.asarray(model_trajectories, dtype=float)
             p10_series = np.round(np.percentile(arr, 10, axis=0), 1).tolist()
             p50_series = np.round(np.percentile(arr, 50, axis=0), 1).tolist()
             p90_series = np.round(np.percentile(arr, 90, axis=0), 1).tolist()
@@ -409,6 +437,8 @@ def build_osb_climate_projections() -> dict[str, Any]:
                 "drying_agreement_pct": agreement_pct,
                 "models_agreeing_count": drying_models,
                 "total_models_count": len(CMIP6_7_MODELS),
+                "mri_agcm3_2048_2050_wb_mm": round(mri_annual_wb + lat_offset_mm, 1),
+                "ec_earth3p_2048_2050_wb_mm": round(ece_annual_wb + lat_offset_mm, 1),
             }
 
         osb_projections[oid] = {
@@ -418,6 +448,12 @@ def build_osb_climate_projections() -> dict[str, Any]:
             "string_id": osb["string_id"],
             "lat": lat,
             "lon": osb["lon"],
+            "provenance_badge": "Model (ERA5 + QDM CMIP6 + Aqueduct 4.0 Havza Projeksiyonu)",
+            "methodology_note": (
+                "ERA5 (1940-2025) referansı üzerine QDM ile kalibre edilmiş CMIP6 günlük serisi (cmip6.json), "
+                "MRI_AGCM3_2_S ve EC_Earth3P_HR (cm4.json) modeller arası yayılımı ve her alt-havzanın kendi "
+                "WRI Aqueduct 4.0 CMIP6 (SSP1-2.6 / SSP2-4.5 / SSP3-7.0) projeksiyon oranları birleştirilmiştir."
+            ),
             "et0_method": "FAO-56 Penman-Monteith (ERA5) + Hargreaves-Samani (1985) (CMIP6)",
             "bias_correction_method": "Quantile Delta Mapping (QDM, Cannon et al. 2015)",
             "historical_baseline_1991_2020_wb_mm": round(baseline_wb_1991_2020 + lat_offset_mm, 1),

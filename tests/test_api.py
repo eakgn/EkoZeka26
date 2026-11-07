@@ -110,3 +110,46 @@ def test_all_rest_endpoints_200_ok_and_fast_fallback() -> None:
     # 10. Geçersiz girdi koruması (annual_water_m3 <= 0 -> 422)
     r_bad = client.post("/api/simulate-roi", json={"annual_water_m3": -10, "capex_budget_tl": 100000})
     assert r_bad.status_code == 422
+
+
+def test_custom_basin_click_and_5_scenarios_and_vendor_assets() -> None:
+    # 1. Yerelleştirilmiş kütüphaneler (offline demo garantisi)
+    for asset in ("/static/vendor/tailwindcss.js", "/static/vendor/leaflet.js", "/static/vendor/chart.umd.min.js"):
+        r_asset = client.get(asset)
+        assert r_asset.status_code == 200
+        assert len(r_asset.content) > 10000
+
+    # 2. OSB dışı bir poligona (string_id) tıklandığında Kemalpaşa'nın %100 kuyu oranı dayatılmamalı
+    r_custom = client.post(
+        "/api/predict-location",
+        json={"string_id": "284002-TUR.78_1-3384", "sector": "textile", "year": 2050, "scenario": "BAU"},
+    )
+    assert r_custom.status_code == 200
+    c_json = r_custom.json()
+    assert c_json["is_custom_basin"] is True
+    assert c_json["selected_location"]["location_type"] == "custom_basin"
+    assert c_json["transparent_risk"]["indicators"]["groundwater_dependency_pct"] < 90.0
+
+    # 3. 5 hızlı senaryonun tamamı erişilebilir ve kriter kontrol listesi üretiyor olmalı
+    for pid in ("kemalpasa_textile", "manisa_food", "aliaga_chemical", "konya_metal", "izmir_city_izsu"):
+        r_prof = client.get(f"/api/facility-sample?profile_id={pid}")
+        assert r_prof.status_code == 200
+        f_data = r_prof.json()["facility_data"]
+        assert "scenario_badge" in f_data
+        r_sim = client.post(
+            "/api/simulate-roi",
+            json={
+                "facility_name": f_data["facility_name"],
+                "osb_id": f_data["osb_id"],
+                "sector": f_data["sector_code"],
+                "annual_water_m3": f_data["annual_water_m3"],
+                "water_source": f_data["water_source"],
+                "grid_share_pct": f_data.get("grid_share_pct", 100),
+                "process_shares": f_data["process_shares"],
+                "daily_downtime_cost_tl": f_data["daily_downtime_cost_tl"],
+                "capex_budget_tl": f_data["capex_budget_tl"],
+            },
+        )
+        assert r_sim.status_code == 200
+        cert = r_sim.json()["certification_2029"]
+        assert len(cert["criteria_checklist"]) == 4

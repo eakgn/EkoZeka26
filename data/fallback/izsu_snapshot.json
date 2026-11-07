@@ -1393,6 +1393,38 @@
     "osb_typical_grid_tl_m3": 118.5,
     "groundwater_well_pumping_tl_m3": 24.8,
     "reclaimed_water_tl_m3": 11.95,
+    "regional_verified_tariffs_tl_m3": {
+      "izsu_sanayi_1c_21plus": {
+        "unit_tl_m3": 403.79,
+        "provenance": "Ölçülmüş (Resmi Tarife)",
+        "source_note": "İZSU Haziran 2026 Sanayi 1c/1ç 21 m³+ su (269,20) + atıksu (134,59) KDV hariç"
+      },
+      "bursa_bosb_grid": {
+        "unit_tl_m3": 122.0,
+        "provenance": "Ölçülmüş (Resmi Tarife)",
+        "source_note": "Bursa OSB (BOSB) 2026 1. kalite sanayi suyu (106,60 TL) + kirlilik atıksu bedeli (~15,40 TL)"
+      },
+      "kocaeli_gosb_isu": {
+        "unit_tl_m3": 80.33,
+        "provenance": "Ölçülmüş (Resmi Tarife)",
+        "source_note": "Kocaeli İSU 2026 sanayi tarifesi (73,33 TL/m³) + GOSB altyapı işletme bedeli (7,00 TL/m³)"
+      },
+      "konya_koski_industrial": {
+        "unit_tl_m3": 98.39,
+        "provenance": "Ölçülmüş (Resmi Tarife)",
+        "source_note": "Konya KOSKİ 2026 son dönem merkez işyeri/sanayi su + atıksu birim fiyatı (KDV hariç)"
+      },
+      "ege_osb_grid_reference": {
+        "unit_tl_m3": 118.5,
+        "provenance": "Kalibre Varsayım",
+        "source_note": "KOSBİ / MOSB / ALOSBİ iç tarifeleri üye portalında kapalı olduğundan BOSB sanayi tarifesine göre kalibre edilmiş referans"
+      },
+      "groundwater_well_pumping": {
+        "unit_tl_m3": 24.8,
+        "provenance": "Kalibre Varsayım",
+        "source_note": "Derin kuyu elektrik/pompaj (150-220 m dinamik seviye) + klorlama/ön filtrasyon + YAS sayaç/bakım birim maliyeti"
+      }
+    },
     "gediz_drought_allocation_normal_pct": 85.9,
     "gediz_drought_allocation_crisis_pct": 37.1,
     "gediz_drought_cutback_pct": 62.9

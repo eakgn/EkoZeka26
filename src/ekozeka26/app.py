@@ -34,6 +34,7 @@ from ekozeka26.ml_engine import explain_basin_summer_peak_shap
 from ekozeka26.risk_index import (
     _future_ws_col,
     _load_basins_df,
+    _load_basins_gdf,
     _load_climate_osb,
     _load_osb_profiles,
     compare_candidate_osbs,
@@ -118,14 +119,15 @@ class OSBCompareRequest(BaseModel):
 class ROISimulateRequest(BaseModel):
     facility_name: str = Field(default="EgeDokuma Tekstil Terbiye & Boyahane A.Ş. (Kemalpaşa OSB)")
     osb_id: str = Field(default="izmir_kemalpasa")
+    string_id: str | None = Field(default=None, description="OSB dışı seçilen alt-havza poligon anahtarı")
     sector: str = Field(default="textile")
     employee_count: int = Field(default=320, ge=1)
     annual_water_m3: float = Field(default=150000.0, gt=0)
-    water_source: str = Field(default="izsu_grid")
+    water_source: str = Field(default="osb_grid")
     grid_share_pct: float = Field(default=100.0, ge=0, le=100)
     process_shares: dict[str, float] | None = Field(default=None)
-    daily_downtime_cost_tl: float = Field(default=750000.0, ge=0)
-    capex_budget_tl: float = Field(default=3500000.0, ge=0)
+    daily_downtime_cost_tl: float = Field(default=240000.0, ge=0)
+    capex_budget_tl: float = Field(default=2750000.0, ge=0)
     target_year: int | str = Field(default=2030)
     scenario: str = Field(default="BAU")
 
@@ -266,13 +268,14 @@ def _evaluate_location_payload(req: LocationPredictRequest) -> dict[str, Any]:
     boundary_warning = None
     inside_turkey = True
     matched_osb: dict[str, Any] | None = None
+    is_custom_basin = False
 
     if req.lat is not None and req.lon is not None:
         geo_hit = find_basin_by_coords(req.lat, req.lon)
         inside_turkey = bool(geo_hit["inside_turkey"])
         boundary_warning = geo_hit["warning"]
         basin_row = geo_hit["basin_row"]
-        # En yakın OSB'yi iklim serisi referansı için bul
+        is_custom_basin = True
         best_oid = min(
             all_osbs.keys(),
             key=lambda k: (all_osbs[k]["lat"] - float(req.lat)) ** 2 + (all_osbs[k]["lon"] - float(req.lon)) ** 2,
@@ -281,11 +284,34 @@ def _evaluate_location_payload(req: LocationPredictRequest) -> dict[str, Any]:
     elif req.string_id and req.string_id in df_basins.index:
         basin_row = df_basins.loc[req.string_id].to_dict()
         basin_row["string_id"] = req.string_id
-        best_oid = next(
-            (k for k, v in all_osbs.items() if v["pfaf_id"] == int(basin_row["pfaf_id"])),
-            "izmir_kemalpasa",
+        exact_osb = next(
+            (k for k, v in all_osbs.items() if v["string_id"] == req.string_id),
+            None,
         )
-        matched_osb = all_osbs[best_oid]
+        if exact_osb is not None:
+            matched_osb = all_osbs[exact_osb]
+            is_custom_basin = False
+        else:
+            is_custom_basin = True
+            same_pfaf = next(
+                (k for k, v in all_osbs.items() if v["pfaf_id"] == int(basin_row["pfaf_id"])),
+                None,
+            )
+            if same_pfaf is not None:
+                matched_osb = all_osbs[same_pfaf]
+            else:
+                gdf = _load_basins_gdf()
+                g_hit = gdf[gdf["string_id"] == req.string_id]
+                if not g_hit.empty:
+                    cent = g_hit.geometry.iloc[0].centroid
+                    c_lat, c_lon = float(cent.y), float(cent.x)
+                    best_oid = min(
+                        all_osbs.keys(),
+                        key=lambda k: (all_osbs[k]["lat"] - c_lat) ** 2 + (all_osbs[k]["lon"] - c_lon) ** 2,
+                    )
+                    matched_osb = all_osbs[best_oid]
+                else:
+                    matched_osb = all_osbs["izmir_kemalpasa"]
     else:
         oid = req.osb_id if (req.osb_id and req.osb_id in all_osbs) else "izmir_kemalpasa"
         matched_osb = all_osbs[oid]
@@ -302,7 +328,8 @@ def _evaluate_location_payload(req: LocationPredictRequest) -> dict[str, Any]:
     decadal_wb_trend = float(c_scen.get("decadal_trend_mm", -32.0))
     spei_proxy_trend = round(decadal_wb_trend / 95.0, 2)
 
-    gw_dep = float(matched_osb["groundwater_dependency_pct"]) if req.lat is None else None
+    # OSB dışı bir havzaya tıklandığında Kemalpaşa'nın %100 kuyu oranını dayatma; havzanın kendi gtd_raw değerinden türet!
+    gw_dep = None if is_custom_basin else float(matched_osb["groundwater_dependency_pct"])
     risk_res = compute_transparent_risk(
         basin_row=basin_row,
         sector=req.sector,
@@ -316,12 +343,29 @@ def _evaluate_location_payload(req: LocationPredictRequest) -> dict[str, Any]:
     return {
         "inside_turkey": inside_turkey,
         "boundary_warning": boundary_warning,
+        "is_custom_basin": is_custom_basin,
         "selected_osb": matched_osb,
+        "selected_location": {
+            "location_type": "custom_basin" if is_custom_basin else "osb",
+            "string_id": risk_res["string_id"],
+            "pfaf_id": risk_res["pfaf_id"],
+            "province_name": risk_res["province_name"],
+            "display_title": (
+                f"{risk_res['province_name']} Alt-Havzası (#{risk_res['pfaf_id']} · Münferit Sanayi Parseli)"
+                if is_custom_basin
+                else matched_osb["name"]
+            ),
+            "nearest_osb_id": matched_osb["osb_id"],
+            "nearest_osb_name": matched_osb["name"],
+            "in_focus_corridor": bool(matched_osb.get("in_focus_corridor", True)),
+        },
         "transparent_risk": risk_res,
         "xgboost_shap_explanation": shap_res,
         "climate_water_balance_2026_2050": c_scen,
         "climate_metadata": {
             "ensemble_models": climate_all.get("ensemble_models", []),
+            "provenance_badge": c_osb.get("provenance_badge", "Model (ERA5 + QDM CMIP6 + Aqueduct 4.0)"),
+            "methodology_note": c_osb.get("methodology_note", ""),
             "et0_method": c_osb.get("et0_method", "FAO-56 / Hargreaves-Samani"),
             "bias_correction_method": c_osb.get("bias_correction_method", "QDM"),
             "historical_baseline_wb_mm": c_osb.get("historical_baseline_1991_2020_wb_mm", -420.0),
@@ -357,6 +401,7 @@ def api_simulate_roi_post(req: ROISimulateRequest) -> dict[str, Any]:
     try:
         sim = optimize_facility_roi(
             osb_id=req.osb_id,
+            string_id=req.string_id,
             sector=req.sector,
             annual_water_m3=req.annual_water_m3,
             water_source=req.water_source,
@@ -414,6 +459,7 @@ def api_executive_summary(req: ExecutiveSummaryRequest) -> dict[str, Any]:
         p = req.simulation_params or ROISimulateRequest()
         sim = optimize_facility_roi(
             osb_id=p.osb_id,
+            string_id=p.string_id,
             sector=p.sector,
             annual_water_m3=p.annual_water_m3,
             water_source=p.water_source,
@@ -487,6 +533,7 @@ def api_export_json_get(
 def api_export_json_post(req: ROISimulateRequest) -> JSONResponse:
     sim = optimize_facility_roi(
         osb_id=req.osb_id,
+        string_id=req.string_id,
         sector=req.sector,
         annual_water_m3=req.annual_water_m3,
         water_source=req.water_source,
@@ -534,6 +581,7 @@ def api_export_csv_get(
 def api_export_csv_post(req: ROISimulateRequest) -> PlainTextResponse:
     sim = optimize_facility_roi(
         osb_id=req.osb_id,
+        string_id=req.string_id,
         sector=req.sector,
         annual_water_m3=req.annual_water_m3,
         water_source=req.water_source,

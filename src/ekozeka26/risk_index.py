@@ -120,14 +120,24 @@ def compute_transparent_risk(
     gtd_score = float(basin_row.get("gtd_score", 2.0))
     pfaf_id = int(basin_row.get("pfaf_id", 0))
     if groundwater_dependency_pct is None:
-        if pfaf_id in (211055, 211056, 221002):
+        if pfaf_id in (211055, 211056):
             gw_dep = 95.0
-        elif gtd_raw > 0.08:
-            gw_dep = 78.0
+            gw_prov = "Resmi Plan (SYGM Gediz Tahsis Planı)"
+        elif pfaf_id == 221002:
+            gw_dep = 92.0
+            gw_prov = "Resmi Rapor (Konya Kapalı Havza YAS)"
         else:
-            gw_dep = 55.0
+            # Aqueduct yeraltı su tablası düşüş hızı (gtd_raw) ve su stresinden sürekli tahmin
+            gtd_pos = max(0.0, gtd_raw)
+            gw_dep = round(float(np.clip(35.0 + 260.0 * gtd_pos + 12.0 * min(bws_base_raw, 2.0), 30.0, 92.0)), 1)
+            gw_prov = "Havza Göstergesinden Tahmin (Aqueduct gtd_raw)"
     else:
         gw_dep = float(groundwater_dependency_pct)
+        gw_prov = (
+            "Resmi Plan (SYGM Gediz / Konya)"
+            if pfaf_id in (211056, 221002)
+            else "Kalibre Varsayım (OSB Su Temin Profili)"
+        )
 
     gtd_norm = float(np.clip(max(gtd_raw / 0.18, gtd_score / 4.5), 0.0, 1.0))
     gw_norm = float(np.clip(0.58 * gtd_norm + 0.42 * (gw_dep / 100.0), 0.0, 1.0))
@@ -181,6 +191,8 @@ def compute_transparent_risk(
             "points": pts_groundwater,
             "raw_indicator": f"gtd={gtd_raw:.3f} cm/yıl, kuyu bağımlılığı=%{gw_dep:.0f}",
             "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)",
+            "provenance": gw_prov,
+            "info_summary": "Akifer su tablasının yıllık düşüş hızını (gtd_raw) ve sanayinin kuyulara bağımlılığını ölçer. Kuyu seviyesi düştükçe pompaj maliyeti artar ve kuraklıkta DSİ/SYGM tahsis kısıtı riski doğar.",
         },
         {
             "key": "water_stress",
@@ -189,6 +201,8 @@ def compute_transparent_risk(
             "points": pts_water_stress,
             "raw_indicator": f"yıllık ws={ws_future_raw:.2f}, yaz pik={projected_summer_ws:.2f}",
             "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))",
+            "provenance": "Ölçülmüş + CMIP6 Model (WRI Aqueduct 4.0)",
+            "info_summary": "Havzadaki toplam su çekiminin yenilenebilir su arzına oranıdır (>1.0 aşırı stres). Yaz aylarında (Ağustos) tarımsal sulama ile sanayi aynı kaynağı paylaştığı için pik stres kesintiyi belirler.",
         },
         {
             "key": "drought_spei",
@@ -197,6 +211,8 @@ def compute_transparent_risk(
             "points": pts_drought,
             "raw_indicator": f"drr={drr_raw:.2f}, SPEI-12 eğim={spei12_trend:.2f}/on-yıl",
             "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|SPEI_trend|)) × senaryo_çarpanı",
+            "provenance": "Model (ERA5 + CMIP6 QDM + Aqueduct drr)",
+            "info_summary": "Yağış eksi buharlaşma (P − ET₀) dengesinin 12 aylık standartlaştırılmış eğilimini ve tarihsel kuraklık şiddetini gösterir. Negatif eğilim baraj ve akiferlerin beslenemediğini kanıtlar.",
         },
         {
             "key": "sectoral_pressure",
@@ -205,6 +221,8 @@ def compute_transparent_risk(
             "points": pts_sectoral,
             "raw_indicator": f"{awr_score_col}={awr_score:.2f}/5.0",
             "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)",
+            "provenance": "Ölçülmüş (Aqueduct Sektörel AWR) + Regülasyon",
+            "info_summary": "Seçilen sanayi sektörünün havzadaki fiziksel, kalite ve regülasyon (27.12.2029 Yeşil Su Verimliliği Belgesi) baskısına duyarlılığını ölçer.",
         },
         {
             "key": "variability",
@@ -213,6 +231,8 @@ def compute_transparent_risk(
             "points": pts_variability,
             "raw_indicator": f"mevsimsel sev={sev_raw:.2f}, yıllar-arası iav={iav_raw:.2f}",
             "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))",
+            "provenance": "Ölçülmüş (WRI Aqueduct 4.0 sev_raw & iav_raw)",
+            "info_summary": "Yıllık toplam su yeterli görünse bile suyun aylara ve yıllara düzensiz dağılmasını ölçer. Yüksek oynaklık, depolama veya geri kazanım olmayan fabrikalarda ani yaz kesintilerine yol açar.",
         },
     ]
     components.sort(key=lambda x: x["points"], reverse=True)
@@ -231,6 +251,11 @@ def compute_transparent_risk(
             "p10": p10_days,
             "p50": p50_days,
             "p90": p90_days,
+            "provenance": "Sezgisel Risk-Süre İndeksi (Kalibre Model)",
+            "methodology_note": (
+                "Fabrika bazında tarihsel kesinti günü verisi kamuya açık olmadığından bileşik risk skorundan "
+                "üretilmiş gösterge niteliğinde endekstir (P10 = 0.52×P50, P90 ≈ 1.68×P50 + kuyu eki)."
+            ),
         },
         "indicators": {
             "baseline_bws_raw": round(bws_base_raw, 3),
@@ -241,6 +266,7 @@ def compute_transparent_risk(
             "sev_raw": round(sev_raw, 3),
             "iav_raw": round(iav_raw, 3),
             "groundwater_dependency_pct": round(gw_dep, 1),
+            "groundwater_provenance": gw_prov,
             "spei12_decadal_trend": round(spei12_trend, 3),
         },
         "component_breakdown": components,
@@ -307,7 +333,15 @@ def compare_candidate_osbs(
 
     all_osbs = {o["osb_id"]: o for o in osb_meta["osbs"]}
     if not osb_ids:
-        osb_ids = ["izmir_kemalpasa", "manisa_osb", "bursa_osb", "konya_osb", "kocaeli_gosb", "adana_osb"]
+        osb_ids = [
+            "kocaeli_gosb",
+            "bursa_osb",
+            "izmir_aliaga",
+            "izmir_iaosb",
+            "konya_osb",
+            "izmir_kemalpasa",
+            "manisa_osb",
+        ]
 
     results: list[dict[str, Any]] = []
     for oid in osb_ids:
@@ -335,11 +369,16 @@ def compare_candidate_osbs(
                 "osb_id": oid,
                 "name": o_info["name"],
                 "city": o_info["city"],
+                "corridor_region": o_info.get("corridor_region", o_info["city"]),
+                "in_focus_corridor": bool(o_info.get("in_focus_corridor", True)),
                 "basin_name": o_info["basin_name"],
                 "lat": o_info["lat"],
                 "lon": o_info["lon"],
                 "drought_cutback_risk_pct": o_info["drought_cutback_risk_pct"],
-                "drying_agreement_pct": c_proj.get("drying_agreement_pct", 85.7),
+                "gw_provenance": o_info.get("gw_provenance", "Kalibre Varsayım"),
+                "osb_grid_tariff_tl_m3": o_info.get("osb_grid_tariff_tl_m3", 118.50),
+                "tariff_provenance": o_info.get("tariff_provenance", "Kalibre Varsayım"),
+                "drying_agreement_pct": c_proj.get("drying_agreement_pct", 100.0),
                 "delta_wb_2050_mm": c_proj.get("delta_wb_2050_vs_baseline_mm", -85.0),
                 **risk_eval,
             }
