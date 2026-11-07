@@ -70,5 +70,29 @@ uv run python -m ekozeka26.ml_engine --backtest
 
 ## 5. Bilinen Sınırlamalar ve Şeffaf Varsayımlar
 - **Mekânsal Çözünürlük:** Aqueduct 4.0 gelecek projeksiyonları alt-havza (`pfaf_id`) ölçeğindedir; aynı alt-havzadaki iki farklı kuyu arasındaki mikro-hidrojeolojik farklar yerinde pompaj testi gerektirir.
-- **Tarihsel Kesinti Etiketi:** Fabrika bazında tarihsel "su kesintisi günü" kamuya açık olmadığı için geriye dönük doğrulama (backtest) ERA5 + GloFAS Gediz nehir debisi (`1997–2025`, `R² = 0,6732`) ve Aqueduct aylık su stresi (`R² = 0,7958`) üzerinden hidrolojik yeniden üretim olarak gerçekleştirilmiştir.
+- **Tarihsel Kesinti Etiketi:** Fabrika bazında tarihsel "su kesinti günü" kamuya açık olmadığı için geriye dönük doğrulama (backtest) ERA5 + GloFAS Gediz nehir debisi (`1997–2025`, `R² = 0,6732`) ve Aqueduct aylık su stresi (`R² = 0,7958`) üzerinden hidrolojik yeniden üretim olarak gerçekleştirilmiştir.
 - **Önlem CAPEX Ölçeklemesi:** Katalogdaki 12 SYGM/IFC önleminin yatırım maliyetleri orta-büyük ölçekli (`100.000 – 300.000 m³/yıl`) standart fabrika kapasitelerine göre kalibre edilmiştir.
+
+---
+
+## 6. Bilinen Zararsız Log Gürültüsü: `GET /v1/models → 404`
+
+**Belirti:** Sunucu logunda `GET /health 200 OK` hemen ardından `GET /v1/models 404 Not Found` satırları ~30 saniyede bir tekrar eder.
+
+**Sebep:** Bu istekleri **AquaSanayi AI değil, OpenCode CLI (`user-agent: opencode/latest/2.1.4/cli`) kendisi** gönderir. OpenCode, desteklediği yerel/OpenAI-uyumlu LLM sunucularını keşfetmek için `127.0.0.1:8000` adresini yoklar:
+1. `GET /health` → "Bu portta bir servis var mı?" (bizim eklediğimiz sağlık kısayolu `200` döner),
+2. `GET /v1/models` → "Hangi modeller yüklü?" (OpenAI API standardı; vLLM'in varsayılan portu da 8000'dir).
+
+Bizim uygulamamız bir **LLM sunucusu değil**, bir REST karar platformudur; uç noktaları `/api/...` altındadır. Dolayısıyla `/v1/models` için `404` dönmesi **doğru ve beklenen** davranıştır.
+
+**Etkisi: Sıfır.** 404 yalnızca OpenCode'un keşif isteğine verilen cevaptır; uygulamanın hiçbir uç noktasını, haritayı, ROI motorunu veya testleri etkilemez. Doğrulandı: `/`, `/api/health`, `/api/basins`, `/api/izsu-live`, `/api/osb-compare`, `/api/simulate-roi` → tümü `HTTP 200`. Ayrıca uygulama `8012` portunda 35 saniye çalıştırıldığında **tek bir yoklama isteği bile gelmedi**; yoklama yalnızca 8000 portuna özgüdür.
+
+**Ne yapmalı?** Hiçbir şey. `404` satırını görünce sunucunun bozuk olduğunu düşünmeyin; `Application startup complete` + `Uvicorn running on http://127.0.0.1:8000` satırları sunucunun ayakta olduğunu gösterir ve tarayıcıda `http://127.0.0.1:8000` açılır.
+
+**Log gürültüsünü tamamen gizlemek isterseniz (isteğe bağlı):**
+
+```bash
+ACCESS_LOG=off bash scripts/run.sh
+```
+
+Bu mod yalnızca erişim loglarını kapatır; uygulama davranışı ve tüm uç noktalar aynı kalır. Varsayılan (`on`) modda jüriye `200 OK` isteklerini göstermek için erişim logları açık kalır.
