@@ -57,6 +57,10 @@ def _load_measures_catalog() -> dict[str, Any]:
     return _MEASURES_CACHE
 
 
+CATALOG_REFERENCE_M3 = 150000.0
+SURFACE_WATER_TL_M3 = 15.0
+
+
 def _load_izsu_snapshot() -> dict[str, Any]:
     global _IZSU_CACHE
     if _IZSU_CACHE is None:
@@ -178,15 +182,31 @@ def resolve_water_tariff_and_cutback_factor(
             "allocation_note": osb_note,
         }
     if src == "groundwater_well":
+        is_gediz = bool(osb_info and int(osb_info.get("pfaf_id", 0)) in (211055, 211056))
         return {
             "water_source": "groundwater_well",
             "source_label": f"Kendi Yeraltı Kuyusu ({well_tl:.2f} TL/m³ pompaj + yüksek tahsis kısıtı riski)",
             "unit_cost_tl_m3": well_tl,
             "cutback_vulnerability_multiplier": 1.38,
-            "provenance": "Kalibre Varsayım (Kuyu Pompaj Enerjisi) + Resmi Plan (SYGM %62,9 Kısıt)",
+            "provenance": "Kalibre Varsayım (Kuyu Pompaj Enerjisi) + Havza Tahsis Riski",
             "allocation_note": (
                 "Kuyu pompaj/enerji maliyeti düşüktür (24,80 TL/m³) ancak SYGM Gediz Tahsis Planı'na göre "
                 "kuraklıkta sanayi tahsisi %85,9'dan %37,1'e düşer (%62,9 kesinti -> 1,38× üretim duruşu çarpanı)."
+                if is_gediz
+                else "Kuyu pompaj/enerji maliyeti düşüktür (24,80 TL/m³); ancak kuraklıkta havza tahsis planı "
+                "ve akifer seviyesi kısıtı nedeniyle üretim duruşu riski 1,38× çarpanla modellenir (kalibre varsayım)."
+            ),
+        }
+    if src == "surface_water":
+        return {
+            "water_source": "surface_water",
+            "source_label": f"Yüzey Suyu / Baraj (DSİ ham su + iç arıtma: {SURFACE_WATER_TL_M3:.2f} TL/m³)",
+            "unit_cost_tl_m3": SURFACE_WATER_TL_M3,
+            "cutback_vulnerability_multiplier": 1.18,
+            "provenance": "Kalibre Varsayım (DSİ Ham Su + Arıtma Maliyeti)",
+            "allocation_note": (
+                "Baraj/regülatör kaynaklı ham su, OSB şebekesinden düşük birim maliyetlidir; ancak kuraklıkta "
+                "DSİ/SYGM tahsis kısıtı ve buharlaşma kaybı nedeniyle 1,18× duruş riski taşır (kalibre varsayım)."
             ),
         }
 
@@ -384,6 +404,21 @@ def optimize_facility_roi(
         for m in catalog_meta["measures"]
         if "all" in m["applicable_sectors"] or sec_key in m["applicable_sectors"]
     ]
+    # CAPEX ölçek kalibrasyonu: katalog maliyetleri 150.000 m³/yıl referans tesise aittir.
+    # Kapasiteyle doğrusal ölçeklenir; böylece katalogdaki "tipik geri ödeme" oranı korunur.
+    capex_scale = round(
+        float(np.clip(annual_water_m3 / CATALOG_REFERENCE_M3, 0.5, 100.0)), 2
+    )
+    if abs(capex_scale - 1.0) > 0.01:
+        candidate_measures = [
+            {
+                **m,
+                "capex_base_tl": float(m["capex_tl"]),
+                "capex_scale_factor": capex_scale,
+                "capex_tl": round(float(m["capex_tl"]) * capex_scale, 0),
+            }
+            for m in candidate_measures
+        ]
     n_cand = len(candidate_measures)
 
     # 5 yıllık NPV çarpanı: sum_{t=1..5} 1 / (1 + discount_rate)^t
@@ -552,6 +587,11 @@ def optimize_facility_roi(
         },
         "optimized_portfolio": {
             "solver_method": f"0-1 Knapsack Kesin Çözüm ({1 << n_cand} kombinasyon, çarpımsal azalan verim)",
+            "capex_scale_factor": capex_scale,
+            "capex_scale_note": (
+                "Önlem CAPEX'leri 150.000 m³/yıl referans tesise göre doğrusal ölçeklendi "
+                "(0.5-100× aralığı); katalogdaki tipik geri ödeme oranı korunur."
+            ),
             "selected_measures_count": len(portfolio_rows),
             "selected_measures": portfolio_rows,
             "total_capex_tl": total_capex_tl,

@@ -7,6 +7,7 @@ import numpy as np
 
 from ekozeka26.climate_engine import (
     PROCESSED_DIR,
+    RAW_DIR,
     build_osb_climate_projections,
     compute_hargreaves_et0,
     quantile_delta_mapping,
@@ -48,6 +49,9 @@ def test_build_osb_climate_projections_ensemble_and_uncertainty() -> None:
     assert (PROCESSED_DIR / "climate_osb.json").exists()
     assert len(payload["ensemble_models"]) == 7
     assert "izmir_kemalpasa" in payload["osb_projections"]
+    # Gerçek 7-model dosyası kullanılıyor mu? (yoksa sentetik yedeğe düşer)
+    assert "gerçek" in payload["ensemble_method"].lower()
+    assert (RAW_DIR / "cmip6_7models.json").exists()
 
     kemalpasa = payload["osb_projections"]["izmir_kemalpasa"]
     bau = kemalpasa["scenarios"]["BAU"]
@@ -55,3 +59,6 @@ def test_build_osb_climate_projections_ensemble_and_uncertainty() -> None:
     for p10, p50, p90 in zip(bau["water_balance_p10_mm"], bau["water_balance_p50_mm"], bau["water_balance_p90_mm"]):
         assert p10 <= p50 <= p90
     assert 50.0 <= bau["drying_agreement_pct"] <= 100.0
+    # Gerçek model yayılımı sentetik tek-serili topluluktan belirgin şekilde geniş olmalı (~>150 mm ortalama)
+    band = np.mean(np.array(bau["water_balance_p90_mm"]) - np.array(bau["water_balance_p10_mm"]))
+    assert band > 150.0

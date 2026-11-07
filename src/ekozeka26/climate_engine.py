@@ -24,6 +24,9 @@ import pandas as pd
 from ekozeka26.data_pipeline import PROCESSED_DIR, PROJECT_ROOT, RAW_DIR
 
 CACHE_DIR = PROJECT_ROOT / "data" / "cache"
+# 7 gerçek CMIP6 HighResMIP modelinin günlük serisi (Open-Meteo, 2020-2050).
+# Yoksa eski tek-serili sentetik topluluk yedeğine düşülür (offline yeniden üretilebilirlik).
+MULTIMODEL_RAW = RAW_DIR / "cmip6_7models.json"
 
 CMIP6_7_MODELS = [
     {"id": "CMCC_CM2_VHR4", "temp_sens": 1.08, "precip_sens": -1.12, "calendar": "365_day"},
@@ -36,9 +39,26 @@ CMIP6_7_MODELS = [
 ]
 
 SCENARIO_FACTORS = {
-    "OPT": {"temp_mult": 0.78, "precip_mult": 0.70, "label": "İyimser (SSP1-2.6 / Sürdürülebilir)"},
-    "BAU": {"temp_mult": 1.00, "precip_mult": 1.00, "label": "Normal / Mevcut Eğilim (SSP2-4.5 / BAU)"},
-    "PES": {"temp_mult": 1.32, "precip_mult": 1.38, "label": "Kötümser (SSP3-7.0 / Yüksek Emisyon)"},
+    "OPT": {
+        "temp_mult": 0.78,
+        "precip_mult": 0.70,
+        # HighResMIP serisi RCP8.5 benzeri yüksek emisyon yolundadır. Daha düşük
+        # emisyon yolları için model anomalisi şeffaf biçimde ölçeklenir.
+        "anomaly_mult": 0.70,
+        "label": "İyimser (SSP1-2.6 / Sürdürülebilir)",
+    },
+    "BAU": {
+        "temp_mult": 1.00,
+        "precip_mult": 1.00,
+        "anomaly_mult": 0.85,
+        "label": "Normal / Mevcut Eğilim (SSP2-4.5 / BAU)",
+    },
+    "PES": {
+        "temp_mult": 1.32,
+        "precip_mult": 1.38,
+        "anomaly_mult": 1.00,
+        "label": "Kötümser (SSP3-7.0 / Yüksek Emisyon)",
+    },
 }
 
 
@@ -303,7 +323,7 @@ def load_reference_era5_and_cmip6(lat_deg: float = 38.45) -> tuple[pd.DataFrame,
     return era5_monthly, cmip_monthly, qc_logs
 
 
-def build_osb_climate_projections() -> dict[str, Any]:
+def _build_osb_climate_projections_synthetic() -> dict[str, Any]:
     """
     11 OSB için 7 CMIP6 modeli × 3 senaryo (OPT, BAU, PES) altında 2026–2050 yıllık
     su dengesi (P - ET₀) projeksiyonlarını, P10 / P50 / P90 belirsizlik bantlarını ve
@@ -474,6 +494,335 @@ def build_osb_climate_projections() -> dict[str, Any]:
     out_proc.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     out_cache.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     return payload
+
+
+def load_cmip6_multimodel(
+    era5_monthly: pd.DataFrame, lat_deg: float = 38.45
+) -> tuple[dict[str, pd.DataFrame], list[dict[str, Any]]]:
+    """
+    `data/raw/cmip6_7models.json` içindeki 7 gerçek CMIP6 HighResMIP modelini
+    ayrı ayrı yükler, Hargreaves-Samani ile ET₀ hesaplar ve her modeli ERA5'in
+    aylık dağılımına QDM ile kalibre eder.
+
+    Dönen sözlük: model_id -> aylık DataFrame (precip_qdm_mm, temp_qdm_c, et0_qdm_mm).
+    """
+    raw = json.loads(MULTIMODEL_RAW.read_text(encoding="utf-8"))
+    daily = raw["daily"]
+    times = pd.to_datetime(daily["time"])
+    era5_ref = era5_monthly[era5_monthly["year"] >= 1995].copy()
+
+    monthly_by_model: dict[str, pd.DataFrame] = {}
+    qc_logs: list[dict[str, Any]] = []
+
+    for spec in CMIP6_7_MODELS:
+        mid = spec["id"]
+        pcol = f"precipitation_sum_{mid}"
+        tcol = f"temperature_2m_mean_{mid}"
+        if pcol not in daily or tcol not in daily:
+            qc_logs.append(
+                {
+                    "model": mid,
+                    "initial_rows": len(times),
+                    "retained_rows": 0,
+                    "excluded": True,
+                    "calendar_normalized": True,
+                    "note": "Model sütunu ham dosyada bulunamadı; topluluktan dışlandı.",
+                }
+            )
+            continue
+
+        df = pd.DataFrame(
+            {
+                "time": times,
+                "precipitation_sum": pd.to_numeric(pd.Series(daily[pcol]), errors="coerce"),
+                "temperature_2m_mean": pd.to_numeric(pd.Series(daily[tcol]), errors="coerce"),
+            }
+        )
+        initial_rows = len(df)
+        # Eksik günleri sıfır yağışla doldurma (EC_Earth3P_HR 2050 gibi); tamamen çıkar.
+        df = df.dropna(subset=["precipitation_sum", "temperature_2m_mean"]).reset_index(drop=True)
+        df["year"] = df["time"].dt.year
+        df["month"] = df["time"].dt.month
+        df["doy"] = df["time"].dt.day_of_year
+        df["et0_hargreaves_mm"] = compute_hargreaves_et0(
+            t_mean=df["temperature_2m_mean"], lat_deg=lat_deg, day_of_year=df["doy"]
+        )
+
+        monthly = (
+            df.groupby(["year", "month"], as_index=False)
+            .agg(
+                precip_raw_mm=("precipitation_sum", "sum"),
+                temp_raw_c=("temperature_2m_mean", "mean"),
+                et0_raw_mm=("et0_hargreaves_mm", "sum"),
+                valid_days=("precipitation_sum", "size"),
+            )
+            .sort_values(["year", "month"])
+            .reset_index(drop=True)
+        )
+
+        monthly["precip_qdm_mm"] = 0.0
+        monthly["temp_qdm_c"] = 0.0
+        monthly["et0_qdm_mm"] = 0.0
+        methods_used: set[str] = set()
+        for mm in range(1, 13):
+            obs_m = era5_ref[era5_ref["month"] == mm]
+            ref_m = monthly[monthly["month"] == mm]
+            proj_mask = monthly["month"] == mm
+            if ref_m.empty:
+                continue
+            p_corr, m_p = quantile_delta_mapping(
+                obs_m["precip_mm"], ref_m["precip_raw_mm"], monthly.loc[proj_mask, "precip_raw_mm"],
+                variable="precip", min_samples_for_qdm=10,
+            )
+            t_corr, m_t = quantile_delta_mapping(
+                obs_m["temp_mean_c"], ref_m["temp_raw_c"], monthly.loc[proj_mask, "temp_raw_c"],
+                variable="temp", min_samples_for_qdm=10,
+            )
+            e_corr, m_e = quantile_delta_mapping(
+                obs_m["et0_mm"], ref_m["et0_raw_mm"], monthly.loc[proj_mask, "et0_raw_mm"],
+                variable="et0", min_samples_for_qdm=10,
+            )
+            monthly.loc[proj_mask, "precip_qdm_mm"] = p_corr
+            monthly.loc[proj_mask, "temp_qdm_c"] = t_corr
+            monthly.loc[proj_mask, "et0_qdm_mm"] = e_corr
+            methods_used.update([m_p, m_t, m_e])
+
+        monthly["water_balance_qdm_mm"] = monthly["precip_qdm_mm"] - monthly["et0_qdm_mm"]
+        monthly["bias_correction_method"] = "QDM" if "QDM" in methods_used else "delta_change_fallback"
+        monthly_by_model[mid] = monthly
+
+        missing_years = sorted(set(range(2020, 2051)) - set(monthly["year"].unique()))
+        qc_logs.append(
+            {
+                "model": mid,
+                "initial_rows": initial_rows,
+                "retained_rows": len(df),
+                "excluded": False,
+                "calendar_normalized": True,
+                "bias_correction_method": monthly["bias_correction_method"].iloc[0],
+                "missing_years": missing_years,
+                "note": (
+                    "Open-Meteo HighResMIP günlük serisi; eksik günler çıkarıldı, aylık QDM uygulandı."
+                    + (f" Eksik yıllar: {missing_years}; son geçerli yıl ileri taşındı." if missing_years else "")
+                ),
+            }
+        )
+
+    return monthly_by_model, qc_logs
+
+
+def _annual_model_table(monthly: pd.DataFrame) -> pd.DataFrame:
+    """Aylık model tablosunu yıllık su dengesine çevirir; eksik ay varsa yılı geçersiz sayar."""
+    monthly = monthly.copy()
+    annual = (
+        monthly.groupby("year", as_index=False)
+        .agg(
+            precip_mm=("precip_qdm_mm", "sum"),
+            et0_mm=("et0_qdm_mm", "sum"),
+            temp_c=("temp_qdm_c", "mean"),
+            months=("month", "nunique"),
+        )
+        .sort_values("year")
+        .set_index("year")
+    )
+    annual["wb_mm"] = annual["precip_mm"] - annual["et0_mm"]
+    annual.loc[annual["months"] < 10, "wb_mm"] = np.nan
+    annual.loc[annual["months"] < 10, ["precip_mm", "et0_mm"]] = np.nan
+    return annual
+
+
+def _aqueduct_relative_shift(osb: dict[str, Any], scenario: str, year: int, base_bws: float) -> float:
+    """Aqueduct 4.0 SSP projeksiyonundan yıl bazlı göreli su stresi değişimi (0-1 aralığı)."""
+    s_pref = scenario.lower()
+    ws_30 = float(osb.get(f"{s_pref}30_ws_x_r", osb["bau30_ws_x_r"]))
+    ws_50 = float(osb.get(f"{s_pref}50_ws_x_r", osb["bau50_ws_x_r"]))
+    rel_delta_30 = float(np.clip((ws_30 - base_bws) / base_bws, -0.35, 1.50))
+    rel_delta_50 = float(np.clip((ws_50 - base_bws) / base_bws, -0.35, 1.85))
+    if year <= 2030:
+        return (year - 2025) / 5.0 * rel_delta_30
+    return rel_delta_30 + ((year - 2030) / 20.0) * (rel_delta_50 - rel_delta_30)
+
+
+def _build_osb_climate_projections_multimodel() -> dict[str, Any]:
+    """
+    7 gerçek CMIP6 HighResMIP modelinin yıllık su dengesi anomalilerinden
+    P10/P50/P90 bantlarını ve model yön mutabakatını üretir. Havzalar arası
+    fark, her alt-havzanın kendi WRI Aqueduct 4.0 SSP projeksiyonundan gelir.
+    """
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    osb_data = json.loads((PROCESSED_DIR / "osb_profiles.json").read_text(encoding="utf-8"))
+
+    era5_monthly, _, _ = load_reference_era5_and_cmip6(lat_deg=38.45)
+    era5_annual = (
+        era5_monthly.groupby("year", as_index=False)
+        .agg(
+            precip_mm=("precip_mm", "sum"),
+            et0_mm=("et0_mm", "sum"),
+            temp_c=("temp_mean_c", "mean"),
+            wb_mm=("water_balance_mm", "sum"),
+        )
+        .sort_values("year")
+        .reset_index(drop=True)
+    )
+    baseline_wb_1991_2020 = float(
+        era5_annual[(era5_annual["year"] >= 1991) & (era5_annual["year"] <= 2020)]["wb_mm"].mean()
+    )
+    drought_2025_wb = float(era5_annual[era5_annual["year"] == 2025]["wb_mm"].iloc[0])
+
+    monthly_by_model, qc_logs = load_cmip6_multimodel(era5_monthly, lat_deg=38.45)
+    if not monthly_by_model:
+        raise RuntimeError("Hiçbir CMIP6 modeli yüklenemedi; cmip6_7models.json dosyasını kontrol edin.")
+
+    annual_by_model = {mid: _annual_model_table(m) for mid, m in monthly_by_model.items()}
+    model_ids = list(annual_by_model)
+    all_annual = pd.DataFrame({mid: tbl["wb_mm"] for mid, tbl in annual_by_model.items()})
+    all_annual = all_annual.reindex(range(2020, 2051)).ffill()
+    # 2021-2025 referans penceresine göre her modelin kendi anomalisi (model yanlılığı arındırılır)
+    ref_window = [y for y in range(2021, 2026) if y in all_annual.index]
+    anomaly = all_annual - all_annual.loc[ref_window].mean()
+
+    proj_years = list(range(2026, 2051))
+    osb_ids = [o["osb_id"] for o in osb_data["osbs"]]
+
+    # Aqueduct SSP senaryolarını OSB'ler arasında karşılaştırılabilir hale getir:
+    # (1) OPT <= BAU <= PES sırasını zorla, (2) her yıl 11 OSB ortalamasına göre merkezle.
+    # Böylece ortak küresel eğilim CMIP6 modellerinden, havzalar arası fark Aqueduct'ten gelir.
+    raw_shift: dict[str, dict[int, dict[str, float]]] = {
+        scen: {yr: {} for yr in proj_years} for scen in SCENARIO_FACTORS
+    }
+    for osb in osb_data["osbs"]:
+        oid = osb["osb_id"]
+        base_bws = max(float(osb["bws_raw"]), 0.12)
+        for scen_key in SCENARIO_FACTORS:
+            for yr in proj_years:
+                raw_shift[scen_key][yr][oid] = _aqueduct_relative_shift(osb, scen_key, yr, base_bws)
+
+    shift_table: dict[str, dict[int, dict[str, float]]] = {
+        scen: {yr: {} for yr in proj_years} for scen in SCENARIO_FACTORS
+    }
+    shift_mean: dict[str, dict[int, float]] = {scen: {} for scen in SCENARIO_FACTORS}
+    for yr in proj_years:
+        for oid in osb_ids:
+            b = raw_shift["BAU"][yr][oid]
+            o = min(raw_shift["OPT"][yr][oid], b)
+            p = max(raw_shift["PES"][yr][oid], b)
+            shift_table["OPT"][yr][oid] = o
+            shift_table["BAU"][yr][oid] = b
+            shift_table["PES"][yr][oid] = p
+        for scen_key in SCENARIO_FACTORS:
+            shift_mean[scen_key][yr] = float(np.mean([shift_table[scen_key][yr][oid] for oid in osb_ids]))
+
+    osb_projections: dict[str, Any] = {}
+    for osb in osb_data["osbs"]:
+        oid = osb["osb_id"]
+        lat = float(osb["lat"])
+        lat_offset_mm = (lat - 38.45) * 38.0
+
+        scenarios_out: dict[str, Any] = {}
+        for scen_key, scen_meta in SCENARIO_FACTORS.items():
+            model_trajectories: list[list[float]] = []
+            model_trends: list[float] = []
+            for mid in model_ids:
+                traj: list[float] = []
+                for yr in proj_years:
+                    anom_mm = float(anomaly.loc[yr, mid])
+                    local_shift = -165.0 * (shift_table[scen_key][yr][oid] - shift_mean[scen_key][yr])
+                    wb_val = (
+                        baseline_wb_1991_2020
+                        + lat_offset_mm
+                        + anom_mm * float(scen_meta["anomaly_mult"])
+                        + local_shift
+                    )
+                    traj.append(round(wb_val, 1))
+                model_trajectories.append(traj)
+                slope = float(np.polyfit(np.arange(len(traj)), traj, 1)[0]) * 10.0
+                model_trends.append(slope)
+
+            arr = np.asarray(model_trajectories, dtype=float)
+            p10_series = np.round(np.nanpercentile(arr, 10, axis=0), 1).tolist()
+            p50_series = np.round(np.nanpercentile(arr, 50, axis=0), 1).tolist()
+            p90_series = np.round(np.nanpercentile(arr, 90, axis=0), 1).tolist()
+            drying_models = sum(1 for s in model_trends if s < 0)
+            agreement_pct = round(100.0 * drying_models / len(model_ids), 1)
+
+            def _model_mean(mid: str, years: list[int]) -> float | None:
+                tbl = annual_by_model.get(mid)
+                if tbl is None or tbl.empty:
+                    return None
+                vals = tbl["wb_mm"].reindex(years).dropna()
+                if vals.empty:
+                    return None
+                return round(float(vals.mean()) + lat_offset_mm, 1)
+
+            mri = _model_mean("MRI_AGCM3_2_S", [2048, 2049, 2050])
+            ece = _model_mean("EC_Earth3P_HR", [2048, 2049, 2050])
+            scenarios_out[scen_key] = {
+                "scenario_label": scen_meta["label"],
+                "years": proj_years,
+                "water_balance_p10_mm": p10_series,
+                "water_balance_p50_mm": p50_series,
+                "water_balance_p90_mm": p90_series,
+                "mean_2030_wb_p50_mm": round(float(np.mean(p50_series[:6])), 1),
+                "mean_2050_wb_p50_mm": round(float(np.mean(p50_series[-6:])), 1),
+                "delta_wb_2050_vs_baseline_mm": round(
+                    float(np.mean(p50_series[-6:])) - (baseline_wb_1991_2020 + lat_offset_mm), 1
+                ),
+                "decadal_trend_mm": round(float(np.median(model_trends)), 2),
+                "drying_agreement_pct": agreement_pct,
+                "models_agreeing_count": drying_models,
+                "total_models_count": len(model_ids),
+                "mri_agcm3_2048_2050_wb_mm": mri,
+                "ec_earth3p_2048_2050_wb_mm": ece,
+                "scenario_anomaly_multiplier": scen_meta["anomaly_mult"],
+            }
+
+        osb_projections[oid] = {
+            "osb_id": oid,
+            "name": osb["name"],
+            "pfaf_id": osb["pfaf_id"],
+            "string_id": osb["string_id"],
+            "lat": lat,
+            "lon": osb["lon"],
+            "provenance_badge": "Model (7 CMIP6 HighResMIP + QDM + Aqueduct 4.0)",
+            "methodology_note": (
+                "7 gerçek CMIP6 HighResMIP modeli (Open-Meteo, 2020-2050) ayrı ayrı ERA5 (1995-2025) "
+                "aylık dağılımına Quantile Delta Mapping (QDM) ile kalibre edildi. Yıllar arası değişim ve "
+                "P10-P90 model yayılımı doğrudan bu 7 modelden; havzalar arası fark her alt-havzanın kendi "
+                "WRI Aqueduct 4.0 SSP projeksiyonundan gelir. Aqueduct senaryoları OPT <= BAU <= PES "
+                "sırasına zorlanmış ve 11 OSB ortalamasına göre merkezlenmiştir. HighResMIP serisi yüksek "
+                "emisyon (RCP8.5 benzeri) yolunda olduğu için OPT/BAU/PES anomali ölçekleri 0.70/0.85/1.00'dır."
+            ),
+            "ensemble_method": "7 gerçek CMIP6 HighResMIP modeli + ayrı QDM + Aqueduct 4.0 havza farkı",
+            "et0_method": "FAO-56 Penman-Monteith (ERA5) + Hargreaves-Samani (1985) (CMIP6)",
+            "bias_correction_method": "Quantile Delta Mapping (QDM, Cannon et al. 2015)",
+            "historical_baseline_1991_2020_wb_mm": round(baseline_wb_1991_2020 + lat_offset_mm, 1),
+            "drought_2025_observed_wb_mm": round(drought_2025_wb + lat_offset_mm, 1),
+            "scenarios": scenarios_out,
+        }
+
+    payload = {
+        "generated_by": "ekozeka26.climate_engine",
+        "ensemble_models": model_ids,
+        "ensemble_method": "7 gerçek CMIP6 HighResMIP modeli (2020-2050), her model için ayrı QDM",
+        "reference_period": "2021-2025 (model anomalileri), 1991-2020 (ERA5 baz dönemi)",
+        "quality_control_logs": qc_logs,
+        "gediz_reference_historical_annual": era5_annual[era5_annual["year"] >= 1990].to_dict(orient="records"),
+        "osb_projections": osb_projections,
+    }
+
+    out_proc = PROCESSED_DIR / "climate_osb.json"
+    out_cache = CACHE_DIR / "climate_osb.json"
+    out_proc.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    out_cache.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return payload
+
+
+def build_osb_climate_projections() -> dict[str, Any]:
+    """Gerçek 7-model dosyası varsa onu, yoksa çevrimdışı sentetik yedeği kullanır."""
+    if MULTIMODEL_RAW.exists():
+        return _build_osb_climate_projections_multimodel()
+    return _build_osb_climate_projections_synthetic()
 
 
 if __name__ == "__main__":

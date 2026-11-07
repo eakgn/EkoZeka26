@@ -139,13 +139,13 @@
         <span class="font-extrabold text-sky-300">👋 Nasıl Kullanılır?</span>
         <span class="text-slate-300">
           <b>1) Sekme 1'de</b> fabrika kurmayı düşündüğünüz OSB'yi veya alt-havzayı seçip su kıtlığı nedenlerini inceleyin →
-          <b>2) Sekme 2'de</b> 5 gerçekçi fabrika senaryosundan birini yükleyip bütçenize en uygun su tasarruf yatırımını ve <b>2029 Yeşil Belge</b> uyumunu hesaplayın.
+          <b>2) Sekme 2'de</b> 3 gerçek fabrika vakasından birini yükleyip bütçenize en uygun su tasarruf yatırımını ve <b>2029 Yeşil Belge</b> uyumunu hesaplayın.
         </span>
       </div>
       <div class="flex flex-wrap items-center gap-2 text-[11px]">
         <span class="text-slate-400 font-semibold">Veri Gerçeklik Rozetleri:</span>
-        <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold" title="Doğrudan WRI Aqueduct 4.0, İZSU, BOSB, KOSKİ, İSU veya SYGM resmi verisinden okunmuştur">🟢 Ölçülmüş / Resmi Veri</span>
-        <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 font-semibold" title="Fiziksel denklemler (FAO-56 / Hargreaves, QDM) ve eğitilmiş XGBoost/SHAP veya Isolation Forest model çıktısıdır">🔵 Fizik + ML Modeli</span>
+        <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold" title="Doğrudan resmî kurum kaydından okunmuştur: İZSU baraj/üretim serisi, BOSB/KOSKİ/İSU resmî tarifeleri, RG 32765 yönetmelik takvimi">🟢 Ölçülmüş / Resmî Kayıt</span>
+        <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 font-semibold" title="Yayımlanmış model/reanaliz çıktısı veya fiziksel denklem: WRI Aqueduct 4.0, ERA5, CMIP6, FAO-56/Hargreaves, QDM, XGBoost/SHAP, Isolation Forest. Ölçüm değil, belgelenmiş model sonucudur.">🔵 Resmî Model / Fizik + ML</span>
         <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold" title="Kamuya açık olmayan parametreler için literatür/SYGM/IFC rehberleriyle kalibre edilmiş şeffaf varsayımdır">🟡 Kalibre Varsayım</span>
         <button onclick="document.getElementById('welcome-guide-strip').classList.add('hidden')" class="text-slate-400 hover:text-white ml-1 font-bold" title="Şeridi gizle">✕</button>
       </div>
@@ -238,7 +238,7 @@
                 <h2 class="text-sm font-bold text-white">
                   Ege–Marmara–Konya Sanayi Koridoru & Su Stresi Haritası
                 </h2>
-                <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold">🟢 Ölçülmüş (WRI Aqueduct 4.0)</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-semibold">🔵 Resmî Model (WRI Aqueduct 4.0)</span>
                 <button onclick="toggleInfoCard('info-map')" class="text-[11px] px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold border border-slate-700">
                   ⓘ Bu Harita Ne Anlatır?
                 </button>
@@ -462,6 +462,7 @@
               <p class="text-[11px] text-slate-400 mt-0.5">
                 Negatif değerler (ör. <code>-750 mm/yıl</code>) yıllık buharlaşma talebinin yağışı ne kadar aştığını (su açığını) gösterir
               </p>
+              <p id="t1-climate-proxy-note" class="hidden text-[10px] text-amber-300/90 mt-1"></p>
             </div>
             <span id="t1-cmip-agreement" class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">
               Hesaplanıyor...
@@ -471,7 +472,11 @@
           <div id="info-climate" class="hidden mb-2.5 p-3 rounded-lg bg-slate-950/90 border border-sky-500/40 text-xs text-slate-200 space-y-1">
             <div class="font-bold text-sky-300">📌 İklim Su Dengesi (P − ET₀) Nasıl Hesaplanır?</div>
             <p>
-              <b>Veri Kaynağı:</b> 1940–2025 ERA5 yeniden analiz serisi referans alınarak yerel CMIP6 günlük serisi (<code>cmip6.json</code>) <b>Quantile Delta Mapping (QDM)</b> ile kalibre edilmiş; modeller arası yayılım <code>MRI-AGCM3-2-S</code> ve <code>EC-Earth3P-HR</code> (<code>cm4.json</code>) farkından, bölgesel eğilim ise her alt-havzanın kendi <b>WRI Aqueduct 4.0 CMIP6 (SSP1-2.6 / SSP2-4.5 / SSP3-7.0)</b> projeksiyon oranlarından üretilmiştir.
+              <b>Veri Kaynağı:</b> 1940–2025 ERA5 yeniden analiz serisi referans alınarak, Open-Meteo üzerinden indirilen
+              <b>7 gerçek CMIP6 HighResMIP modeli</b> (2020–2050) ayrı ayrı <b>Quantile Delta Mapping (QDM)</b> ile kalibre edilmiştir.
+              Grafikteki P10–P90 bandı bu 7 modelin <b>gerçek model yayılımıdır</b>; havzalar arası fark ise her alt-havzanın kendi
+              <b>WRI Aqueduct 4.0 CMIP6 (SSP1-2.6 / SSP2-4.5 / SSP3-7.0)</b> projeksiyonundan gelir. HighResMIP serisi yüksek emisyon
+              (RCP8.5 benzeri) yolunda olduğu için OPT/BAU/PES anomali ölçekleri sırasıyla 0.70 / 0.85 / 1.00'dır.
             </p>
             <p>
               <b>Neden Önemli:</b> Çizgi aşağı indikçe havzada barajları ve yeraltı akiferlerini besleyen net su miktarı azalmakta, kuyu tahsis kesintisi riski artmaktadır.
@@ -524,63 +529,56 @@
     <!-- =================================================================== -->
     <section id="tab-content-2" class="hidden space-y-4">
 
-      <!-- 5 HIZLI SENARYO KARTI VE KÖK NEDEN HİKÂYE ANLATIMI -->
+      <!-- 3 GERÇEK FABRİKA VAKASI VE KÖK NEDEN HİKÂYE ANLATIMI -->
       <div id="tour-step-scenarios" class="glass-card p-4 border-l-4 border-l-teal-400 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
             <div class="flex flex-wrap items-center gap-2">
               <span class="text-xs font-extrabold text-white uppercase tracking-wide">
-                Hızlı Fabrika Senaryoları — Her Biri Farklı Bir Su Kıtlığı Kök Nedenini ve Çözümünü Gösterir
+                Gerçek Fabrika Vakaları — Kamuya Açık Rapor Verileriyle
               </span>
               <span class="text-[10px] px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 font-semibold">
-                SYGM NACE & IFC Rehberleriyle Kalibre · Ticari Platformlardan Bağımsız
+                3 Gerçek Tesis · Rapor Verisi + Sektör Kalibrasyonu
               </span>
             </div>
             <p class="text-[11px] text-slate-400 mt-0.5">
-              Bir senaryoya tıkladığınızda o bölgenin su kaynağı, tarife yapısı, proses dağılımı ve optimum önlem portföyü otomatik yüklenir:
+              Bir vakaya tıkladığınızda o tesisin su kaynağı, tarife yapısı, proses dağılımı ve optimum önlem portföyü otomatik yüklenir:
+            </p>
+            <p class="text-[10px] text-amber-300/90 mt-1">
+              🟢 Su çekimi, çalışan sayısı ve kaynak dağılımı şirketlerin <b>2024 sürdürülebilirlik/entegre raporlarından</b> alınmıştır.
+              🟡 Proses payları, bütçe ve duruş maliyeti sektör literatürüyle kalibre edilmiş şeffaf varsayımlardır.
             </p>
           </div>
         </div>
 
-        <!-- 5 Senaryo Seçim Butonu -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
-          <button id="scen-btn-kemalpasa_textile" onclick="loadSampleFacility('kemalpasa_textile')" class="text-left p-2.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-sky-500/50 transition">
-            <div class="text-[10px] font-bold text-sky-300 uppercase">Senaryo 1 · Ege OSB</div>
-            <div class="text-xs font-extrabold text-white mt-0.5">Kemalpaşa Tekstil</div>
-            <div class="text-[10px] text-slate-400 mt-0.5">%64 boyahane proses suyu · OSB şebeke (118,5 TL/m³)</div>
+        <!-- 3 Gerçek Vaka Seçim Butonu -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <button id="scen-btn-tofas_bursa" onclick="loadSampleFacility('tofas_bursa')" class="text-left p-2.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-sky-500/50 transition">
+            <div class="text-[10px] font-bold text-sky-300 uppercase">Vaka 1 · Otomotiv / Bursa</div>
+            <div class="text-xs font-extrabold text-white mt-0.5">Tofaş — Bursa Tesisi</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">430.782 m³/yıl · %100 yeraltı kuyusu · 4.409 çalışan</div>
           </button>
 
-          <button id="scen-btn-manisa_food" onclick="loadSampleFacility('manisa_food')" class="text-left p-2.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-amber-500/50 transition">
-            <div class="text-[10px] font-bold text-amber-300 uppercase">Senaryo 2 · Kuyu Riski</div>
-            <div class="text-xs font-extrabold text-white mt-0.5">Manisa Gıda (Kuyu)</div>
-            <div class="text-[10px] text-slate-400 mt-0.5">Su ucuz (24,8 TL) ama %62,9 SYGM tahsis kesintisi!</div>
+          <button id="scen-btn-vestel_manisa" onclick="loadSampleFacility('vestel_manisa')" class="text-left p-2.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-teal-500/50 transition">
+            <div class="text-[10px] font-bold text-teal-300 uppercase">Vaka 2 · Elektronik / Manisa</div>
+            <div class="text-xs font-extrabold text-white mt-0.5">Vestel — Manisa Kampüsü</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">1,51 Mm³/yıl · %71 şebeke + %29 kuyu · 29.000 çalışan</div>
           </button>
 
-          <button id="scen-btn-aliaga_chemical" onclick="loadSampleFacility('aliaga_chemical')" class="text-left p-2.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-teal-500/50 transition">
-            <div class="text-[10px] font-bold text-teal-300 uppercase">Senaryo 3 · Soğutma Yükü</div>
-            <div class="text-xs font-extrabold text-white mt-0.5">Aliağa Petrokimya</div>
-            <div class="text-[10px] text-slate-400 mt-0.5">%62 soğutma kulesi → Kapalı devre & Kuru soğutucu</div>
-          </button>
-
-          <button id="scen-btn-konya_metal" onclick="loadSampleFacility('konya_metal')" class="text-left p-2.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-purple-500/50 transition">
-            <div class="text-[10px] font-bold text-purple-300 uppercase">Senaryo 4 · Kapalı Havza KOBİ</div>
-            <div class="text-xs font-extrabold text-white mt-0.5">Konya Metal & Döküm</div>
-            <div class="text-[10px] text-slate-400 mt-0.5">KOSKİ 98,39 TL/m³ · 1,1M TL kısıtlı bütçeyle Yeşil Belge</div>
-          </button>
-
-          <button id="scen-btn-izmir_city_izsu" onclick="loadSampleFacility('izmir_city_izsu')" class="text-left p-2.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-rose-500/50 transition">
-            <div class="text-[10px] font-bold text-rose-300 uppercase">Senaryo 5 · Tarife Şoku</div>
-            <div class="text-xs font-extrabold text-white mt-0.5">İzmir Şehir İçi (İZSU)</div>
-            <div class="text-[10px] text-slate-400 mt-0.5">Resmi 403,79 TL/m³ belediye tarifesi → 1,6 ayda amorti</div>
+          <button id="scen-btn-petkim_aliaga" onclick="loadSampleFacility('petkim_aliaga')" class="text-left p-2.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-amber-500/50 transition">
+            <div class="text-[10px] font-bold text-amber-300 uppercase">Vaka 3 · Petrokimya / Aliağa</div>
+            <div class="text-xs font-extrabold text-white mt-0.5">Petkim — Aliağa Kompleksi</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">14,23 Mm³/yıl · %62 soğutma yükü · 2.433 çalışan</div>
           </button>
         </div>
 
         <!-- Seçili Senaryonun Kök Neden Açıklama Kutusu -->
         <div id="t2-root-cause-banner" class="bg-slate-950/80 border border-slate-800 rounded-lg px-3.5 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
           <div>
-            <span id="t2-scenario-badge" class="font-extrabold text-teal-300 mr-2">Kök Neden 1 · Boyahane Proses Suyu & Gediz OSB Şebekesi:</span>
-            <span id="t2-scenario-summary" class="text-slate-200">Suyun %64'ü boyama/yıkama prosesinde harcanır; OSB şebeke suyuna (118,50 TL/m³) ve Gediz tahsis kısıtına duyarlıdır.</span>
+            <span id="t2-scenario-badge" class="font-extrabold text-teal-300 mr-2">Gerçek Vaka 1 · %100 Yeraltı Suyu & Bursa Nilüfer Havzası:</span>
+            <span id="t2-scenario-summary" class="text-slate-200">Tofaş 2024: 430.782 m³ suyun tamamı yeraltı kuyularından; Bursa Nilüfer Havzası'nda akifer ve tahsis riski belirleyicidir.</span>
           </div>
+          <div id="t2-scenario-source" class="text-[10px] text-amber-300/90 mt-1"></div>
         </div>
       </div>
 
@@ -620,7 +618,7 @@
             <div class="text-[10px] font-bold uppercase tracking-wider text-sky-400">Adım 1 · Tesis Kimliği & Konum</div>
             <div>
               <label class="block text-[11px] text-slate-300 font-semibold mb-1">Fabrika / Tesis Adı</label>
-              <input id="t2-name" type="text" value="EgeDokuma Tekstil Terbiye & Boyahane A.Ş. (Kemalpaşa OSB)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white" />
+              <input id="t2-name" type="text" value="Tofaş Türk Otomobil Fabrikası A.Ş. — Bursa Tesisi" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white" />
             </div>
 
             <div class="grid grid-cols-2 gap-2.5">
@@ -628,11 +626,11 @@
                 <label class="block text-[11px] text-slate-300 font-semibold mb-1">Sanayi Bölgesi (OSB)</label>
                 <select id="t2-osb" onchange="onChangeTab2OSB()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
                   <optgroup label="Ege–Marmara–Konya Koridoru">
-                    <option value="izmir_kemalpasa" selected>İzmir Kemalpaşa OSB</option>
+                    <option value="izmir_kemalpasa">İzmir Kemalpaşa OSB</option>
                     <option value="manisa_osb">Manisa OSB</option>
                     <option value="izmir_aliaga">İzmir Aliağa OSB</option>
                     <option value="izmir_iaosb">İzmir Atatürk OSB</option>
-                    <option value="bursa_osb">Bursa OSB (BOSB)</option>
+                    <option value="bursa_osb" selected>Bursa OSB (BOSB)</option>
                     <option value="kocaeli_gosb">Kocaeli Gebze OSB</option>
                     <option value="konya_osb">Konya OSB (KOS)</option>
                   </optgroup>
@@ -647,10 +645,10 @@
               <div>
                 <label class="block text-[11px] text-slate-300 font-semibold mb-1">Sektör (SYGM NACE)</label>
                 <select id="t2-sector" onchange="onChangeTab2Sector()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
-                  <option value="textile" selected>Tekstil & Boyahane (C13)</option>
+                  <option value="textile">Tekstil & Boyahane (C13)</option>
                   <option value="food">Gıda & İçecek (C10)</option>
                   <option value="chemical">Kimya & Polimer (C20)</option>
-                  <option value="metal">Metal & Otomotiv (C24-29)</option>
+                  <option value="metal" selected>Metal & Otomotiv (C24-29)</option>
                   <option value="semiconductor">Yarı İletken & Elektronik</option>
                   <option value="energy">Elektrik & Enerji</option>
                   <option value="mining">Madencilik</option>
@@ -658,27 +656,45 @@
                 </select>
               </div>
             </div>
-          </div>
 
-          <!-- Grup 2: Su Kaynağı ve Ekonomik Kısıtlar -->
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-[11px] text-slate-300 font-semibold mb-1">Hedef Yıl (Risk Ufku)</label>
+                <select id="t2-year" onchange="scheduleROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                  <option value="2030" selected>2030 (Yakın vade)</option>
+                  <option value="2050">2050 (Yeşil dönüşüm)</option>
+                  <option value="2080">2080 (Uzun vade)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-300 font-semibold mb-1">İklim Senaryosu</label>
+                <select id="t2-scenario" onchange="scheduleROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                  <option value="OPT">İyimser (SSP1-2.6)</option>
+                  <option value="BAU" selected>Normal / Mevcut Eğilim (SSP2-4.5)</option>
+                  <option value="PES">Kötümser (SSP3-7.0)</option>
+                </select>
+              </div>
+            </div>
+          </div>
           <div class="space-y-2 pt-2 border-t border-slate-800/80">
             <div class="text-[10px] font-bold uppercase tracking-wider text-teal-400">Adım 2 · Su Kaynağı & Ekonomik Kısıtlar</div>
             <div class="grid grid-cols-2 gap-2.5">
               <div>
                 <label class="block text-[11px] text-slate-300 font-semibold mb-1">Yıllık Su Çekimi (m³/yıl)</label>
-                <input id="t2-water" type="number" min="1000" step="5000" value="150000" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-bold" />
+                <input id="t2-water" type="number" min="1000" step="5000" value="430782" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-bold" />
               </div>
               <div>
                 <label class="block text-[11px] text-slate-300 font-semibold mb-1">Çalışan Sayısı (50+ Yükümlü)</label>
-                <input id="t2-emp" type="number" min="1" step="10" value="320" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white" />
+                <input id="t2-emp" type="number" min="1" step="10" value="4409" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white" />
               </div>
             </div>
 
             <div>
               <label class="block text-[11px] text-sky-300 font-bold mb-1">Su Temin Kaynağı (Birim Tarife vs Tahsis Kesintisi Riski)</label>
               <select id="t2-source" onchange="onChangeWaterSource()" class="w-full bg-slate-900 border border-sky-500/60 rounded-lg px-3 py-2 text-xs text-white font-semibold">
-                <option value="osb_grid" selected>OSB Merkezi Şebeke Suyu (Bölgesel OSB Tarifesi: 80–122 TL/m³)</option>
-                <option value="groundwater_well">Kendi Yeraltı Kuyusu (24,80 TL/m³ Pompaj + %62,9 Tahsis Kesintisi Riski!)</option>
+                <option value="osb_grid">OSB Merkezi Şebeke Suyu (Bölgesel OSB Tarifesi: 80–122 TL/m³)</option>
+                <option value="groundwater_well" selected>Kendi Yeraltı Kuyusu (24,80 TL/m³ Pompaj + Tahsis Kesintisi Riski)</option>
+                <option value="surface_water">Yüzey Suyu / Baraj (DSİ Ham Su + Arıtma: 15,00 TL/m³)</option>
                 <option value="hybrid">Karma Kaynak (Şebeke + Yeraltı Kuyusu Oranı Seçilebilir)</option>
                 <option value="izsu_grid">İZSU Sanayi (1c) Belediye Şebekesi (Resmi 403,79 TL/m³)</option>
               </select>
@@ -689,7 +705,7 @@
                   <span class="text-slate-300 font-semibold">Karma Kaynakta Şebeke Suyu Payı:</span>
                   <b id="t2-grid-share-label" class="text-sky-300">%55 Şebeke / %45 Kuyu</b>
                 </div>
-                <input id="t2-grid-share" type="range" min="10" max="90" step="5" value="55" oninput="onHybridSliderInput()" class="w-full mt-1 accent-sky-400" />
+                <input id="t2-grid-share" type="range" min="0" max="100" step="0.1" value="55" oninput="onHybridSliderInput()" class="w-full mt-1 accent-sky-400" />
               </div>
 
               <div class="flex items-center justify-between gap-1 mt-1">
@@ -701,11 +717,11 @@
             <div class="grid grid-cols-2 gap-2.5">
               <div>
                 <label class="block text-[11px] text-rose-300 font-bold mb-1" title="Su kesintisi yüzünden üretim durduğunda 1 günde oluşan net katma değer kaybı">1 Günlük Duruş Zararı (TL)</label>
-                <input id="t2-downtime" type="number" min="0" step="25000" value="240000" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-rose-500/50 rounded-lg px-3 py-1.5 text-xs text-white font-bold" />
+                <input id="t2-downtime" type="number" min="0" step="25000" value="1500000" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-rose-500/50 rounded-lg px-3 py-1.5 text-xs text-white font-bold" />
               </div>
               <div>
                 <label class="block text-[11px] text-emerald-300 font-bold mb-1" title="Su verimliliği yatırımları için ayırabileceğiniz maksimum bütçe">Maks. Yatırım Bütçesi (TL)</label>
-                <input id="t2-budget" type="number" min="0" step="100000" value="2750000" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-emerald-500/60 rounded-lg px-3 py-1.5 text-xs text-emerald-200 font-extrabold" />
+                <input id="t2-budget" type="number" min="0" step="100000" value="6000000" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-emerald-500/60 rounded-lg px-3 py-1.5 text-xs text-emerald-200 font-extrabold" />
               </div>
             </div>
           </div>
@@ -719,19 +735,19 @@
             <div class="grid grid-cols-4 gap-1.5 text-[11px]">
               <div>
                 <label class="text-[10px] text-slate-400 block">Soğutma %</label>
-                <input id="t2-p-cool" type="number" value="16" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-center" />
+                <input id="t2-p-cool" type="number" value="30" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-center" />
               </div>
               <div>
                 <label class="text-[10px] text-slate-400 block">Proses %</label>
-                <input id="t2-p-proc" type="number" value="64" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-center" />
+                <input id="t2-p-proc" type="number" value="48" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-center" />
               </div>
               <div>
                 <label class="text-[10px] text-slate-400 block">Kazan %</label>
-                <input id="t2-p-boil" type="number" value="14" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-center" />
+                <input id="t2-p-boil" type="number" value="12" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-center" />
               </div>
               <div>
                 <label class="text-[10px] text-slate-400 block">Evsel %</label>
-                <input id="t2-p-dom" type="number" value="6" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-center" />
+                <input id="t2-p-dom" type="number" value="10" oninput="scheduleROISimulation()" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-center" />
               </div>
             </div>
           </div>
@@ -942,7 +958,7 @@
     let tab2CustomStringId = null;
     let lastSimResult = null;
     let roiDebounceTimer = null;
-    let activeScenarioId = "kemalpasa_textile";
+    let activeScenarioId = "tofas_bursa";
 
     function fmtNum(n, dec = 0) {
       if (n === null || n === undefined || isNaN(n)) return "-";
@@ -1268,6 +1284,14 @@
       if (cwb && cwb.years) {
         document.getElementById("t1-cmip-agreement").textContent =
           `2050 Su Dengesi Değişimi: ${fmtNum(cwb.delta_wb_2050_vs_baseline_mm, 0)} mm/yıl (${cwb.models_agreeing_count}/${cwb.total_models_count} Model Kuraklaşma Yönünde)`;
+        const proxyNote = document.getElementById("t1-climate-proxy-note");
+        if (data.is_custom_basin && data.selected_location) {
+          proxyNote.textContent =
+            `⚠️ Bu alt-havzanın iklim serisi en yakın OSB referansından (${data.selected_location.nearest_osb_name}) ölçeklenmiştir; havzaya özgü ölçüm değildir.`;
+          proxyNote.classList.remove("hidden");
+        } else {
+          proxyNote.classList.add("hidden");
+        }
         renderClimateChart(cwb);
       }
     }
@@ -1422,7 +1446,7 @@
     // =====================================================================
     function highlightScenarioButton(profileId) {
       activeScenarioId = profileId;
-      const allIds = ["kemalpasa_textile", "manisa_food", "aliaga_chemical", "konya_metal", "izmir_city_izsu"];
+      const allIds = ["tofas_bursa", "vestel_manisa", "petkim_aliaga"];
       allIds.forEach(id => {
         const btn = document.getElementById(`scen-btn-${id}`);
         if (!btn) return;
@@ -1447,6 +1471,8 @@
       document.getElementById("t2-name").value = f.facility_name;
       document.getElementById("t2-osb").value = f.osb_id;
       document.getElementById("t2-sector").value = f.sector_code;
+      document.getElementById("t2-year").value = String(f.target_year || 2030);
+      document.getElementById("t2-scenario").value = String(f.scenario || "BAU").toUpperCase();
       document.getElementById("t2-water").value = f.annual_water_m3;
       document.getElementById("t2-emp").value = f.employee_count;
       document.getElementById("t2-source").value = f.water_source;
@@ -1461,6 +1487,7 @@
       if (f.scenario_badge) {
         document.getElementById("t2-scenario-badge").textContent = f.scenario_badge + ":";
         document.getElementById("t2-scenario-summary").textContent = f.root_cause_summary || "";
+        document.getElementById("t2-scenario-source").textContent = f.data_source_note ? `Kaynak: ${f.data_source_note}` : "";
       }
 
       updateHybridSliderVisibility();
@@ -1536,8 +1563,8 @@
         },
         daily_downtime_cost_tl: Number(document.getElementById("t2-downtime").value || 240000),
         capex_budget_tl: Number(document.getElementById("t2-budget").value || 2750000),
-        target_year: 2030,
-        scenario: "BAU"
+        target_year: Number(document.getElementById("t2-year").value || 2030),
+        scenario: document.getElementById("t2-scenario").value || "BAU"
       };
     }
 
@@ -1754,9 +1781,9 @@
       {
         tab: 2,
         targetId: "tour-step-scenarios",
-        title: "4. 5 Farklı Kök Neden Senaryosu (Sekme 2)",
-        body: "Kemalpaşa Tekstil (proses suyu), Manisa Gıda (%100 kuyu tahsis kesintisi), Aliağa Petrokimya (%62 soğutma yükü), Konya Metal KOBİ (kapalı havza + kısıtlı bütçe) ve İzmir Şehir İçi (403,79 TL/m³ İZSU tarife şoku) senaryolarını tek tıkla karşılaştırın.",
-        tip: "💡 İpucu: Her senaryo farklı su kaynağı, farklı önlem portföyü ve farklı geri ödeme süresi üretir."
+        title: "4. 3 Gerçek Fabrika Vakası (Sekme 2)",
+        body: "Tofaş Bursa (430.782 m³, %100 yeraltı kuyusu), Vestel Manisa (1,51 Mm³, şebeke+kuyu karması) ve Petkim Aliağa (14,23 Mm³, %62 soğutma yükü) 2024 rapor verilerini tek tıkla karşılaştırın.",
+        tip: "💡 İpucu: Her vaka farklı su kaynağı, farklı önlem portföyü ve farklı geri ödeme süresi üretir."
       },
       {
         tab: 2,
@@ -1820,13 +1847,13 @@
     }
 
     window.addEventListener("DOMContentLoaded", async () => {
-      highlightScenarioButton("kemalpasa_textile");
+      highlightScenarioButton("tofas_bursa");
       await loadIZSUBanner();
       await initMapAndBasins();
       await predictLocation({ osb_id: "izmir_kemalpasa" });
       await loadOSBComparisonTable();
       // Sektör varsayılanlarını önbelleğe al
-      fetch("/api/facility-sample?profile_id=kemalpasa_textile")
+      fetch("/api/facility-sample?profile_id=tofas_bursa")
         .then(r => r.json())
         .then(d => { cachedSectorDefaults = d.sector_defaults; })
         .catch(() => {});

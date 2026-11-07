@@ -1,32 +1,113 @@
 {
-  "osb_comparison_2050_bau_textile": {
+  "generated_at": "2026-11-08T00:05:13",
+  "server": "http://127.0.0.1:8000",
+  "health": {
+    "status": "ok",
+    "service": "AquaSanayi AI",
+    "offline_ready": true,
+    "last_verified_data_date": "2026-11-06",
+    "turkey_basins_count": 639,
+    "unique_pfaf_basins": 116,
+    "model_metrics_summary": {
+      "naive_coarse_annual": {
+        "mae": 0.4789,
+        "rmse": 0.9598,
+        "r2": -0.0044
+      },
+      "ridge_linear_regression": {
+        "mae": 0.294,
+        "rmse": 0.5827,
+        "r2": 0.6297
+      },
+      "xgboost_downscaler": {
+        "mae": 0.1534,
+        "rmse": 0.4328,
+        "r2": 0.7958,
+        "mae_reduction_vs_naive_pct": 68.0,
+        "max_depth": 4
+      }
+    },
+    "gediz_backtest_summary": {
+      "period_total": "1984-2025 (504 takvim ayı, GloFAS 1997-2025 aktif debi serisi)",
+      "train_period": "1997-2014 (216 ay)",
+      "test_period": "2015-2025 (132 ay)",
+      "total_months": 504,
+      "active_discharge_months": 348,
+      "xgb_test_r2": 0.6732,
+      "xgb_test_mae_m3s": 0.0269,
+      "xgb_test_rmse_m3s": 0.0545,
+      "naive_test_r2": 0.5714,
+      "naive_test_mae_m3s": 0.0326,
+      "drought_years_validation": {
+        "2021": {
+          "observed_mean_m3s": 0.0988,
+          "predicted_mean_m3s": 0.1107,
+          "min_summer_observed_m3s": 0.0
+        },
+        "2024": {
+          "observed_mean_m3s": 0.0473,
+          "predicted_mean_m3s": 0.0341,
+          "min_summer_observed_m3s": 0.0
+        },
+        "2025": {
+          "observed_mean_m3s": 0.0374,
+          "predicted_mean_m3s": 0.053,
+          "min_summer_observed_m3s": 0.0
+        }
+      }
+    }
+  },
+  "latency_ms_warm": {
+    "osb_compare": 23.5,
+    "izsu_live": 12.7,
+    "custom_basin": 65.8
+  },
+  "data_provenance_audit": {
+    "risk_score_input_weights_pct": {
+      "wri_aqueduct_model_output": 82.5,
+      "calibrated_assumption": 17.5,
+      "local_measured": 0.0
+    },
+    "note": "Risk skoru Aqueduct 4.0 model göstergeleri + şeffaf uzman ağırlıklarıdır; 639 havza için yerinde ölçüm değildir.",
+    "climate": "7 gerçek CMIP6 HighResMIP modeli + ERA5 (tek referans noktası: İzmir/Gediz); havzalar arası fark Aqueduct SSP projeksiyonundan.",
+    "izsu": "İZSU resmî baraj/üretim/tarife snapshot'ı (2026-11-06).",
+    "real_cases": "Tofaş/Vestel/Petkim su çekimi ve çalışan sayısı 2024 kamuya açık raporlardan; proses payları/duruş maliyeti/bütçe kalibre varsayım."
+  },
+  "osb_comparison_2050_bau_metal": {
     "sector": "textile",
-    "target_year": 2050,
+    "target_year": "2050",
     "scenario": "BAU",
-    "candidate_count": 6,
+    "candidate_count": 7,
     "safest_osb": {
       "osb_id": "kocaeli_gosb",
       "name": "Kocaeli Gebze OSB (GOSB)",
       "city": "Kocaeli",
+      "corridor_region": "Marmara (İzmit Körfez)",
+      "in_focus_corridor": true,
       "basin_name": "Marmara / İzmit Körfez Havzası",
       "lat": 40.858,
       "lon": 29.425,
       "drought_cutback_risk_pct": 29.0,
-      "drying_agreement_pct": 100.0,
-      "delta_wb_2050_mm": -415.4,
-      "string_id": "",
+      "gw_provenance": "Kalibre Varsayım (Yuvacık Barajı + GOSB şebeke)",
+      "osb_grid_tariff_tl_m3": 80.33,
+      "tariff_provenance": "Ölçülmüş (İSU 73,33 + GOSB 7,00 TL/m³)",
+      "drying_agreement_pct": 85.7,
+      "delta_wb_2050_mm": -142.0,
+      "string_id": "211059-TUR.52_1-1359",
       "pfaf_id": 211059,
       "province_name": "Kocaeli",
       "sector": "textile",
       "sector_label": "Tekstil & Konfeksiyon (C13-C14)",
-      "target_year": 2050,
+      "target_year": "2050",
       "scenario": "BAU",
       "composite_risk_score": 55.0,
       "risk_category": "Yüksek Risk",
       "expected_cutback_days": {
         "p10": 8.2,
         "p50": 15.7,
-        "p90": 27.9
+        "p90": 27.9,
+        "provenance": "Sezgisel Risk-Süre İndeksi (Kalibre Model)",
+        "methodology_note": "Fabrika bazında tarihsel kesinti günü verisi kamuya açık olmadığından bileşik risk skorundan üretilmiş gösterge niteliğinde endekstir (P10 = 0.52×P50, P90 ≈ 1.68×P50 + kuyu eki)."
       },
       "indicators": {
         "baseline_bws_raw": 0.535,
@@ -37,16 +118,19 @@
         "sev_raw": 0.369,
         "iav_raw": 0.324,
         "groundwater_dependency_pct": 48.0,
-        "spei12_decadal_trend": -2.33
+        "groundwater_provenance": "Kalibre Varsayım (OSB Su Temin Profili)",
+        "spei12_decadal_trend": -0.76
       },
       "component_breakdown": [
         {
           "key": "drought_spei",
-          "label": "SPEI-12 Kuraklık Trendi & Hidrolojik Kuraklık Riski",
+          "label": "Su Dengesi (P−ET₀) Trendi & Kuraklık Riski (SPEI-12 proxy)",
           "weight_max": 20.0,
           "points": 16.86,
-          "raw_indicator": "drr=0.55, SPEI-12 eğim=-2.33/on-yıl",
-          "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|SPEI_trend|)) × senaryo_çarpanı"
+          "raw_indicator": "drr=0.55, P−ET₀ eğim=-0.76/on-yıl (SPEI proxy)",
+          "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|P−ET₀ eğimi|)) × senaryo_çarpanı",
+          "provenance": "Model (ERA5 + 7 CMIP6 QDM + Aqueduct drr)",
+          "info_summary": "Yağış eksi buharlaşma (P − ET₀) dengesinin yıllık eğimini ve Aqueduct kuraklık şiddetini (drr) birleştirir. Gerçek SPEI-12 serisi ERA5 referans noktası için ayrıca hesaplanır; havza kartındaki değer, iklim projeksiyonundan türetilen şeffaf bir proxy'dir."
         },
         {
           "key": "water_stress",
@@ -54,7 +138,9 @@
           "weight_max": 25.0,
           "points": 14.77,
           "raw_indicator": "yıllık ws=0.97, yaz pik=1.37",
-          "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))"
+          "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))",
+          "provenance": "Resmi Model (WRI Aqueduct 4.0)",
+          "info_summary": "Havzadaki toplam su çekiminin yenilenebilir su arzına oranıdır (>1.0 aşırı stres). Yaz aylarında (Ağustos) tarımsal sulama ile sanayi aynı kaynağı paylaştığı için pik stres kesintiyi belirler."
         },
         {
           "key": "sectoral_pressure",
@@ -62,7 +148,9 @@
           "weight_max": 15.0,
           "points": 11.57,
           "raw_indicator": "w_awr_tex_tot_score=2.82/5.0",
-          "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)"
+          "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)",
+          "provenance": "Resmi Model (Aqueduct Sektörel AWR) + Regülasyon",
+          "info_summary": "Seçilen sanayi sektörünün havzadaki fiziksel, kalite ve regülasyon (27.12.2029 Yeşil Su Verimliliği Belgesi) baskısına duyarlılığını ölçer."
         },
         {
           "key": "groundwater_depletion",
@@ -70,7 +158,9 @@
           "weight_max": 25.0,
           "points": 8.5,
           "raw_indicator": "gtd=0.010 cm/yıl, kuyu bağımlılığı=%48",
-          "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)"
+          "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)",
+          "provenance": "Kalibre Varsayım (OSB Su Temin Profili)",
+          "info_summary": "Akifer su tablasının yıllık düşüş hızını (gtd_raw) ve sanayinin kuyulara bağımlılığını ölçer. Kuyu seviyesi düştükçe pompaj maliyeti artar ve kuraklıkta DSİ/SYGM tahsis kısıtı riski doğar."
         },
         {
           "key": "variability",
@@ -78,7 +168,9 @@
           "weight_max": 15.0,
           "points": 3.28,
           "raw_indicator": "mevsimsel sev=0.37, yıllar-arası iav=0.32",
-          "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))"
+          "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))",
+          "provenance": "Resmi Model (WRI Aqueduct 4.0 sev_raw & iav_raw)",
+          "info_summary": "Yıllık toplam su yeterli görünse bile suyun aylara ve yıllara düzensiz dağılmasını ölçer. Yüksek oynaklık, depolama veya geri kazanım olmayan fabrikalarda ani yaz kesintilerine yol açar."
         }
       ],
       "safety_rank": 1
@@ -87,25 +179,32 @@
       "osb_id": "manisa_osb",
       "name": "Manisa OSB (MOSB)",
       "city": "Manisa",
+      "corridor_region": "Ege (Gediz Ana Havzası)",
+      "in_focus_corridor": true,
       "basin_name": "Gediz Ana Havzası (Manisa Merkez)",
       "lat": 38.625,
       "lon": 27.365,
       "drought_cutback_risk_pct": 62.9,
-      "drying_agreement_pct": 100.0,
-      "delta_wb_2050_mm": -415.4,
-      "string_id": "",
+      "gw_provenance": "Resmi Plan (SYGM Gediz Tahsis Planı)",
+      "osb_grid_tariff_tl_m3": 118.5,
+      "tariff_provenance": "Kalibre Varsayım (MOSB iç altyapı)",
+      "drying_agreement_pct": 85.7,
+      "delta_wb_2050_mm": -166.5,
+      "string_id": "211056-TUR.56_1-1272",
       "pfaf_id": 211056,
       "province_name": "Manisa",
       "sector": "textile",
       "sector_label": "Tekstil & Konfeksiyon (C13-C14)",
-      "target_year": 2050,
+      "target_year": "2050",
       "scenario": "BAU",
       "composite_risk_score": 82.8,
       "risk_category": "Çok Yüksek / Kritik Risk",
       "expected_cutback_days": {
         "p10": 17.4,
         "p50": 33.5,
-        "p90": 60.7
+        "p90": 60.7,
+        "provenance": "Sezgisel Risk-Süre İndeksi (Kalibre Model)",
+        "methodology_note": "Fabrika bazında tarihsel kesinti günü verisi kamuya açık olmadığından bileşik risk skorundan üretilmiş gösterge niteliğinde endekstir (P10 = 0.52×P50, P90 ≈ 1.68×P50 + kuyu eki)."
       },
       "indicators": {
         "baseline_bws_raw": 1.502,
@@ -116,7 +215,8 @@
         "sev_raw": 0.445,
         "iav_raw": 0.389,
         "groundwater_dependency_pct": 100.0,
-        "spei12_decadal_trend": -2.33
+        "groundwater_provenance": "Resmi Plan (SYGM Gediz / Konya)",
+        "spei12_decadal_trend": -0.96
       },
       "component_breakdown": [
         {
@@ -125,7 +225,9 @@
           "weight_max": 25.0,
           "points": 25.0,
           "raw_indicator": "yıllık ws=3.00, yaz pik=2.89",
-          "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))"
+          "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))",
+          "provenance": "Resmi Model (WRI Aqueduct 4.0)",
+          "info_summary": "Havzadaki toplam su çekiminin yenilenebilir su arzına oranıdır (>1.0 aşırı stres). Yaz aylarında (Ağustos) tarımsal sulama ile sanayi aynı kaynağı paylaştığı için pik stres kesintiyi belirler."
         },
         {
           "key": "groundwater_depletion",
@@ -133,15 +235,19 @@
           "weight_max": 25.0,
           "points": 22.41,
           "raw_indicator": "gtd=0.148 cm/yıl, kuyu bağımlılığı=%100",
-          "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)"
+          "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)",
+          "provenance": "Resmi Plan (SYGM Gediz / Konya)",
+          "info_summary": "Akifer su tablasının yıllık düşüş hızını (gtd_raw) ve sanayinin kuyulara bağımlılığını ölçer. Kuyu seviyesi düştükçe pompaj maliyeti artar ve kuraklıkta DSİ/SYGM tahsis kısıtı riski doğar."
         },
         {
           "key": "drought_spei",
-          "label": "SPEI-12 Kuraklık Trendi & Hidrolojik Kuraklık Riski",
+          "label": "Su Dengesi (P−ET₀) Trendi & Kuraklık Riski (SPEI-12 proxy)",
           "weight_max": 20.0,
           "points": 18.03,
-          "raw_indicator": "drr=0.61, SPEI-12 eğim=-2.33/on-yıl",
-          "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|SPEI_trend|)) × senaryo_çarpanı"
+          "raw_indicator": "drr=0.61, P−ET₀ eğim=-0.96/on-yıl (SPEI proxy)",
+          "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|P−ET₀ eğimi|)) × senaryo_çarpanı",
+          "provenance": "Model (ERA5 + 7 CMIP6 QDM + Aqueduct drr)",
+          "info_summary": "Yağış eksi buharlaşma (P − ET₀) dengesinin yıllık eğimini ve Aqueduct kuraklık şiddetini (drr) birleştirir. Gerçek SPEI-12 serisi ERA5 referans noktası için ayrıca hesaplanır; havza kartındaki değer, iklim projeksiyonundan türetilen şeffaf bir proxy'dir."
         },
         {
           "key": "sectoral_pressure",
@@ -149,7 +255,9 @@
           "weight_max": 15.0,
           "points": 13.43,
           "raw_indicator": "w_awr_tex_tot_score=3.27/5.0",
-          "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)"
+          "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)",
+          "provenance": "Resmi Model (Aqueduct Sektörel AWR) + Regülasyon",
+          "info_summary": "Seçilen sanayi sektörünün havzadaki fiziksel, kalite ve regülasyon (27.12.2029 Yeşil Su Verimliliği Belgesi) baskısına duyarlılığını ölçer."
         },
         {
           "key": "variability",
@@ -157,10 +265,12 @@
           "weight_max": 15.0,
           "points": 3.94,
           "raw_indicator": "mevsimsel sev=0.44, yıllar-arası iav=0.39",
-          "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))"
+          "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))",
+          "provenance": "Resmi Model (WRI Aqueduct 4.0 sev_raw & iav_raw)",
+          "info_summary": "Yıllık toplam su yeterli görünse bile suyun aylara ve yıllara düzensiz dağılmasını ölçer. Yüksek oynaklık, depolama veya geri kazanım olmayan fabrikalarda ani yaz kesintilerine yol açar."
         }
       ],
-      "safety_rank": 6
+      "safety_rank": 7
     },
     "recommendation_summary": "Yatırım için en güvenli bölge: Kocaeli Gebze OSB (GOSB) (Risk Skoru: 55.0/100, Beklenen Kesinti: 15.7 gün/yıl [P10–P90: 8.2–27.9 gün]). En yüksek riskli aday olan Manisa OSB (MOSB) (82.8/100) ile karşılaştırıldığında risk skoru 27.8 puan daha düşük olup yılda ortalama 17.8 gün daha az su kısıtı/üretim duruşu beklenmektedir.",
     "rankings": [
@@ -168,25 +278,32 @@
         "osb_id": "kocaeli_gosb",
         "name": "Kocaeli Gebze OSB (GOSB)",
         "city": "Kocaeli",
+        "corridor_region": "Marmara (İzmit Körfez)",
+        "in_focus_corridor": true,
         "basin_name": "Marmara / İzmit Körfez Havzası",
         "lat": 40.858,
         "lon": 29.425,
         "drought_cutback_risk_pct": 29.0,
-        "drying_agreement_pct": 100.0,
-        "delta_wb_2050_mm": -415.4,
-        "string_id": "",
+        "gw_provenance": "Kalibre Varsayım (Yuvacık Barajı + GOSB şebeke)",
+        "osb_grid_tariff_tl_m3": 80.33,
+        "tariff_provenance": "Ölçülmüş (İSU 73,33 + GOSB 7,00 TL/m³)",
+        "drying_agreement_pct": 85.7,
+        "delta_wb_2050_mm": -142.0,
+        "string_id": "211059-TUR.52_1-1359",
         "pfaf_id": 211059,
         "province_name": "Kocaeli",
         "sector": "textile",
         "sector_label": "Tekstil & Konfeksiyon (C13-C14)",
-        "target_year": 2050,
+        "target_year": "2050",
         "scenario": "BAU",
         "composite_risk_score": 55.0,
         "risk_category": "Yüksek Risk",
         "expected_cutback_days": {
           "p10": 8.2,
           "p50": 15.7,
-          "p90": 27.9
+          "p90": 27.9,
+          "provenance": "Sezgisel Risk-Süre İndeksi (Kalibre Model)",
+          "methodology_note": "Fabrika bazında tarihsel kesinti günü verisi kamuya açık olmadığından bileşik risk skorundan üretilmiş gösterge niteliğinde endekstir (P10 = 0.52×P50, P90 ≈ 1.68×P50 + kuyu eki)."
         },
         "indicators": {
           "baseline_bws_raw": 0.535,
@@ -197,16 +314,19 @@
           "sev_raw": 0.369,
           "iav_raw": 0.324,
           "groundwater_dependency_pct": 48.0,
-          "spei12_decadal_trend": -2.33
+          "groundwater_provenance": "Kalibre Varsayım (OSB Su Temin Profili)",
+          "spei12_decadal_trend": -0.76
         },
         "component_breakdown": [
           {
             "key": "drought_spei",
-            "label": "SPEI-12 Kuraklık Trendi & Hidrolojik Kuraklık Riski",
+            "label": "Su Dengesi (P−ET₀) Trendi & Kuraklık Riski (SPEI-12 proxy)",
             "weight_max": 20.0,
             "points": 16.86,
-            "raw_indicator": "drr=0.55, SPEI-12 eğim=-2.33/on-yıl",
-            "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|SPEI_trend|)) × senaryo_çarpanı"
+            "raw_indicator": "drr=0.55, P−ET₀ eğim=-0.76/on-yıl (SPEI proxy)",
+            "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|P−ET₀ eğimi|)) × senaryo_çarpanı",
+            "provenance": "Model (ERA5 + 7 CMIP6 QDM + Aqueduct drr)",
+            "info_summary": "Yağış eksi buharlaşma (P − ET₀) dengesinin yıllık eğimini ve Aqueduct kuraklık şiddetini (drr) birleştirir. Gerçek SPEI-12 serisi ERA5 referans noktası için ayrıca hesaplanır; havza kartındaki değer, iklim projeksiyonundan türetilen şeffaf bir proxy'dir."
           },
           {
             "key": "water_stress",
@@ -214,7 +334,9 @@
             "weight_max": 25.0,
             "points": 14.77,
             "raw_indicator": "yıllık ws=0.97, yaz pik=1.37",
-            "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))"
+            "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))",
+            "provenance": "Resmi Model (WRI Aqueduct 4.0)",
+            "info_summary": "Havzadaki toplam su çekiminin yenilenebilir su arzına oranıdır (>1.0 aşırı stres). Yaz aylarında (Ağustos) tarımsal sulama ile sanayi aynı kaynağı paylaştığı için pik stres kesintiyi belirler."
           },
           {
             "key": "sectoral_pressure",
@@ -222,7 +344,9 @@
             "weight_max": 15.0,
             "points": 11.57,
             "raw_indicator": "w_awr_tex_tot_score=2.82/5.0",
-            "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)"
+            "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)",
+            "provenance": "Resmi Model (Aqueduct Sektörel AWR) + Regülasyon",
+            "info_summary": "Seçilen sanayi sektörünün havzadaki fiziksel, kalite ve regülasyon (27.12.2029 Yeşil Su Verimliliği Belgesi) baskısına duyarlılığını ölçer."
           },
           {
             "key": "groundwater_depletion",
@@ -230,7 +354,9 @@
             "weight_max": 25.0,
             "points": 8.5,
             "raw_indicator": "gtd=0.010 cm/yıl, kuyu bağımlılığı=%48",
-            "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)"
+            "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)",
+            "provenance": "Kalibre Varsayım (OSB Su Temin Profili)",
+            "info_summary": "Akifer su tablasının yıllık düşüş hızını (gtd_raw) ve sanayinin kuyulara bağımlılığını ölçer. Kuyu seviyesi düştükçe pompaj maliyeti artar ve kuraklıkta DSİ/SYGM tahsis kısıtı riski doğar."
           },
           {
             "key": "variability",
@@ -238,7 +364,9 @@
             "weight_max": 15.0,
             "points": 3.28,
             "raw_indicator": "mevsimsel sev=0.37, yıllar-arası iav=0.32",
-            "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))"
+            "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))",
+            "provenance": "Resmi Model (WRI Aqueduct 4.0 sev_raw & iav_raw)",
+            "info_summary": "Yıllık toplam su yeterli görünse bile suyun aylara ve yıllara düzensiz dağılmasını ölçer. Yüksek oynaklık, depolama veya geri kazanım olmayan fabrikalarda ani yaz kesintilerine yol açar."
           }
         ],
         "safety_rank": 1
@@ -247,25 +375,32 @@
         "osb_id": "bursa_osb",
         "name": "Bursa OSB (BOSB)",
         "city": "Bursa",
+        "corridor_region": "Marmara (Susurluk / Nilüfer)",
+        "in_focus_corridor": true,
         "basin_name": "Susurluk / Nilüfer Havzası",
         "lat": 40.236,
         "lon": 28.947,
         "drought_cutback_risk_pct": 34.0,
-        "drying_agreement_pct": 100.0,
-        "delta_wb_2050_mm": -372.9,
-        "string_id": "",
+        "gw_provenance": "Kalibre Varsayım (Nilüfer/Doğancı + YAS)",
+        "osb_grid_tariff_tl_m3": 122.0,
+        "tariff_provenance": "Ölçülmüş (BOSB 2026 Resmi Tarife)",
+        "drying_agreement_pct": 71.4,
+        "delta_wb_2050_mm": -70.2,
+        "string_id": "211058-TUR.21_1-1272",
         "pfaf_id": 211058,
         "province_name": "Bursa",
         "sector": "textile",
         "sector_label": "Tekstil & Konfeksiyon (C13-C14)",
-        "target_year": 2050,
+        "target_year": "2050",
         "scenario": "BAU",
-        "composite_risk_score": 58.3,
+        "composite_risk_score": 57.8,
         "risk_category": "Yüksek Risk",
         "expected_cutback_days": {
-          "p10": 9.2,
-          "p50": 17.6,
-          "p90": 31.1
+          "p10": 9.0,
+          "p50": 17.3,
+          "p90": 30.6,
+          "provenance": "Sezgisel Risk-Süre İndeksi (Kalibre Model)",
+          "methodology_note": "Fabrika bazında tarihsel kesinti günü verisi kamuya açık olmadığından bileşik risk skorundan üretilmiş gösterge niteliğinde endekstir (P10 = 0.52×P50, P90 ≈ 1.68×P50 + kuyu eki)."
         },
         "indicators": {
           "baseline_bws_raw": 0.456,
@@ -276,7 +411,8 @@
           "sev_raw": 0.361,
           "iav_raw": 0.333,
           "groundwater_dependency_pct": 62.0,
-          "spei12_decadal_trend": -2.12
+          "groundwater_provenance": "Kalibre Varsayım (OSB Su Temin Profili)",
+          "spei12_decadal_trend": -0.46
         },
         "component_breakdown": [
           {
@@ -285,15 +421,19 @@
             "weight_max": 25.0,
             "points": 18.42,
             "raw_indicator": "gtd=0.148 cm/yıl, kuyu bağımlılığı=%62",
-            "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)"
+            "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)",
+            "provenance": "Kalibre Varsayım (OSB Su Temin Profili)",
+            "info_summary": "Akifer su tablasının yıllık düşüş hızını (gtd_raw) ve sanayinin kuyulara bağımlılığını ölçer. Kuyu seviyesi düştükçe pompaj maliyeti artar ve kuraklıkta DSİ/SYGM tahsis kısıtı riski doğar."
           },
           {
             "key": "drought_spei",
-            "label": "SPEI-12 Kuraklık Trendi & Hidrolojik Kuraklık Riski",
+            "label": "Su Dengesi (P−ET₀) Trendi & Kuraklık Riski (SPEI-12 proxy)",
             "weight_max": 20.0,
-            "points": 17.32,
-            "raw_indicator": "drr=0.57, SPEI-12 eğim=-2.12/on-yıl",
-            "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|SPEI_trend|)) × senaryo_çarpanı"
+            "points": 16.76,
+            "raw_indicator": "drr=0.57, P−ET₀ eğim=-0.46/on-yıl (SPEI proxy)",
+            "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|P−ET₀ eğimi|)) × senaryo_çarpanı",
+            "provenance": "Model (ERA5 + 7 CMIP6 QDM + Aqueduct drr)",
+            "info_summary": "Yağış eksi buharlaşma (P − ET₀) dengesinin yıllık eğimini ve Aqueduct kuraklık şiddetini (drr) birleştirir. Gerçek SPEI-12 serisi ERA5 referans noktası için ayrıca hesaplanır; havza kartındaki değer, iklim projeksiyonundan türetilen şeffaf bir proxy'dir."
           },
           {
             "key": "sectoral_pressure",
@@ -301,7 +441,9 @@
             "weight_max": 15.0,
             "points": 11.0,
             "raw_indicator": "w_awr_tex_tot_score=2.68/5.0",
-            "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)"
+            "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)",
+            "provenance": "Resmi Model (Aqueduct Sektörel AWR) + Regülasyon",
+            "info_summary": "Seçilen sanayi sektörünün havzadaki fiziksel, kalite ve regülasyon (27.12.2029 Yeşil Su Verimliliği Belgesi) baskısına duyarlılığını ölçer."
           },
           {
             "key": "water_stress",
@@ -309,7 +451,9 @@
             "weight_max": 25.0,
             "points": 8.28,
             "raw_indicator": "yıllık ws=0.61, yaz pik=0.65",
-            "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))"
+            "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))",
+            "provenance": "Resmi Model (WRI Aqueduct 4.0)",
+            "info_summary": "Havzadaki toplam su çekiminin yenilenebilir su arzına oranıdır (>1.0 aşırı stres). Yaz aylarında (Ağustos) tarımsal sulama ile sanayi aynı kaynağı paylaştığı için pik stres kesintiyi belirler."
           },
           {
             "key": "variability",
@@ -317,113 +461,237 @@
             "weight_max": 15.0,
             "points": 3.29,
             "raw_indicator": "mevsimsel sev=0.36, yıllar-arası iav=0.33",
-            "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))"
+            "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))",
+            "provenance": "Resmi Model (WRI Aqueduct 4.0 sev_raw & iav_raw)",
+            "info_summary": "Yıllık toplam su yeterli görünse bile suyun aylara ve yıllara düzensiz dağılmasını ölçer. Yüksek oynaklık, depolama veya geri kazanım olmayan fabrikalarda ani yaz kesintilerine yol açar."
           }
         ],
         "safety_rank": 2
       },
       {
-        "osb_id": "adana_osb",
-        "name": "Adana Hacı Sabancı OSB (AOSB)",
-        "city": "Adana",
-        "basin_name": "Seyhan-Ceyhan Havzası",
-        "lat": 36.995,
-        "lon": 35.612,
-        "drought_cutback_risk_pct": 39.0,
-        "drying_agreement_pct": 100.0,
-        "delta_wb_2050_mm": -372.9,
-        "string_id": "",
-        "pfaf_id": 211032,
-        "province_name": "Adana",
+        "osb_id": "izmir_aliaga",
+        "name": "İzmir Aliağa OSB (ALOSBİ)",
+        "city": "İzmir",
+        "corridor_region": "Ege (Kuzey Ege / Bakırçay)",
+        "in_focus_corridor": true,
+        "basin_name": "Kuzey Ege / Bakırçay-Güzelhisar Havzası",
+        "lat": 38.805,
+        "lon": 26.971,
+        "drought_cutback_risk_pct": 48.5,
+        "gw_provenance": "Kalibre Varsayım (Güzelhisar Barajı + YAS karması)",
+        "osb_grid_tariff_tl_m3": 118.5,
+        "tariff_provenance": "Kalibre Varsayım (BOSB referanslı)",
+        "drying_agreement_pct": 85.7,
+        "delta_wb_2050_mm": -93.4,
+        "string_id": "211057-TUR.41_1-1272",
+        "pfaf_id": 211057,
+        "province_name": "Izmir",
         "sector": "textile",
         "sector_label": "Tekstil & Konfeksiyon (C13-C14)",
-        "target_year": 2050,
+        "target_year": "2050",
         "scenario": "BAU",
-        "composite_risk_score": 71.0,
+        "composite_risk_score": 71.2,
         "risk_category": "Çok Yüksek / Kritik Risk",
         "expected_cutback_days": {
           "p10": 13.3,
-          "p50": 25.5,
-          "p90": 44.4
+          "p50": 25.7,
+          "p90": 44.6,
+          "provenance": "Sezgisel Risk-Süre İndeksi (Kalibre Model)",
+          "methodology_note": "Fabrika bazında tarihsel kesinti günü verisi kamuya açık olmadığından bileşik risk skorundan üretilmiş gösterge niteliğinde endekstir (P10 = 0.52×P50, P90 ≈ 1.68×P50 + kuyu eki)."
         },
         "indicators": {
-          "baseline_bws_raw": 1.453,
-          "projected_annual_ws_raw": 1.943,
-          "projected_summer_peak_ws_raw": 2.26,
-          "gtd_raw": 0.032,
-          "drr_raw": 0.582,
-          "sev_raw": 0.659,
-          "iav_raw": 0.432,
-          "groundwater_dependency_pct": 55.0,
-          "spei12_decadal_trend": -2.12
+          "baseline_bws_raw": 0.892,
+          "projected_annual_ws_raw": 1.353,
+          "projected_summer_peak_ws_raw": 1.288,
+          "gtd_raw": 0.148,
+          "drr_raw": 0.59,
+          "sev_raw": 0.449,
+          "iav_raw": 0.483,
+          "groundwater_dependency_pct": 68.0,
+          "groundwater_provenance": "Kalibre Varsayım (OSB Su Temin Profili)",
+          "spei12_decadal_trend": -0.67
+        },
+        "component_breakdown": [
+          {
+            "key": "groundwater_depletion",
+            "label": "Yeraltı Suyu Düşüşü & Kuyu Bağımlılığı",
+            "weight_max": 25.0,
+            "points": 19.05,
+            "raw_indicator": "gtd=0.148 cm/yıl, kuyu bağımlılığı=%68",
+            "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)",
+            "provenance": "Kalibre Varsayım (OSB Su Temin Profili)",
+            "info_summary": "Akifer su tablasının yıllık düşüş hızını (gtd_raw) ve sanayinin kuyulara bağımlılığını ölçer. Kuyu seviyesi düştükçe pompaj maliyeti artar ve kuraklıkta DSİ/SYGM tahsis kısıtı riski doğar."
+          },
+          {
+            "key": "water_stress",
+            "label": "Gelecek (2050 BAU) & Yaz Pik Su Stresi",
+            "weight_max": 25.0,
+            "points": 17.67,
+            "raw_indicator": "yıllık ws=1.35, yaz pik=1.29",
+            "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))",
+            "provenance": "Resmi Model (WRI Aqueduct 4.0)",
+            "info_summary": "Havzadaki toplam su çekiminin yenilenebilir su arzına oranıdır (>1.0 aşırı stres). Yaz aylarında (Ağustos) tarımsal sulama ile sanayi aynı kaynağı paylaştığı için pik stres kesintiyi belirler."
+          },
+          {
+            "key": "drought_spei",
+            "label": "Su Dengesi (P−ET₀) Trendi & Kuraklık Riski (SPEI-12 proxy)",
+            "weight_max": 20.0,
+            "points": 17.65,
+            "raw_indicator": "drr=0.59, P−ET₀ eğim=-0.67/on-yıl (SPEI proxy)",
+            "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|P−ET₀ eğimi|)) × senaryo_çarpanı",
+            "provenance": "Model (ERA5 + 7 CMIP6 QDM + Aqueduct drr)",
+            "info_summary": "Yağış eksi buharlaşma (P − ET₀) dengesinin yıllık eğimini ve Aqueduct kuraklık şiddetini (drr) birleştirir. Gerçek SPEI-12 serisi ERA5 referans noktası için ayrıca hesaplanır; havza kartındaki değer, iklim projeksiyonundan türetilen şeffaf bir proxy'dir."
+          },
+          {
+            "key": "sectoral_pressure",
+            "label": "Sektörel Tahsis & 2029 Belge Baskısı (Tekstil & Konfeksiyon (C13-C14))",
+            "weight_max": 15.0,
+            "points": 12.34,
+            "raw_indicator": "w_awr_tex_tot_score=3.01/5.0",
+            "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)",
+            "provenance": "Resmi Model (Aqueduct Sektörel AWR) + Regülasyon",
+            "info_summary": "Seçilen sanayi sektörünün havzadaki fiziksel, kalite ve regülasyon (27.12.2029 Yeşil Su Verimliliği Belgesi) baskısına duyarlılığını ölçer."
+          },
+          {
+            "key": "variability",
+            "label": "Mevsimsel & Yıllar Arası Arz Oynaklığı",
+            "weight_max": 15.0,
+            "points": 4.47,
+            "raw_indicator": "mevsimsel sev=0.45, yıllar-arası iav=0.48",
+            "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))",
+            "provenance": "Resmi Model (WRI Aqueduct 4.0 sev_raw & iav_raw)",
+            "info_summary": "Yıllık toplam su yeterli görünse bile suyun aylara ve yıllara düzensiz dağılmasını ölçer. Yüksek oynaklık, depolama veya geri kazanım olmayan fabrikalarda ani yaz kesintilerine yol açar."
+          }
+        ],
+        "safety_rank": 3
+      },
+      {
+        "osb_id": "izmir_iaosb",
+        "name": "İzmir Atatürk OSB (Çiğli)",
+        "city": "İzmir",
+        "corridor_region": "Ege (İzmir Körfez / Gediz Deltası)",
+        "in_focus_corridor": true,
+        "basin_name": "Gediz Deltası / İzmir Körfez Havzası",
+        "lat": 38.486,
+        "lon": 27.04,
+        "drought_cutback_risk_pct": 58.0,
+        "gw_provenance": "Kalibre Varsayım (Gediz Deltası YAS + İZSU bağlantısı)",
+        "osb_grid_tariff_tl_m3": 118.5,
+        "tariff_provenance": "Kalibre Varsayım (Şehir içi tesislerde İZSU 403,79 TL/m³ resmi)",
+        "drying_agreement_pct": 85.7,
+        "delta_wb_2050_mm": -127.9,
+        "string_id": "211055-TUR.41_1-1272",
+        "pfaf_id": 211055,
+        "province_name": "Izmir",
+        "sector": "textile",
+        "sector_label": "Tekstil & Konfeksiyon (C13-C14)",
+        "target_year": "2050",
+        "scenario": "BAU",
+        "composite_risk_score": 79.3,
+        "risk_category": "Çok Yüksek / Kritik Risk",
+        "expected_cutback_days": {
+          "p10": 16.2,
+          "p50": 31.1,
+          "p90": 56.7,
+          "provenance": "Sezgisel Risk-Süre İndeksi (Kalibre Model)",
+          "methodology_note": "Fabrika bazında tarihsel kesinti günü verisi kamuya açık olmadığından bileşik risk skorundan üretilmiş gösterge niteliğinde endekstir (P10 = 0.52×P50, P90 ≈ 1.68×P50 + kuyu eki)."
+        },
+        "indicators": {
+          "baseline_bws_raw": 0.989,
+          "projected_annual_ws_raw": 1.718,
+          "projected_summer_peak_ws_raw": 1.902,
+          "gtd_raw": 0.148,
+          "drr_raw": 0.59,
+          "sev_raw": 0.492,
+          "iav_raw": 0.388,
+          "groundwater_dependency_pct": 85.0,
+          "groundwater_provenance": "Kalibre Varsayım (OSB Su Temin Profili)",
+          "spei12_decadal_trend": -0.78
         },
         "component_breakdown": [
           {
             "key": "water_stress",
             "label": "Gelecek (2050 BAU) & Yaz Pik Su Stresi",
             "weight_max": 25.0,
-            "points": 25.0,
-            "raw_indicator": "yıllık ws=1.94, yaz pik=2.26",
-            "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))"
-          },
-          {
-            "key": "drought_spei",
-            "label": "SPEI-12 Kuraklık Trendi & Hidrolojik Kuraklık Riski",
-            "weight_max": 20.0,
-            "points": 17.51,
-            "raw_indicator": "drr=0.58, SPEI-12 eğim=-2.12/on-yıl",
-            "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|SPEI_trend|)) × senaryo_çarpanı"
-          },
-          {
-            "key": "sectoral_pressure",
-            "label": "Sektörel Tahsis & 2029 Belge Baskısı (Tekstil & Konfeksiyon (C13-C14))",
-            "weight_max": 15.0,
-            "points": 14.16,
-            "raw_indicator": "w_awr_tex_tot_score=3.45/5.0",
-            "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)"
+            "points": 23.68,
+            "raw_indicator": "yıllık ws=1.72, yaz pik=1.90",
+            "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))",
+            "provenance": "Resmi Model (WRI Aqueduct 4.0)",
+            "info_summary": "Havzadaki toplam su çekiminin yenilenebilir su arzına oranıdır (>1.0 aşırı stres). Yaz aylarında (Ağustos) tarımsal sulama ile sanayi aynı kaynağı paylaştığı için pik stres kesintiyi belirler."
           },
           {
             "key": "groundwater_depletion",
             "label": "Yeraltı Suyu Düşüşü & Kuyu Bağımlılığı",
             "weight_max": 25.0,
-            "points": 9.24,
-            "raw_indicator": "gtd=0.032 cm/yıl, kuyu bağımlılığı=%55",
-            "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)"
+            "points": 20.83,
+            "raw_indicator": "gtd=0.148 cm/yıl, kuyu bağımlılığı=%85",
+            "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)",
+            "provenance": "Kalibre Varsayım (OSB Su Temin Profili)",
+            "info_summary": "Akifer su tablasının yıllık düşüş hızını (gtd_raw) ve sanayinin kuyulara bağımlılığını ölçer. Kuyu seviyesi düştükçe pompaj maliyeti artar ve kuraklıkta DSİ/SYGM tahsis kısıtı riski doğar."
+          },
+          {
+            "key": "drought_spei",
+            "label": "Su Dengesi (P−ET₀) Trendi & Kuraklık Riski (SPEI-12 proxy)",
+            "weight_max": 20.0,
+            "points": 17.65,
+            "raw_indicator": "drr=0.59, P−ET₀ eğim=-0.78/on-yıl (SPEI proxy)",
+            "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|P−ET₀ eğimi|)) × senaryo_çarpanı",
+            "provenance": "Model (ERA5 + 7 CMIP6 QDM + Aqueduct drr)",
+            "info_summary": "Yağış eksi buharlaşma (P − ET₀) dengesinin yıllık eğimini ve Aqueduct kuraklık şiddetini (drr) birleştirir. Gerçek SPEI-12 serisi ERA5 referans noktası için ayrıca hesaplanır; havza kartındaki değer, iklim projeksiyonundan türetilen şeffaf bir proxy'dir."
+          },
+          {
+            "key": "sectoral_pressure",
+            "label": "Sektörel Tahsis & 2029 Belge Baskısı (Tekstil & Konfeksiyon (C13-C14))",
+            "weight_max": 15.0,
+            "points": 13.0,
+            "raw_indicator": "w_awr_tex_tot_score=3.17/5.0",
+            "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)",
+            "provenance": "Resmi Model (Aqueduct Sektörel AWR) + Regülasyon",
+            "info_summary": "Seçilen sanayi sektörünün havzadaki fiziksel, kalite ve regülasyon (27.12.2029 Yeşil Su Verimliliği Belgesi) baskısına duyarlılığını ölçer."
           },
           {
             "key": "variability",
             "label": "Mevsimsel & Yıllar Arası Arz Oynaklığı",
             "weight_max": 15.0,
-            "points": 5.05,
-            "raw_indicator": "mevsimsel sev=0.66, yıllar-arası iav=0.43",
-            "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))"
+            "points": 4.13,
+            "raw_indicator": "mevsimsel sev=0.49, yıllar-arası iav=0.39",
+            "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))",
+            "provenance": "Resmi Model (WRI Aqueduct 4.0 sev_raw & iav_raw)",
+            "info_summary": "Yıllık toplam su yeterli görünse bile suyun aylara ve yıllara düzensiz dağılmasını ölçer. Yüksek oynaklık, depolama veya geri kazanım olmayan fabrikalarda ani yaz kesintilerine yol açar."
           }
         ],
-        "safety_rank": 3
+        "safety_rank": 4
       },
       {
         "osb_id": "konya_osb",
         "name": "Konya OSB (KOS)",
         "city": "Konya",
+        "corridor_region": "Konya Kapalı Havzası",
+        "in_focus_corridor": true,
         "basin_name": "Konya Kapalı Havzası",
         "lat": 37.981,
         "lon": 32.605,
         "drought_cutback_risk_pct": 65.0,
-        "drying_agreement_pct": 100.0,
-        "delta_wb_2050_mm": -364.5,
-        "string_id": "",
+        "gw_provenance": "Resmi Rapor (DSİ/SYGM Konya Kapalı Havza YAS)",
+        "osb_grid_tariff_tl_m3": 98.39,
+        "tariff_provenance": "Ölçülmüş (KOSKİ 2026 İşyeri/Sanayi Tarifesi)",
+        "drying_agreement_pct": 71.4,
+        "delta_wb_2050_mm": -58.9,
+        "string_id": "221002-TUR.53_1-1272",
         "pfaf_id": 221002,
         "province_name": "Konya",
         "sector": "textile",
         "sector_label": "Tekstil & Konfeksiyon (C13-C14)",
-        "target_year": 2050,
+        "target_year": "2050",
         "scenario": "BAU",
-        "composite_risk_score": 80.7,
+        "composite_risk_score": 80.3,
         "risk_category": "Çok Yüksek / Kritik Risk",
         "expected_cutback_days": {
-          "p10": 16.7,
-          "p50": 32.0,
-          "p90": 58.3
+          "p10": 16.5,
+          "p50": 31.7,
+          "p90": 57.8,
+          "provenance": "Sezgisel Risk-Süre İndeksi (Kalibre Model)",
+          "methodology_note": "Fabrika bazında tarihsel kesinti günü verisi kamuya açık olmadığından bileşik risk skorundan üretilmiş gösterge niteliğinde endekstir (P10 = 0.52×P50, P90 ≈ 1.68×P50 + kuyu eki)."
         },
         "indicators": {
           "baseline_bws_raw": 1.435,
@@ -434,7 +702,8 @@
           "sev_raw": 0.384,
           "iav_raw": 0.323,
           "groundwater_dependency_pct": 95.0,
-          "spei12_decadal_trend": -2.08
+          "groundwater_provenance": "Resmi Plan (SYGM Gediz / Konya)",
+          "spei12_decadal_trend": -0.47
         },
         "component_breakdown": [
           {
@@ -443,7 +712,9 @@
             "weight_max": 25.0,
             "points": 23.63,
             "raw_indicator": "yıllık ws=1.83, yaz pik=1.68",
-            "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))"
+            "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))",
+            "provenance": "Resmi Model (WRI Aqueduct 4.0)",
+            "info_summary": "Havzadaki toplam su çekiminin yenilenebilir su arzına oranıdır (>1.0 aşırı stres). Yaz aylarında (Ağustos) tarımsal sulama ile sanayi aynı kaynağı paylaştığı için pik stres kesintiyi belirler."
           },
           {
             "key": "groundwater_depletion",
@@ -451,15 +722,19 @@
             "weight_max": 25.0,
             "points": 21.88,
             "raw_indicator": "gtd=0.148 cm/yıl, kuyu bağımlılığı=%95",
-            "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)"
+            "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)",
+            "provenance": "Resmi Plan (SYGM Gediz / Konya)",
+            "info_summary": "Akifer su tablasının yıllık düşüş hızını (gtd_raw) ve sanayinin kuyulara bağımlılığını ölçer. Kuyu seviyesi düştükçe pompaj maliyeti artar ve kuraklıkta DSİ/SYGM tahsis kısıtı riski doğar."
           },
           {
             "key": "drought_spei",
-            "label": "SPEI-12 Kuraklık Trendi & Hidrolojik Kuraklık Riski",
+            "label": "Su Dengesi (P−ET₀) Trendi & Kuraklık Riski (SPEI-12 proxy)",
             "weight_max": 20.0,
-            "points": 18.66,
-            "raw_indicator": "drr=0.65, SPEI-12 eğim=-2.08/on-yıl",
-            "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|SPEI_trend|)) × senaryo_çarpanı"
+            "points": 18.24,
+            "raw_indicator": "drr=0.65, P−ET₀ eğim=-0.47/on-yıl (SPEI proxy)",
+            "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|P−ET₀ eğimi|)) × senaryo_çarpanı",
+            "provenance": "Model (ERA5 + 7 CMIP6 QDM + Aqueduct drr)",
+            "info_summary": "Yağış eksi buharlaşma (P − ET₀) dengesinin yıllık eğimini ve Aqueduct kuraklık şiddetini (drr) birleştirir. Gerçek SPEI-12 serisi ERA5 referans noktası için ayrıca hesaplanır; havza kartındaki değer, iklim projeksiyonundan türetilen şeffaf bir proxy'dir."
           },
           {
             "key": "sectoral_pressure",
@@ -467,7 +742,9 @@
             "weight_max": 15.0,
             "points": 13.18,
             "raw_indicator": "w_awr_tex_tot_score=3.21/5.0",
-            "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)"
+            "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)",
+            "provenance": "Resmi Model (Aqueduct Sektörel AWR) + Regülasyon",
+            "info_summary": "Seçilen sanayi sektörünün havzadaki fiziksel, kalite ve regülasyon (27.12.2029 Yeşil Su Verimliliği Belgesi) baskısına duyarlılığını ölçer."
           },
           {
             "key": "variability",
@@ -475,113 +752,43 @@
             "weight_max": 15.0,
             "points": 3.33,
             "raw_indicator": "mevsimsel sev=0.38, yıllar-arası iav=0.32",
-            "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))"
-          }
-        ],
-        "safety_rank": 4
-      },
-      {
-        "osb_id": "izmir_kemalpasa",
-        "name": "İzmir Kemalpaşa OSB (KOSBİ)",
-        "city": "İzmir",
-        "basin_name": "Gediz Alt-Havzası (Nif/Kemalpaşa)",
-        "lat": 38.4622,
-        "lon": 27.4285,
-        "drought_cutback_risk_pct": 62.9,
-        "drying_agreement_pct": 100.0,
-        "delta_wb_2050_mm": -415.4,
-        "string_id": "",
-        "pfaf_id": 211056,
-        "province_name": "Izmir",
-        "sector": "textile",
-        "sector_label": "Tekstil & Konfeksiyon (C13-C14)",
-        "target_year": 2050,
-        "scenario": "BAU",
-        "composite_risk_score": 82.8,
-        "risk_category": "Çok Yüksek / Kritik Risk",
-        "expected_cutback_days": {
-          "p10": 17.4,
-          "p50": 33.5,
-          "p90": 60.7
-        },
-        "indicators": {
-          "baseline_bws_raw": 1.502,
-          "projected_annual_ws_raw": 3.0,
-          "projected_summer_peak_ws_raw": 2.893,
-          "gtd_raw": 0.148,
-          "drr_raw": 0.611,
-          "sev_raw": 0.445,
-          "iav_raw": 0.389,
-          "groundwater_dependency_pct": 100.0,
-          "spei12_decadal_trend": -2.33
-        },
-        "component_breakdown": [
-          {
-            "key": "water_stress",
-            "label": "Gelecek (2050 BAU) & Yaz Pik Su Stresi",
-            "weight_max": 25.0,
-            "points": 25.0,
-            "raw_indicator": "yıllık ws=3.00, yaz pik=2.89",
-            "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))"
-          },
-          {
-            "key": "groundwater_depletion",
-            "label": "Yeraltı Suyu Düşüşü & Kuyu Bağımlılığı",
-            "weight_max": 25.0,
-            "points": 22.41,
-            "raw_indicator": "gtd=0.148 cm/yıl, kuyu bağımlılığı=%100",
-            "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)"
-          },
-          {
-            "key": "drought_spei",
-            "label": "SPEI-12 Kuraklık Trendi & Hidrolojik Kuraklık Riski",
-            "weight_max": 20.0,
-            "points": 18.03,
-            "raw_indicator": "drr=0.61, SPEI-12 eğim=-2.33/on-yıl",
-            "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|SPEI_trend|)) × senaryo_çarpanı"
-          },
-          {
-            "key": "sectoral_pressure",
-            "label": "Sektörel Tahsis & 2029 Belge Baskısı (Tekstil & Konfeksiyon (C13-C14))",
-            "weight_max": 15.0,
-            "points": 13.43,
-            "raw_indicator": "w_awr_tex_tot_score=3.27/5.0",
-            "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)"
-          },
-          {
-            "key": "variability",
-            "label": "Mevsimsel & Yıllar Arası Arz Oynaklığı",
-            "weight_max": 15.0,
-            "points": 3.94,
-            "raw_indicator": "mevsimsel sev=0.44, yıllar-arası iav=0.39",
-            "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))"
+            "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))",
+            "provenance": "Resmi Model (WRI Aqueduct 4.0 sev_raw & iav_raw)",
+            "info_summary": "Yıllık toplam su yeterli görünse bile suyun aylara ve yıllara düzensiz dağılmasını ölçer. Yüksek oynaklık, depolama veya geri kazanım olmayan fabrikalarda ani yaz kesintilerine yol açar."
           }
         ],
         "safety_rank": 5
       },
       {
-        "osb_id": "manisa_osb",
-        "name": "Manisa OSB (MOSB)",
-        "city": "Manisa",
-        "basin_name": "Gediz Ana Havzası (Manisa Merkez)",
-        "lat": 38.625,
-        "lon": 27.365,
+        "osb_id": "izmir_kemalpasa",
+        "name": "İzmir Kemalpaşa OSB (KOSBİ)",
+        "city": "İzmir",
+        "corridor_region": "Ege (Gediz Havzası)",
+        "in_focus_corridor": true,
+        "basin_name": "Gediz Alt-Havzası (Nif/Kemalpaşa)",
+        "lat": 38.4622,
+        "lon": 27.4285,
         "drought_cutback_risk_pct": 62.9,
-        "drying_agreement_pct": 100.0,
-        "delta_wb_2050_mm": -415.4,
-        "string_id": "",
+        "gw_provenance": "Resmi Plan (SYGM Gediz Tahsis Planı)",
+        "osb_grid_tariff_tl_m3": 118.5,
+        "tariff_provenance": "Kalibre Varsayım (BOSB referanslı)",
+        "drying_agreement_pct": 85.7,
+        "delta_wb_2050_mm": -166.5,
+        "string_id": "211056-TUR.41_1-1272",
         "pfaf_id": 211056,
-        "province_name": "Manisa",
+        "province_name": "Izmir",
         "sector": "textile",
         "sector_label": "Tekstil & Konfeksiyon (C13-C14)",
-        "target_year": 2050,
+        "target_year": "2050",
         "scenario": "BAU",
         "composite_risk_score": 82.8,
         "risk_category": "Çok Yüksek / Kritik Risk",
         "expected_cutback_days": {
           "p10": 17.4,
           "p50": 33.5,
-          "p90": 60.7
+          "p90": 60.7,
+          "provenance": "Sezgisel Risk-Süre İndeksi (Kalibre Model)",
+          "methodology_note": "Fabrika bazında tarihsel kesinti günü verisi kamuya açık olmadığından bileşik risk skorundan üretilmiş gösterge niteliğinde endekstir (P10 = 0.52×P50, P90 ≈ 1.68×P50 + kuyu eki)."
         },
         "indicators": {
           "baseline_bws_raw": 1.502,
@@ -592,7 +799,8 @@
           "sev_raw": 0.445,
           "iav_raw": 0.389,
           "groundwater_dependency_pct": 100.0,
-          "spei12_decadal_trend": -2.33
+          "groundwater_provenance": "Resmi Plan (SYGM Gediz / Konya)",
+          "spei12_decadal_trend": -0.96
         },
         "component_breakdown": [
           {
@@ -601,7 +809,9 @@
             "weight_max": 25.0,
             "points": 25.0,
             "raw_indicator": "yıllık ws=3.00, yaz pik=2.89",
-            "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))"
+            "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))",
+            "provenance": "Resmi Model (WRI Aqueduct 4.0)",
+            "info_summary": "Havzadaki toplam su çekiminin yenilenebilir su arzına oranıdır (>1.0 aşırı stres). Yaz aylarında (Ağustos) tarımsal sulama ile sanayi aynı kaynağı paylaştığı için pik stres kesintiyi belirler."
           },
           {
             "key": "groundwater_depletion",
@@ -609,15 +819,19 @@
             "weight_max": 25.0,
             "points": 22.41,
             "raw_indicator": "gtd=0.148 cm/yıl, kuyu bağımlılığı=%100",
-            "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)"
+            "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)",
+            "provenance": "Resmi Plan (SYGM Gediz / Konya)",
+            "info_summary": "Akifer su tablasının yıllık düşüş hızını (gtd_raw) ve sanayinin kuyulara bağımlılığını ölçer. Kuyu seviyesi düştükçe pompaj maliyeti artar ve kuraklıkta DSİ/SYGM tahsis kısıtı riski doğar."
           },
           {
             "key": "drought_spei",
-            "label": "SPEI-12 Kuraklık Trendi & Hidrolojik Kuraklık Riski",
+            "label": "Su Dengesi (P−ET₀) Trendi & Kuraklık Riski (SPEI-12 proxy)",
             "weight_max": 20.0,
             "points": 18.03,
-            "raw_indicator": "drr=0.61, SPEI-12 eğim=-2.33/on-yıl",
-            "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|SPEI_trend|)) × senaryo_çarpanı"
+            "raw_indicator": "drr=0.61, P−ET₀ eğim=-0.96/on-yıl (SPEI proxy)",
+            "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|P−ET₀ eğimi|)) × senaryo_çarpanı",
+            "provenance": "Model (ERA5 + 7 CMIP6 QDM + Aqueduct drr)",
+            "info_summary": "Yağış eksi buharlaşma (P − ET₀) dengesinin yıllık eğimini ve Aqueduct kuraklık şiddetini (drr) birleştirir. Gerçek SPEI-12 serisi ERA5 referans noktası için ayrıca hesaplanır; havza kartındaki değer, iklim projeksiyonundan türetilen şeffaf bir proxy'dir."
           },
           {
             "key": "sectoral_pressure",
@@ -625,7 +839,9 @@
             "weight_max": 15.0,
             "points": 13.43,
             "raw_indicator": "w_awr_tex_tot_score=3.27/5.0",
-            "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)"
+            "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)",
+            "provenance": "Resmi Model (Aqueduct Sektörel AWR) + Regülasyon",
+            "info_summary": "Seçilen sanayi sektörünün havzadaki fiziksel, kalite ve regülasyon (27.12.2029 Yeşil Su Verimliliği Belgesi) baskısına duyarlılığını ölçer."
           },
           {
             "key": "variability",
@@ -633,581 +849,1030 @@
             "weight_max": 15.0,
             "points": 3.94,
             "raw_indicator": "mevsimsel sev=0.44, yıllar-arası iav=0.39",
-            "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))"
+            "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))",
+            "provenance": "Resmi Model (WRI Aqueduct 4.0 sev_raw & iav_raw)",
+            "info_summary": "Yıllık toplam su yeterli görünse bile suyun aylara ve yıllara düzensiz dağılmasını ölçer. Yüksek oynaklık, depolama veya geri kazanım olmayan fabrikalarda ani yaz kesintilerine yol açar."
           }
         ],
         "safety_rank": 6
-      }
-    ]
-  },
-  "kemalpasa_textile_izsu_grid_roi": {
-    "facility_summary": {
-      "facility_name": "Örnek Sanayi Tesisi",
-      "osb_id": "izmir_kemalpasa",
-      "osb_name": "İzmir Kemalpaşa OSB (KOSBİ)",
-      "city": "İzmir",
-      "pfaf_id": 211056,
-      "string_id": "211056-TUR.41_1-1272",
-      "sector": "textile",
-      "sector_label": "Tekstil & Konfeksiyon (C13-C14)",
-      "employee_count": 250,
-      "annual_water_m3": 150000,
-      "process_shares_pct": {
-        "cooling": 22.0,
-        "process": 58.0,
-        "boiler": 14.0,
-        "domestic": 6.0
       },
-      "daily_downtime_cost_tl": 750000,
-      "capex_budget_tl": 3500000,
-      "target_year": 2030,
-      "scenario": "BAU"
+      {
+        "osb_id": "manisa_osb",
+        "name": "Manisa OSB (MOSB)",
+        "city": "Manisa",
+        "corridor_region": "Ege (Gediz Ana Havzası)",
+        "in_focus_corridor": true,
+        "basin_name": "Gediz Ana Havzası (Manisa Merkez)",
+        "lat": 38.625,
+        "lon": 27.365,
+        "drought_cutback_risk_pct": 62.9,
+        "gw_provenance": "Resmi Plan (SYGM Gediz Tahsis Planı)",
+        "osb_grid_tariff_tl_m3": 118.5,
+        "tariff_provenance": "Kalibre Varsayım (MOSB iç altyapı)",
+        "drying_agreement_pct": 85.7,
+        "delta_wb_2050_mm": -166.5,
+        "string_id": "211056-TUR.56_1-1272",
+        "pfaf_id": 211056,
+        "province_name": "Manisa",
+        "sector": "textile",
+        "sector_label": "Tekstil & Konfeksiyon (C13-C14)",
+        "target_year": "2050",
+        "scenario": "BAU",
+        "composite_risk_score": 82.8,
+        "risk_category": "Çok Yüksek / Kritik Risk",
+        "expected_cutback_days": {
+          "p10": 17.4,
+          "p50": 33.5,
+          "p90": 60.7,
+          "provenance": "Sezgisel Risk-Süre İndeksi (Kalibre Model)",
+          "methodology_note": "Fabrika bazında tarihsel kesinti günü verisi kamuya açık olmadığından bileşik risk skorundan üretilmiş gösterge niteliğinde endekstir (P10 = 0.52×P50, P90 ≈ 1.68×P50 + kuyu eki)."
+        },
+        "indicators": {
+          "baseline_bws_raw": 1.502,
+          "projected_annual_ws_raw": 3.0,
+          "projected_summer_peak_ws_raw": 2.893,
+          "gtd_raw": 0.148,
+          "drr_raw": 0.611,
+          "sev_raw": 0.445,
+          "iav_raw": 0.389,
+          "groundwater_dependency_pct": 100.0,
+          "groundwater_provenance": "Resmi Plan (SYGM Gediz / Konya)",
+          "spei12_decadal_trend": -0.96
+        },
+        "component_breakdown": [
+          {
+            "key": "water_stress",
+            "label": "Gelecek (2050 BAU) & Yaz Pik Su Stresi",
+            "weight_max": 25.0,
+            "points": 25.0,
+            "raw_indicator": "yıllık ws=3.00, yaz pik=2.89",
+            "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))",
+            "provenance": "Resmi Model (WRI Aqueduct 4.0)",
+            "info_summary": "Havzadaki toplam su çekiminin yenilenebilir su arzına oranıdır (>1.0 aşırı stres). Yaz aylarında (Ağustos) tarımsal sulama ile sanayi aynı kaynağı paylaştığı için pik stres kesintiyi belirler."
+          },
+          {
+            "key": "groundwater_depletion",
+            "label": "Yeraltı Suyu Düşüşü & Kuyu Bağımlılığı",
+            "weight_max": 25.0,
+            "points": 22.41,
+            "raw_indicator": "gtd=0.148 cm/yıl, kuyu bağımlılığı=%100",
+            "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)",
+            "provenance": "Resmi Plan (SYGM Gediz / Konya)",
+            "info_summary": "Akifer su tablasının yıllık düşüş hızını (gtd_raw) ve sanayinin kuyulara bağımlılığını ölçer. Kuyu seviyesi düştükçe pompaj maliyeti artar ve kuraklıkta DSİ/SYGM tahsis kısıtı riski doğar."
+          },
+          {
+            "key": "drought_spei",
+            "label": "Su Dengesi (P−ET₀) Trendi & Kuraklık Riski (SPEI-12 proxy)",
+            "weight_max": 20.0,
+            "points": 18.03,
+            "raw_indicator": "drr=0.61, P−ET₀ eğim=-0.96/on-yıl (SPEI proxy)",
+            "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|P−ET₀ eğimi|)) × senaryo_çarpanı",
+            "provenance": "Model (ERA5 + 7 CMIP6 QDM + Aqueduct drr)",
+            "info_summary": "Yağış eksi buharlaşma (P − ET₀) dengesinin yıllık eğimini ve Aqueduct kuraklık şiddetini (drr) birleştirir. Gerçek SPEI-12 serisi ERA5 referans noktası için ayrıca hesaplanır; havza kartındaki değer, iklim projeksiyonundan türetilen şeffaf bir proxy'dir."
+          },
+          {
+            "key": "sectoral_pressure",
+            "label": "Sektörel Tahsis & 2029 Belge Baskısı (Tekstil & Konfeksiyon (C13-C14))",
+            "weight_max": 15.0,
+            "points": 13.43,
+            "raw_indicator": "w_awr_tex_tot_score=3.27/5.0",
+            "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)",
+            "provenance": "Resmi Model (Aqueduct Sektörel AWR) + Regülasyon",
+            "info_summary": "Seçilen sanayi sektörünün havzadaki fiziksel, kalite ve regülasyon (27.12.2029 Yeşil Su Verimliliği Belgesi) baskısına duyarlılığını ölçer."
+          },
+          {
+            "key": "variability",
+            "label": "Mevsimsel & Yıllar Arası Arz Oynaklığı",
+            "weight_max": 15.0,
+            "points": 3.94,
+            "raw_indicator": "mevsimsel sev=0.44, yıllar-arası iav=0.39",
+            "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))",
+            "provenance": "Resmi Model (WRI Aqueduct 4.0 sev_raw & iav_raw)",
+            "info_summary": "Yıllık toplam su yeterli görünse bile suyun aylara ve yıllara düzensiz dağılmasını ölçer. Yüksek oynaklık, depolama veya geri kazanım olmayan fabrikalarda ani yaz kesintilerine yol açar."
+          }
+        ],
+        "safety_rank": 7
+      }
+    ],
+    "model_validation_metrics": {
+      "naive_coarse_annual": {
+        "mae": 0.4789,
+        "rmse": 0.9598,
+        "r2": -0.0044
+      },
+      "ridge_linear_regression": {
+        "mae": 0.294,
+        "rmse": 0.5827,
+        "r2": 0.6297
+      },
+      "xgboost_downscaler": {
+        "mae": 0.1534,
+        "rmse": 0.4328,
+        "r2": 0.7958,
+        "mae_reduction_vs_naive_pct": 68.0,
+        "max_depth": 4
+      }
     },
-    "water_source_economics": {
-      "water_source": "izsu_grid",
-      "source_label": "İZSU Sanayi (1c) Şebeke Suyu (403.79 TL/m³)",
-      "unit_cost_tl_m3": 403.79,
-      "cutback_vulnerability_multiplier": 0.72,
-      "allocation_note": "Belediye şebekesi baraj + kuyu karmasıdır; birim su faturası çok yüksektir (403,79 TL/m³)."
+    "gediz_backtest": {
+      "period_total": "1984-2025 (504 takvim ayı, GloFAS 1997-2025 aktif debi serisi)",
+      "train_period": "1997-2014 (216 ay)",
+      "test_period": "2015-2025 (132 ay)",
+      "total_months": 504,
+      "active_discharge_months": 348,
+      "xgb_test_r2": 0.6732,
+      "xgb_test_mae_m3s": 0.0269,
+      "xgb_test_rmse_m3s": 0.0545,
+      "naive_test_r2": 0.5714,
+      "naive_test_mae_m3s": 0.0326,
+      "drought_years_validation": {
+        "2021": {
+          "observed_mean_m3s": 0.0988,
+          "predicted_mean_m3s": 0.1107,
+          "min_summer_observed_m3s": 0.0
+        },
+        "2024": {
+          "observed_mean_m3s": 0.0473,
+          "predicted_mean_m3s": 0.0341,
+          "min_summer_observed_m3s": 0.0
+        },
+        "2025": {
+          "observed_mean_m3s": 0.0374,
+          "predicted_mean_m3s": 0.053,
+          "min_summer_observed_m3s": 0.0
+        }
+      }
+    }
+  },
+  "custom_basin_211017_2050_bau": {
+    "inside_turkey": true,
+    "boundary_warning": null,
+    "is_custom_basin": true,
+    "selected_osb": {
+      "osb_id": "adana_osb",
+      "name": "Adana Hacı Sabancı OSB (AOSB)",
+      "city": "Adana",
+      "corridor_region": "Akdeniz (Ulusal Tarama)",
+      "in_focus_corridor": false,
+      "basin_name": "Seyhan-Ceyhan Havzası",
+      "lat": 36.995,
+      "lon": 35.612,
+      "groundwater_dependency_pct": 55.0,
+      "drought_cutback_risk_pct": 39.0,
+      "gw_provenance": "Kalibre Varsayım",
+      "osb_grid_tariff_tl_m3": 118.5,
+      "tariff_provenance": "Kalibre Varsayım",
+      "tariff_source_note": "Ulusal tarama referans tarifesi.",
+      "dominant_sectors": [
+        "textile",
+        "food",
+        "chemical"
+      ],
+      "string_id": "211032-TUR.1_1-1495",
+      "pfaf_id": 211032,
+      "province_name": "Adana",
+      "bws_raw": 1.4531,
+      "bws_score": 4.8611,
+      "bwd_raw": 0.683,
+      "gtd_raw": 0.0319,
+      "drr_raw": 0.5821,
+      "sev_raw": 0.6587,
+      "iav_raw": 0.4325,
+      "summer_bws_raw": 1.69,
+      "bau30_ws_x_r": 1.3542,
+      "bau50_ws_x_r": 1.9433,
+      "bau80_ws_x_r": 2.9094,
+      "pes30_ws_x_r": 1.4602,
+      "pes50_ws_x_r": 1.8185,
+      "pes80_ws_x_r": 2.448,
+      "opt30_ws_x_r": 1.4676,
+      "opt50_ws_x_r": 1.3007,
+      "opt80_ws_x_r": 1.4626
     },
-    "location_risk": {
-      "string_id": "",
-      "pfaf_id": 211056,
-      "province_name": "Izmir",
-      "sector": "textile",
-      "sector_label": "Tekstil & Konfeksiyon (C13-C14)",
-      "target_year": 2030,
+    "selected_location": {
+      "location_type": "custom_basin",
+      "string_id": "211017-TUR.37_1-1534",
+      "pfaf_id": 211017,
+      "province_name": "Hatay",
+      "display_title": "Hatay Alt-Havzası (#211017 · Münferit Sanayi Parseli)",
+      "nearest_osb_id": "adana_osb",
+      "nearest_osb_name": "Adana Hacı Sabancı OSB (AOSB)",
+      "in_focus_corridor": false
+    },
+    "transparent_risk": {
+      "string_id": "211017-TUR.37_1-1534",
+      "pfaf_id": 211017,
+      "province_name": "Hatay",
+      "sector": "metal",
+      "sector_label": "Metal, Makine & Otomotiv (C24-C29)",
+      "target_year": 2050,
       "scenario": "BAU",
-      "composite_risk_score": 77.5,
+      "composite_risk_score": 74.7,
       "risk_category": "Çok Yüksek / Kritik Risk",
       "expected_cutback_days": {
-        "p10": 15.5,
-        "p50": 29.8,
-        "p90": 54.6
+        "p10": 14.5,
+        "p50": 28.0,
+        "p90": 48.5,
+        "provenance": "Sezgisel Risk-Süre İndeksi (Kalibre Model)",
+        "methodology_note": "Fabrika bazında tarihsel kesinti günü verisi kamuya açık olmadığından bileşik risk skorundan üretilmiş gösterge niteliğinde endekstir (P10 = 0.52×P50, P90 ≈ 1.68×P50 + kuyu eki)."
       },
       "indicators": {
-        "baseline_bws_raw": 1.502,
-        "projected_annual_ws_raw": 1.693,
-        "projected_summer_peak_ws_raw": 1.632,
-        "gtd_raw": 0.148,
-        "drr_raw": 0.611,
-        "sev_raw": 0.445,
-        "iav_raw": 0.389,
-        "groundwater_dependency_pct": 100.0,
-        "spei12_decadal_trend": -0.32
+        "baseline_bws_raw": 2.405,
+        "projected_annual_ws_raw": 5.047,
+        "projected_summer_peak_ws_raw": 8.433,
+        "gtd_raw": 0.009,
+        "drr_raw": 0.725,
+        "sev_raw": 0.796,
+        "iav_raw": 0.503,
+        "groundwater_dependency_pct": 61.3,
+        "groundwater_provenance": "Havza Göstergesinden Tahmin (Aqueduct gtd_raw)",
+        "spei12_decadal_trend": -0.53
       },
       "component_breakdown": [
+        {
+          "key": "water_stress",
+          "label": "Gelecek (2050 BAU) & Yaz Pik Su Stresi",
+          "weight_max": 25.0,
+          "points": 25.0,
+          "raw_indicator": "yıllık ws=5.05, yaz pik=8.43",
+          "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))",
+          "provenance": "Resmi Model (WRI Aqueduct 4.0)",
+          "info_summary": "Havzadaki toplam su çekiminin yenilenebilir su arzına oranıdır (>1.0 aşırı stres). Yaz aylarında (Ağustos) tarımsal sulama ile sanayi aynı kaynağı paylaştığı için pik stres kesintiyi belirler."
+        },
+        {
+          "key": "drought_spei",
+          "label": "Su Dengesi (P−ET₀) Trendi & Kuraklık Riski (SPEI-12 proxy)",
+          "weight_max": 20.0,
+          "points": 20.0,
+          "raw_indicator": "drr=0.72, P−ET₀ eğim=-0.53/on-yıl (SPEI proxy)",
+          "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|P−ET₀ eğimi|)) × senaryo_çarpanı",
+          "provenance": "Model (ERA5 + 7 CMIP6 QDM + Aqueduct drr)",
+          "info_summary": "Yağış eksi buharlaşma (P − ET₀) dengesinin yıllık eğimini ve Aqueduct kuraklık şiddetini (drr) birleştirir. Gerçek SPEI-12 serisi ERA5 referans noktası için ayrıca hesaplanır; havza kartındaki değer, iklim projeksiyonundan türetilen şeffaf bir proxy'dir."
+        },
+        {
+          "key": "sectoral_pressure",
+          "label": "Sektörel Tahsis & 2029 Belge Baskısı (Metal, Makine & Otomotiv (C24-C29))",
+          "weight_max": 15.0,
+          "points": 13.82,
+          "raw_indicator": "w_awr_con_tot_score=4.03/5.0",
+          "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)",
+          "provenance": "Resmi Model (Aqueduct Sektörel AWR) + Regülasyon",
+          "info_summary": "Seçilen sanayi sektörünün havzadaki fiziksel, kalite ve regülasyon (27.12.2029 Yeşil Su Verimliliği Belgesi) baskısına duyarlılığını ölçer."
+        },
         {
           "key": "groundwater_depletion",
           "label": "Yeraltı Suyu Düşüşü & Kuyu Bağımlılığı",
           "weight_max": 25.0,
-          "points": 22.41,
-          "raw_indicator": "gtd=0.148 cm/yıl, kuyu bağımlılığı=%100",
-          "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)"
-        },
-        {
-          "key": "water_stress",
-          "label": "Gelecek (2030 BAU) & Yaz Pik Su Stresi",
-          "weight_max": 25.0,
-          "points": 22.2,
-          "raw_indicator": "yıllık ws=1.69, yaz pik=1.63",
-          "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))"
-        },
-        {
-          "key": "drought_spei",
-          "label": "SPEI-12 Kuraklık Trendi & Hidrolojik Kuraklık Riski",
-          "weight_max": 20.0,
-          "points": 15.51,
-          "raw_indicator": "drr=0.61, SPEI-12 eğim=-0.32/on-yıl",
-          "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|SPEI_trend|)) × senaryo_çarpanı"
-        },
-        {
-          "key": "sectoral_pressure",
-          "label": "Sektörel Tahsis & 2029 Belge Baskısı (Tekstil & Konfeksiyon (C13-C14))",
-          "weight_max": 15.0,
-          "points": 13.43,
-          "raw_indicator": "w_awr_tex_tot_score=3.27/5.0",
-          "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)"
+          "points": 9.9,
+          "raw_indicator": "gtd=0.009 cm/yıl, kuyu bağımlılığı=%61",
+          "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)",
+          "provenance": "Havza Göstergesinden Tahmin (Aqueduct gtd_raw)",
+          "info_summary": "Akifer su tablasının yıllık düşüş hızını (gtd_raw) ve sanayinin kuyulara bağımlılığını ölçer. Kuyu seviyesi düştükçe pompaj maliyeti artar ve kuraklıkta DSİ/SYGM tahsis kısıtı riski doğar."
         },
         {
           "key": "variability",
           "label": "Mevsimsel & Yıllar Arası Arz Oynaklığı",
           "weight_max": 15.0,
-          "points": 3.94,
-          "raw_indicator": "mevsimsel sev=0.44, yıllar-arası iav=0.39",
-          "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))"
+          "points": 6.0,
+          "raw_indicator": "mevsimsel sev=0.80, yıllar-arası iav=0.50",
+          "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))",
+          "provenance": "Resmi Model (WRI Aqueduct 4.0 sev_raw & iav_raw)",
+          "info_summary": "Yıllık toplam su yeterli görünse bile suyun aylara ve yıllara düzensiz dağılmasını ölçer. Yüksek oynaklık, depolama veya geri kazanım olmayan fabrikalarda ani yaz kesintilerine yol açar."
         }
       ]
     },
-    "do_nothing_projection": {
-      "annual_water_bill_tl": 60568500.0,
-      "expected_cutback_days": {
-        "p10": 11.2,
-        "p50": 21.5,
-        "p90": 39.3
+    "xgboost_shap_explanation": {
+      "month": 8,
+      "coarse_annual_bws_raw": 2.405,
+      "predicted_summer_peak_bws_raw": 4.579,
+      "expected_base_value": 0.458,
+      "inference_latency_ms": 40.47,
+      "archetype": {
+        "archetype_id": 2,
+        "archetype_label": "Arketip C — Aşırı Yeraltı Suyu Çöküşü & Yaz Pik Kriz Havzası (Gediz / Konya Tipi)"
       },
-      "expected_downtime_loss_tl": {
-        "p10": 8400000.0,
-        "p50": 16125000.0,
-        "p90": 29475000.0
-      },
-      "total_annual_exposure_tl": {
-        "p10": 68968500.0,
-        "p50": 76693500.0,
-        "p90": 90043500.0
-      },
-      "five_year_unmitigated_exposure_p50_tl": 383467500.0
-    },
-    "optimized_portfolio": {
-      "solver_method": "0-1 Knapsack Kesin Çözüm (2048 kombinasyon, çarpımsal azalan verim)",
-      "selected_measures_count": 5,
-      "selected_measures": [
+      "top_drivers": [
         {
-          "measure_id": "M01",
-          "name": "Basınçlı Otomatik Kapanan Nozullar & Sensörlü Yıkama Hatları",
-          "target_process": "process",
-          "target_process_label": "Yıkama, Boyama & Ürün Prosesi",
-          "process_saving_rate_pct": 24.0,
-          "capex_tl": 280000.0,
-          "annual_opex_change_tl": -35000.0,
-          "standalone_saved_m3": 20880.0,
-          "estimated_payback_months": 0.3,
-          "nace_reference": "SYGM NACE C10/C13/C24 MET-04 & IFC Case #2 (<60 gün geri ödeme)",
-          "description": "Açık uçlu hortumların yüksek basınçlı/düşük debili tetikli nozullar ve fotoselli durulama valfleriyle değiştirilmesi."
+          "feature": "summer_x_bws",
+          "label_tr": "Yaz Pik × Yıllık Su Stresi Etkileşimi",
+          "feature_value": 2.405,
+          "shap_value": 1.7527,
+          "direction": "artırıcı"
         },
         {
-          "measure_id": "M03",
-          "name": "Durulama / Yıkama Suyu Kaskad (Ters Akımlı) Geri Kazanım Sistemi",
-          "target_process": "process",
-          "target_process_label": "Yıkama, Boyama & Ürün Prosesi",
-          "process_saving_rate_pct": 28.0,
-          "capex_tl": 680000.0,
-          "annual_opex_change_tl": 28000.0,
-          "standalone_saved_m3": 24360.0,
-          "estimated_payback_months": 0.6,
-          "nace_reference": "SYGM Tekstil (C13) MET-11 & Gıda (C10) MET-08 (%15-35 proses tasarrufu)",
-          "description": "Son durulama banyosundan çıkan temiz suyun ilk yıkama kademelerinde ters akımlı (counter-current) yeniden kullanımı."
+          "feature": "bws_raw",
+          "label_tr": "Yıllık Temel Su Stresi Oranı (bws_raw)",
+          "feature_value": 2.405,
+          "shap_value": 1.0215,
+          "direction": "artırıcı"
         },
         {
-          "measure_id": "M04",
-          "name": "Kazan Buhar Kondensi & Flash Buhar Kapalı Devre Geri Kazanımı",
-          "target_process": "boiler",
-          "target_process_label": "Kazan Besleme & Buhar",
-          "process_saving_rate_pct": 52.0,
-          "capex_tl": 590000.0,
-          "annual_opex_change_tl": -140000.0,
-          "standalone_saved_m3": 10920.0,
-          "estimated_payback_months": 1.2,
-          "nace_reference": "SYGM Yardımcı Prosesler MET-19 & IFC Buhar Sistemi Vakası (Su + Doğalgaz tasarrufu)",
-          "description": "Kondensatın kazan besleme tankına geri döndürülmesi; hem yumuşatılmış su hem de 80°C termal enerji tasarrufu sağlar."
+          "feature": "month",
+          "label_tr": "Takvim Ayı (1–12)",
+          "feature_value": 8.0,
+          "shap_value": 0.4933,
+          "direction": "artırıcı"
         },
         {
-          "measure_id": "M05",
-          "name": "Kapalı Devre Soğutma Kulesi Dönüşümü & Otomatik İletkenlik (Blöf) Kontrolü",
-          "target_process": "cooling",
-          "target_process_label": "Soğutma Kulesi & Isı Değiştirici",
-          "process_saving_rate_pct": 58.0,
-          "capex_tl": 1150000.0,
-          "annual_opex_change_tl": 45000.0,
-          "standalone_saved_m3": 19140.0,
-          "estimated_payback_months": 1.4,
-          "nace_reference": "SYGM Soğutma Sistemleri MET-14 & IFC (2017) (<2 yıl geri ödeme, soğutmada %95'e varan çevrim)",
-          "description": "Açık/tek geçişli soğutmanın kapalı devreye alınması, drift eliminatörleri ve otomatik iletkenlik sensörüyle blöf suyunun azaltılması."
+          "feature": "summer_x_sev",
+          "label_tr": "Yaz Pik × Mevsimsel Değişkenlik Etkileşimi",
+          "feature_value": 0.796,
+          "shap_value": 0.2452,
+          "direction": "artırıcı"
         },
         {
-          "measure_id": "M06",
-          "name": "Otomatik CIP (Yerinde Temizlik) İletkenlik/Bulanıklık Sensörlü Geri Kazanım",
-          "target_process": "process",
-          "target_process_label": "Yıkama, Boyama & Ürün Prosesi",
-          "process_saving_rate_pct": 22.0,
-          "capex_tl": 760000.0,
-          "annual_opex_change_tl": -40000.0,
-          "standalone_saved_m3": 19140.0,
-          "estimated_payback_months": 0.9,
-          "nace_reference": "SYGM Gıda (C10-C11) MET-12 & Kimya (C20) MET-09",
-          "description": "Tank ve hat yıkamada süre bazlı deşarj yerine iletkenlik sensörüyle kimyasal ve son durulama suyunun ayrıştırılıp tekrar kullanımı."
+          "feature": "cos_m",
+          "label_tr": "Mevsimsel Harmonik (Kosinüs Fazı)",
+          "feature_value": -0.5,
+          "shap_value": 0.2122,
+          "direction": "artırıcı"
+        },
+        {
+          "feature": "bws_score",
+          "label_tr": "Yıllık Su Stresi Skoru (bws_score)",
+          "feature_value": 5.0,
+          "shap_value": 0.1822,
+          "direction": "artırıcı"
+        },
+        {
+          "feature": "iav_raw",
+          "label_tr": "Yıllar Arası Arz Değişkenliği (iav_raw)",
+          "feature_value": 0.503,
+          "shap_value": 0.1101,
+          "direction": "artırıcı"
         }
-      ],
-      "total_capex_tl": 3460000.0,
-      "budget_utilization_pct": 98.9,
-      "remaining_budget_tl": 40000.0,
-      "multiplicative_savings_breakdown": {
-        "process_saving_rates": {
-          "cooling": 0.58,
-          "process": 0.5732,
-          "boiler": 0.52,
-          "domestic": 0.0
-        },
-        "uncapped_total_saving_rate": 0.5328,
-        "total_saving_rate": 0.5328,
-        "total_saving_pct": 53.28,
-        "was_capped_at_sectoral_limit": false
-      },
-      "annual_water_saved_m3": 79920.0,
-      "post_investment_water_demand_m3": 70080.0,
-      "annual_water_bill_saving_tl": 32270897.0,
-      "avoided_cutback_days_p50": 13.2,
-      "avoided_downtime_loss_p50_tl": 9880110.0,
-      "annual_opex_change_tl": -142000.0,
-      "net_annual_financial_benefit_tl": 42293007.0,
-      "npv_5yr_tl": 128947465.0,
-      "roi_5yr_pct": 6011.7,
-      "payback_months": 1.0,
-      "payback_years": 0.08,
-      "low_budget_advisory": null
+      ]
     },
-    "cashflow_5yr": {
+    "climate_water_balance_2026_2050": {
+      "scenario_label": "Normal / Mevcut Eğilim (SSP2-4.5 / BAU)",
       "years": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031,
+        2032,
+        2033,
+        2034,
+        2035,
+        2036,
+        2037,
+        2038,
+        2039,
+        2040,
+        2041,
+        2042,
+        2043,
+        2044,
+        2045,
+        2046,
+        2047,
+        2048,
+        2049,
+        2050
       ],
-      "cumulative_net_cashflow_tl": [
-        -3460000.0,
-        38833007.0,
-        81126014.0,
-        123419021.0,
-        165712028.0,
-        208005035.0
+      "water_balance_p10_mm": [
+        -817.6,
+        -927.1,
+        -842.6,
+        -747.2,
+        -838.4,
+        -687.3,
+        -929.4,
+        -773.1,
+        -860.8,
+        -974.8,
+        -818.8,
+        -843.5,
+        -978.8,
+        -846.0,
+        -889.8,
+        -901.8,
+        -833.4,
+        -965.3,
+        -848.6,
+        -927.2,
+        -877.2,
+        -913.0,
+        -907.7,
+        -938.0,
+        -1030.9
       ],
-      "cumulative_do_nothing_loss_tl": [
-        0.0,
-        -76693500.0,
-        -153387000.0,
-        -230080500.0,
-        -306774000.0,
-        -383467500.0
-      ]
+      "water_balance_p50_mm": [
+        -650.3,
+        -744.3,
+        -748.5,
+        -622.9,
+        -687.6,
+        -670.7,
+        -599.8,
+        -548.8,
+        -737.8,
+        -717.4,
+        -689.8,
+        -620.6,
+        -786.2,
+        -686.7,
+        -712.2,
+        -713.5,
+        -758.2,
+        -738.7,
+        -805.8,
+        -841.8,
+        -683.1,
+        -829.2,
+        -794.7,
+        -777.2,
+        -821.0
+      ],
+      "water_balance_p90_mm": [
+        -502.3,
+        -539.4,
+        -657.3,
+        -362.6,
+        -502.4,
+        -562.9,
+        -496.3,
+        -363.3,
+        -474.6,
+        -677.6,
+        -584.5,
+        -424.1,
+        -435.5,
+        -486.3,
+        -484.9,
+        -455.8,
+        -537.6,
+        -546.4,
+        -580.8,
+        -705.8,
+        -488.6,
+        -671.7,
+        -429.7,
+        -537.1,
+        -633.6
+      ],
+      "mean_2030_wb_p50_mm": -687.4,
+      "mean_2050_wb_p50_mm": -791.2,
+      "delta_wb_2050_vs_baseline_mm": -67.2,
+      "decadal_trend_mm": -50.71,
+      "drying_agreement_pct": 71.4,
+      "models_agreeing_count": 5,
+      "total_models_count": 7,
+      "mri_agcm3_2048_2050_wb_mm": -938.2,
+      "ec_earth3p_2048_2050_wb_mm": -759.2,
+      "scenario_anomaly_multiplier": 0.85
     },
-    "certification_2029": {
-      "regulation": "Su Verimliliği Yönetmeliği (RG 27.12.2024, No. 32765)",
-      "mandatory_deadline": "2029-12-27",
-      "is_mandatory_for_facility": true,
-      "achieved_tier": "Turkuaz Su Verimliliği Belgesi",
-      "compliance_status": "ÜSTÜN UYUM (2029 Zorunluluğu Aşıldı + Yeşil Finansman İndirimi)",
-      "compliant_with_2029_green_mandate": true,
-      "achieved_saving_pct": 53.28,
-      "green_threshold_pct": 15.0,
-      "turquoise_threshold_pct": 30.0,
-      "remaining_gap_to_green_pct": 0.0,
-      "badge_color": "cyan"
+    "climate_metadata": {
+      "ensemble_models": [
+        "CMCC_CM2_VHR4",
+        "FGOALS_f3_H",
+        "HiRAM_SIT_HR",
+        "MRI_AGCM3_2_S",
+        "EC_Earth3P_HR",
+        "MPI_ESM1_2_XR",
+        "NICAM16_8S"
+      ],
+      "ensemble_method": "7 gerçek CMIP6 HighResMIP modeli + ayrı QDM + Aqueduct 4.0 havza farkı",
+      "provenance_badge": "Model (7 CMIP6 HighResMIP + QDM + Aqueduct 4.0)",
+      "methodology_note": "7 gerçek CMIP6 HighResMIP modeli (Open-Meteo, 2020-2050) ayrı ayrı ERA5 (1995-2025) aylık dağılımına Quantile Delta Mapping (QDM) ile kalibre edildi. Yıllar arası değişim ve P10-P90 model yayılımı doğrudan bu 7 modelden; havzalar arası fark her alt-havzanın kendi WRI Aqueduct 4.0 SSP projeksiyonundan gelir. Aqueduct senaryoları OPT <= BAU <= PES sırasına zorlanmış ve 11 OSB ortalamasına göre merkezlenmiştir. HighResMIP serisi yüksek emisyon (RCP8.5 benzeri) yolunda olduğu için OPT/BAU/PES anomali ölçekleri 0.70/0.85/1.00'dır.",
+      "et0_method": "FAO-56 Penman-Monteith (ERA5) + Hargreaves-Samani (1985) (CMIP6)",
+      "bias_correction_method": "Quantile Delta Mapping (QDM, Cannon et al. 2015)",
+      "historical_baseline_wb_mm": -724.0,
+      "drought_2025_wb_mm": -1062.6
+    },
+    "model_validation_metrics": {
+      "naive_coarse_annual": {
+        "mae": 0.4789,
+        "rmse": 0.9598,
+        "r2": -0.0044
+      },
+      "ridge_linear_regression": {
+        "mae": 0.294,
+        "rmse": 0.5827,
+        "r2": 0.6297
+      },
+      "xgboost_downscaler": {
+        "mae": 0.1534,
+        "rmse": 0.4328,
+        "r2": 0.7958,
+        "mae_reduction_vs_naive_pct": 68.0,
+        "max_depth": 4
+      }
     }
   },
-  "kemalpasa_textile_groundwater_well_roi": {
-    "facility_summary": {
-      "facility_name": "Örnek Sanayi Tesisi",
-      "osb_id": "izmir_kemalpasa",
-      "osb_name": "İzmir Kemalpaşa OSB (KOSBİ)",
-      "city": "İzmir",
-      "pfaf_id": 211056,
-      "string_id": "211056-TUR.41_1-1272",
-      "sector": "textile",
-      "sector_label": "Tekstil & Konfeksiyon (C13-C14)",
-      "employee_count": 250,
-      "annual_water_m3": 150000,
-      "process_shares_pct": {
-        "cooling": 22.0,
-        "process": 58.0,
-        "boiler": 14.0,
-        "domestic": 6.0
-      },
-      "daily_downtime_cost_tl": 750000,
-      "capex_budget_tl": 3500000,
-      "target_year": 2030,
-      "scenario": "BAU"
+  "izsu_live": {
+    "status": "verified_snapshot_and_anomaly_ready",
+    "snapshot_date": "2026-11-06",
+    "headline_metrics": {
+      "capacity_weighted_occupancy_pct": 34.01,
+      "simple_average_occupancy_pct": 44.24,
+      "total_usable_water_mm3": 257.17,
+      "total_usable_capacity_mm3": 756.19,
+      "gordes_occupancy_pct": 27.96,
+      "gordes_capacity_share_pct": 57.91,
+      "tahtali_today_pct": 41.39,
+      "tahtali_last_year_pct": 1.54,
+      "balcova_23d_drop_pct_points": -7.43,
+      "daily_well_share_pct": 81.12
     },
-    "water_source_economics": {
+    "dams": [
+      {
+        "name": "Tahtalı Barajı",
+        "date": "2026-11-06",
+        "occupancy_pct": 41.39,
+        "last_year_occupancy_pct": 1.54,
+        "oct14_occupancy_pct": 42.75,
+        "delta_23d_pct_points": -1.36,
+        "usable_volume_m3": 118808000.0,
+        "usable_capacity_m3": 287050000.0,
+        "capacity_share_pct": 37.96,
+        "daily_production_m3": 95000.0,
+        "lat": 38.157434,
+        "lon": 27.12263
+      },
+      {
+        "name": "Balçova Barajı",
+        "date": "2026-11-06",
+        "occupancy_pct": 37.34,
+        "last_year_occupancy_pct": 0.0,
+        "oct14_occupancy_pct": 44.77,
+        "delta_23d_pct_points": -7.43,
+        "usable_volume_m3": 2846000.0,
+        "usable_capacity_m3": 7622000.0,
+        "capacity_share_pct": 1.01,
+        "daily_production_m3": 0.0,
+        "lat": 38.372622,
+        "lon": 27.037422
+      },
+      {
+        "name": "Ürkmez Barajı",
+        "date": "2026-11-06",
+        "occupancy_pct": 62.37,
+        "last_year_occupancy_pct": 3.7,
+        "oct14_occupancy_pct": 60.49,
+        "delta_23d_pct_points": 1.88,
+        "usable_volume_m3": 4763000.0,
+        "usable_capacity_m3": 7637000.0,
+        "capacity_share_pct": 1.01,
+        "daily_production_m3": 0.0,
+        "lat": 38.097069,
+        "lon": 26.95745
+      },
+      {
+        "name": "Gördes Barajı",
+        "date": "2026-11-06",
+        "occupancy_pct": 27.96,
+        "last_year_occupancy_pct": 0.0,
+        "oct14_occupancy_pct": 29.27,
+        "delta_23d_pct_points": -1.31,
+        "usable_volume_m3": 122410000.0,
+        "usable_capacity_m3": 437880000.0,
+        "capacity_share_pct": 57.91,
+        "daily_production_m3": 0.0,
+        "lat": 38.760674,
+        "lon": 28.065418
+      },
+      {
+        "name": "Alaçatı Kutlu Aktaş Barajı",
+        "date": "2026-11-06",
+        "occupancy_pct": 52.14,
+        "last_year_occupancy_pct": 0.05,
+        "oct14_occupancy_pct": 49.44,
+        "delta_23d_pct_points": 2.7,
+        "usable_volume_m3": 8342000.0,
+        "usable_capacity_m3": 16000000.0,
+        "capacity_share_pct": 2.12,
+        "daily_production_m3": 0.0,
+        "lat": 38.28857,
+        "lon": 26.413594
+      }
+    ],
+    "daily_production": [
+      {
+        "source_type": "Kuyu",
+        "facility_name": "Sarıkız Kuyuları",
+        "facility_id": 229,
+        "daily_production_m3": 58100.0
+      },
+      {
+        "source_type": "Kuyu",
+        "facility_name": "Göksu Kuyuları",
+        "facility_id": 236,
+        "daily_production_m3": 158400.0
+      },
+      {
+        "source_type": "Kuyu",
+        "facility_name": "Menemen - Çavuşköy Kuyuları",
+        "facility_id": 230,
+        "daily_production_m3": 57900.0
+      },
+      {
+        "source_type": "Kuyu",
+        "facility_name": "Halkapınar Kuyuları",
+        "facility_id": 231,
+        "daily_production_m3": 128013.0
+      },
+      {
+        "source_type": "Kuyu",
+        "facility_name": "Pınarbaşı Kuyuları",
+        "facility_id": 232,
+        "daily_production_m3": 2137.0
+      },
+      {
+        "source_type": "Kuyu",
+        "facility_name": "Buca ve Sarnıç Kuyuları",
+        "facility_id": 233,
+        "daily_production_m3": 3570.0
+      },
+      {
+        "source_type": "Baraj",
+        "facility_name": "Karaçam Göleti",
+        "facility_id": 234,
+        "daily_production_m3": 0.0
+      },
+      {
+        "source_type": "Baraj",
+        "facility_name": "Balçova Barajı",
+        "facility_id": 226,
+        "daily_production_m3": 0.0
+      },
+      {
+        "source_type": "Baraj",
+        "facility_name": "Gördes Barajı",
+        "facility_id": 235,
+        "daily_production_m3": 0.0
+      },
+      {
+        "source_type": "Baraj",
+        "facility_name": "Tahtalı Barajı",
+        "facility_id": 225,
+        "daily_production_m3": 95000.0
+      }
+    ],
+    "tariffs_2026": {
+      "effective_date": "2026-06-01",
+      "category": "İşyeri / Sanayi 1c (KDV Hariç, Su + Atıksu)",
+      "tier_0_10_tl_m3": 143.66,
+      "tier_11_20_tl_m3": 199.65,
+      "tier_21_plus_tl_m3": 403.79,
+      "osb_typical_grid_tl_m3": 118.5,
+      "groundwater_well_pumping_tl_m3": 24.8,
+      "reclaimed_water_tl_m3": 11.95,
+      "regional_verified_tariffs_tl_m3": {
+        "izsu_sanayi_1c_21plus": {
+          "unit_tl_m3": 403.79,
+          "provenance": "Ölçülmüş (Resmi Tarife)",
+          "source_note": "İZSU Haziran 2026 Sanayi 1c/1ç 21 m³+ su (269,20) + atıksu (134,59) KDV hariç"
+        },
+        "bursa_bosb_grid": {
+          "unit_tl_m3": 122.0,
+          "provenance": "Ölçülmüş (Resmi Tarife)",
+          "source_note": "Bursa OSB (BOSB) 2026 1. kalite sanayi suyu (106,60 TL) + kirlilik atıksu bedeli (~15,40 TL)"
+        },
+        "kocaeli_gosb_isu": {
+          "unit_tl_m3": 80.33,
+          "provenance": "Ölçülmüş (Resmi Tarife)",
+          "source_note": "Kocaeli İSU 2026 sanayi tarifesi (73,33 TL/m³) + GOSB altyapı işletme bedeli (7,00 TL/m³)"
+        },
+        "konya_koski_industrial": {
+          "unit_tl_m3": 98.39,
+          "provenance": "Ölçülmüş (Resmi Tarife)",
+          "source_note": "Konya KOSKİ 2026 son dönem merkez işyeri/sanayi su + atıksu birim fiyatı (KDV hariç)"
+        },
+        "ege_osb_grid_reference": {
+          "unit_tl_m3": 118.5,
+          "provenance": "Kalibre Varsayım",
+          "source_note": "KOSBİ / MOSB / ALOSBİ iç tarifeleri üye portalında kapalı olduğundan BOSB sanayi tarifesine göre kalibre edilmiş referans"
+        },
+        "groundwater_well_pumping": {
+          "unit_tl_m3": 24.8,
+          "provenance": "Kalibre Varsayım",
+          "source_note": "Derin kuyu elektrik/pompaj (150-220 m dinamik seviye) + klorlama/ön filtrasyon + YAS sayaç/bakım birim maliyeti"
+        }
+      },
+      "gediz_drought_allocation_normal_pct": 85.9,
+      "gediz_drought_allocation_crisis_pct": 37.1,
+      "gediz_drought_cutback_pct": 62.9
+    },
+    "anomaly_analysis": {
+      "detector": "IsolationForest (n_estimators=150, contamination=0.17) + 23-Günlük Baraj Kesit Deltası",
+      "monthly_records_analyzed": 137,
+      "unique_facility_months": 126,
+      "facilities_count": 11,
+      "november_2025_regime_shift": {
+        "month": "2025-11",
+        "tahtali_peak_aug_2025_mm3": 6.91,
+        "tahtali_nov_2025_mm3": 1.62,
+        "tahtali_collapse_pct": -76.5,
+        "well_share_nov_2025_pct": 69.33,
+        "isolation_forest_anomaly_score": 0.5932,
+        "is_flagged_anomaly": true,
+        "explanation": "Kasım 2025 kuraklığında Tahtalı Barajı aylık üretimi 6.91 Mm³ yaz zirvesinden 1.62 Mm³'e (-76.5%) çökerken, yeraltı kuyuları (Göksu, Halkapınar, Sarıkız, Menemen) toplam İzmir arzının %69.3'ini üstlenmiştir."
+      },
+      "snapshot_23d_dam_alerts": [
+        {
+          "dam_name": "Balçova Barajı",
+          "severity": "KRİTİK",
+          "occupancy_today_pct": 37.34,
+          "occupancy_oct14_pct": 44.77,
+          "delta_23d_pct_points": -7.43,
+          "daily_production_m3": 0.0,
+          "alert_message": "Balçova Barajı: 23 günde -7.43 puan değişim (%44.77 → %37.34); günlük üretim 0 m³/gün."
+        },
+        {
+          "dam_name": "Ürkmez Barajı",
+          "severity": "UYARI",
+          "occupancy_today_pct": 62.37,
+          "occupancy_oct14_pct": 60.49,
+          "delta_23d_pct_points": 1.88,
+          "daily_production_m3": 0.0,
+          "alert_message": "Ürkmez Barajı: 23 günde +1.88 puan değişim (%60.49 → %62.37); günlük üretim 0 m³/gün."
+        },
+        {
+          "dam_name": "Gördes Barajı",
+          "severity": "KRİTİK",
+          "occupancy_today_pct": 27.96,
+          "occupancy_oct14_pct": 29.27,
+          "delta_23d_pct_points": -1.31,
+          "daily_production_m3": 0.0,
+          "alert_message": "Gördes Barajı: 23 günde -1.31 puan değişim (%29.27 → %27.96); günlük üretim 0 m³/gün."
+        },
+        {
+          "dam_name": "Alaçatı Kutlu Aktaş Barajı",
+          "severity": "UYARI",
+          "occupancy_today_pct": 52.14,
+          "occupancy_oct14_pct": 49.44,
+          "delta_23d_pct_points": 2.7,
+          "daily_production_m3": 0.0,
+          "alert_message": "Alaçatı Kutlu Aktaş Barajı: 23 günde +2.70 puan değişim (%49.44 → %52.14); günlük üretim 0 m³/gün."
+        }
+      ],
+      "monthly_series_2025": [
+        {
+          "year": 2025,
+          "month": 1,
+          "Baraj": 8.9809,
+          "Kuyu": 10.4454,
+          "total_mm3": 19.426299999999998,
+          "well_share_pct": 53.77,
+          "tahtali_mm3": 6.1053,
+          "major_wells_mm3": 10.3443,
+          "tahtali_vs_peak_pct": -11.6,
+          "is_anomaly": false,
+          "anomaly_score": 0.4604
+        },
+        {
+          "year": 2025,
+          "month": 2,
+          "Baraj": 7.8865,
+          "Kuyu": 9.8133,
+          "total_mm3": 17.6998,
+          "well_share_pct": 55.44,
+          "tahtali_mm3": 3.573,
+          "major_wells_mm3": 9.7243,
+          "tahtali_vs_peak_pct": -48.3,
+          "is_anomaly": false,
+          "anomaly_score": 0.4812
+        },
+        {
+          "year": 2025,
+          "month": 3,
+          "Baraj": 9.1709,
+          "Kuyu": 10.873999999999999,
+          "total_mm3": 20.0449,
+          "well_share_pct": 54.25,
+          "tahtali_mm3": 3.5892,
+          "major_wells_mm3": 10.7694,
+          "tahtali_vs_peak_pct": -48.0,
+          "is_anomaly": false,
+          "anomaly_score": 0.4284
+        },
+        {
+          "year": 2025,
+          "month": 4,
+          "Baraj": 8.956,
+          "Kuyu": 10.061300000000001,
+          "total_mm3": 19.0173,
+          "well_share_pct": 52.91,
+          "tahtali_mm3": 2.769,
+          "major_wells_mm3": 9.9627,
+          "tahtali_vs_peak_pct": -59.9,
+          "is_anomaly": false,
+          "anomaly_score": 0.5018
+        },
+        {
+          "year": 2025,
+          "month": 5,
+          "Baraj": 8.7691,
+          "Kuyu": 11.8942,
+          "total_mm3": 20.6633,
+          "well_share_pct": 57.56,
+          "tahtali_mm3": 2.7859,
+          "major_wells_mm3": 11.7314,
+          "tahtali_vs_peak_pct": -59.7,
+          "is_anomaly": false,
+          "anomaly_score": 0.4682
+        },
+        {
+          "year": 2025,
+          "month": 6,
+          "Baraj": 9.284699999999999,
+          "Kuyu": 11.4863,
+          "total_mm3": 20.771,
+          "well_share_pct": 55.3,
+          "tahtali_mm3": 3.6898,
+          "major_wells_mm3": 11.2737,
+          "tahtali_vs_peak_pct": -46.6,
+          "is_anomaly": false,
+          "anomaly_score": 0.4373
+        },
+        {
+          "year": 2025,
+          "month": 7,
+          "Baraj": 10.3403,
+          "Kuyu": 11.1497,
+          "total_mm3": 21.49,
+          "well_share_pct": 51.88,
+          "tahtali_mm3": 5.9232,
+          "major_wells_mm3": 10.9218,
+          "tahtali_vs_peak_pct": -14.2,
+          "is_anomaly": false,
+          "anomaly_score": 0.4842
+        },
+        {
+          "year": 2025,
+          "month": 8,
+          "Baraj": 9.432,
+          "Kuyu": 10.7759,
+          "total_mm3": 20.207900000000002,
+          "well_share_pct": 53.33,
+          "tahtali_mm3": 6.9075,
+          "major_wells_mm3": 10.5503,
+          "tahtali_vs_peak_pct": 0.0,
+          "is_anomaly": false,
+          "anomaly_score": 0.5364
+        },
+        {
+          "year": 2025,
+          "month": 9,
+          "Baraj": 8.3782,
+          "Kuyu": 11.5242,
+          "total_mm3": 19.9024,
+          "well_share_pct": 57.9,
+          "tahtali_mm3": 6.0641,
+          "major_wells_mm3": 11.313,
+          "tahtali_vs_peak_pct": -12.2,
+          "is_anomaly": false,
+          "anomaly_score": 0.4825
+        },
+        {
+          "year": 2025,
+          "month": 10,
+          "Baraj": 6.973000000000001,
+          "Kuyu": 12.651900000000001,
+          "total_mm3": 19.624900000000004,
+          "well_share_pct": 64.47,
+          "tahtali_mm3": 4.889,
+          "major_wells_mm3": 12.4633,
+          "tahtali_vs_peak_pct": -29.2,
+          "is_anomaly": true,
+          "anomaly_score": 0.548
+        },
+        {
+          "year": 2025,
+          "month": 11,
+          "Baraj": 5.4927,
+          "Kuyu": 12.417200000000001,
+          "total_mm3": 17.9099,
+          "well_share_pct": 69.33,
+          "tahtali_mm3": 1.6224,
+          "major_wells_mm3": 12.247,
+          "tahtali_vs_peak_pct": -76.5,
+          "is_anomaly": true,
+          "anomaly_score": 0.5932
+        },
+        {
+          "year": 2025,
+          "month": 12,
+          "Baraj": 4.7064,
+          "Kuyu": 12.5614,
+          "total_mm3": 17.2678,
+          "well_share_pct": 72.74,
+          "tahtali_mm3": 2.8657,
+          "major_wells_mm3": 12.3872,
+          "tahtali_vs_peak_pct": -58.5,
+          "is_anomaly": false,
+          "anomaly_score": 0.5378
+        }
+      ],
+      "flagged_monthly_anomalies": [
+        {
+          "year": 2025,
+          "month": 10,
+          "Baraj": 6.973000000000001,
+          "Kuyu": 12.651900000000001,
+          "total_mm3": 19.624900000000004,
+          "well_share_pct": 64.47,
+          "tahtali_mm3": 4.889,
+          "major_wells_mm3": 12.4633,
+          "tahtali_vs_peak_pct": -29.2,
+          "is_anomaly": true,
+          "anomaly_score": 0.548
+        },
+        {
+          "year": 2025,
+          "month": 11,
+          "Baraj": 5.4927,
+          "Kuyu": 12.417200000000001,
+          "total_mm3": 17.9099,
+          "well_share_pct": 69.33,
+          "tahtali_mm3": 1.6224,
+          "major_wells_mm3": 12.247,
+          "tahtali_vs_peak_pct": -76.5,
+          "is_anomaly": true,
+          "anomaly_score": 0.5932
+        }
+      ]
+    }
+  },
+  "real_cases_roi": {
+    "tofas_bursa": {
+      "facility_name": "Tofaş Türk Otomobil Fabrikası A.Ş. — Bursa Tesisi",
+      "annual_water_m3": 430782,
       "water_source": "groundwater_well",
-      "source_label": "Kendi Yeraltı Kuyusu (24.80 TL/m³ pompaj + %62,9 tahsis kesintisi riski)",
-      "unit_cost_tl_m3": 24.8,
-      "cutback_vulnerability_multiplier": 1.38,
-      "allocation_note": "SYGM Gediz Tahsis Planı'na göre sanayi suyunun %100'ü yeraltından çekilir ve kuraklıkta tahsis %85,9'dan %37,1'e düşer (%62,9 kesinti -> doğrudan üretim duruşu riski!)."
-    },
-    "location_risk": {
-      "string_id": "",
-      "pfaf_id": 211056,
-      "province_name": "Izmir",
-      "sector": "textile",
-      "sector_label": "Tekstil & Konfeksiyon (C13-C14)",
+      "employee_count": 4409,
+      "data_provenance": "Ölçülmüş (Tofaş 2024 Entegre Rapor, s.61-62)",
+      "data_source_note": "Su: 430.782 m³/yıl yeraltı çekimi; 4.409 çalışan; 3,07 m³/araç. Kaynak: tofas.com.tr 2024 Entegre Raporu. Proses payları/bütçe: sektör kalibrasyonu.",
       "target_year": 2030,
       "scenario": "BAU",
-      "composite_risk_score": 77.5,
-      "risk_category": "Çok Yüksek / Kritik Risk",
-      "expected_cutback_days": {
-        "p10": 15.5,
-        "p50": 29.8,
-        "p90": 54.6
-      },
-      "indicators": {
-        "baseline_bws_raw": 1.502,
-        "projected_annual_ws_raw": 1.693,
-        "projected_summer_peak_ws_raw": 1.632,
-        "gtd_raw": 0.148,
-        "drr_raw": 0.611,
-        "sev_raw": 0.445,
-        "iav_raw": 0.389,
-        "groundwater_dependency_pct": 100.0,
-        "spei12_decadal_trend": -0.32
-      },
-      "component_breakdown": [
-        {
-          "key": "groundwater_depletion",
-          "label": "Yeraltı Suyu Düşüşü & Kuyu Bağımlılığı",
-          "weight_max": 25.0,
-          "points": 22.41,
-          "raw_indicator": "gtd=0.148 cm/yıl, kuyu bağımlılığı=%100",
-          "formula_note": "25 × (0.58·norm(gtd) + 0.42·kuyu_oranı)"
-        },
-        {
-          "key": "water_stress",
-          "label": "Gelecek (2030 BAU) & Yaz Pik Su Stresi",
-          "weight_max": 25.0,
-          "points": 22.2,
-          "raw_indicator": "yıllık ws=1.69, yaz pik=1.63",
-          "formula_note": "25 × (0.55·norm(ws_yıllık) + 0.45·norm(ws_yaz_pik))"
-        },
-        {
-          "key": "drought_spei",
-          "label": "SPEI-12 Kuraklık Trendi & Hidrolojik Kuraklık Riski",
-          "weight_max": 20.0,
-          "points": 15.51,
-          "raw_indicator": "drr=0.61, SPEI-12 eğim=-0.32/on-yıl",
-          "formula_note": "20 × (0.65·norm(drr) + 0.35·norm(|SPEI_trend|)) × senaryo_çarpanı"
-        },
-        {
-          "key": "sectoral_pressure",
-          "label": "Sektörel Tahsis & 2029 Belge Baskısı (Tekstil & Konfeksiyon (C13-C14))",
-          "weight_max": 15.0,
-          "points": 13.43,
-          "raw_indicator": "w_awr_tex_tot_score=3.27/5.0",
-          "formula_note": "15 × norm(w_awr_sektör × su_yoğunluk_katsayısı)"
-        },
-        {
-          "key": "variability",
-          "label": "Mevsimsel & Yıllar Arası Arz Oynaklığı",
-          "weight_max": 15.0,
-          "points": 3.94,
-          "raw_indicator": "mevsimsel sev=0.44, yıllar-arası iav=0.39",
-          "formula_note": "15 × (0.60·norm(sev) + 0.40·norm(iav))"
-        }
-      ]
-    },
-    "do_nothing_projection": {
-      "annual_water_bill_tl": 3720000.0,
-      "expected_cutback_days": {
-        "p10": 21.4,
-        "p50": 41.1,
-        "p90": 75.3
-      },
-      "expected_downtime_loss_tl": {
-        "p10": 16050000.0,
-        "p50": 30825000.0,
-        "p90": 56475000.0
-      },
-      "total_annual_exposure_tl": {
-        "p10": 19770000.0,
-        "p50": 34545000.0,
-        "p90": 60195000.0
-      },
-      "five_year_unmitigated_exposure_p50_tl": 172725000.0
-    },
-    "optimized_portfolio": {
-      "solver_method": "0-1 Knapsack Kesin Çözüm (2048 kombinasyon, çarpımsal azalan verim)",
-      "selected_measures_count": 5,
+      "unit_cost_tl_m3": 24.8,
       "selected_measures": [
-        {
-          "measure_id": "M01",
-          "name": "Basınçlı Otomatik Kapanan Nozullar & Sensörlü Yıkama Hatları",
-          "target_process": "process",
-          "target_process_label": "Yıkama, Boyama & Ürün Prosesi",
-          "process_saving_rate_pct": 24.0,
-          "capex_tl": 280000.0,
-          "annual_opex_change_tl": -35000.0,
-          "standalone_saved_m3": 20880.0,
-          "estimated_payback_months": 0.6,
-          "nace_reference": "SYGM NACE C10/C13/C24 MET-04 & IFC Case #2 (<60 gün geri ödeme)",
-          "description": "Açık uçlu hortumların yüksek basınçlı/düşük debili tetikli nozullar ve fotoselli durulama valfleriyle değiştirilmesi."
-        },
-        {
-          "measure_id": "M03",
-          "name": "Durulama / Yıkama Suyu Kaskad (Ters Akımlı) Geri Kazanım Sistemi",
-          "target_process": "process",
-          "target_process_label": "Yıkama, Boyama & Ürün Prosesi",
-          "process_saving_rate_pct": 28.0,
-          "capex_tl": 680000.0,
-          "annual_opex_change_tl": 28000.0,
-          "standalone_saved_m3": 24360.0,
-          "estimated_payback_months": 1.3,
-          "nace_reference": "SYGM Tekstil (C13) MET-11 & Gıda (C10) MET-08 (%15-35 proses tasarrufu)",
-          "description": "Son durulama banyosundan çıkan temiz suyun ilk yıkama kademelerinde ters akımlı (counter-current) yeniden kullanımı."
-        },
-        {
-          "measure_id": "M04",
-          "name": "Kazan Buhar Kondensi & Flash Buhar Kapalı Devre Geri Kazanımı",
-          "target_process": "boiler",
-          "target_process_label": "Kazan Besleme & Buhar",
-          "process_saving_rate_pct": 52.0,
-          "capex_tl": 590000.0,
-          "annual_opex_change_tl": -140000.0,
-          "standalone_saved_m3": 10920.0,
-          "estimated_payback_months": 2.4,
-          "nace_reference": "SYGM Yardımcı Prosesler MET-19 & IFC Buhar Sistemi Vakası (Su + Doğalgaz tasarrufu)",
-          "description": "Kondensatın kazan besleme tankına geri döndürülmesi; hem yumuşatılmış su hem de 80°C termal enerji tasarrufu sağlar."
-        },
-        {
-          "measure_id": "M05",
-          "name": "Kapalı Devre Soğutma Kulesi Dönüşümü & Otomatik İletkenlik (Blöf) Kontrolü",
-          "target_process": "cooling",
-          "target_process_label": "Soğutma Kulesi & Isı Değiştirici",
-          "process_saving_rate_pct": 58.0,
-          "capex_tl": 1150000.0,
-          "annual_opex_change_tl": 45000.0,
-          "standalone_saved_m3": 19140.0,
-          "estimated_payback_months": 2.8,
-          "nace_reference": "SYGM Soğutma Sistemleri MET-14 & IFC (2017) (<2 yıl geri ödeme, soğutmada %95'e varan çevrim)",
-          "description": "Açık/tek geçişli soğutmanın kapalı devreye alınması, drift eliminatörleri ve otomatik iletkenlik sensörüyle blöf suyunun azaltılması."
-        },
-        {
-          "measure_id": "M06",
-          "name": "Otomatik CIP (Yerinde Temizlik) İletkenlik/Bulanıklık Sensörlü Geri Kazanım",
-          "target_process": "process",
-          "target_process_label": "Yıkama, Boyama & Ürün Prosesi",
-          "process_saving_rate_pct": 22.0,
-          "capex_tl": 760000.0,
-          "annual_opex_change_tl": -40000.0,
-          "standalone_saved_m3": 19140.0,
-          "estimated_payback_months": 1.8,
-          "nace_reference": "SYGM Gıda (C10-C11) MET-12 & Kimya (C20) MET-09",
-          "description": "Tank ve hat yıkamada süre bazlı deşarj yerine iletkenlik sensörüyle kimyasal ve son durulama suyunun ayrıştırılıp tekrar kullanımı."
-        }
+        "M01",
+        "M03",
+        "M04",
+        "M10"
       ],
-      "total_capex_tl": 3460000.0,
-      "budget_utilization_pct": 98.9,
-      "remaining_budget_tl": 40000.0,
-      "multiplicative_savings_breakdown": {
-        "process_saving_rates": {
-          "cooling": 0.58,
-          "process": 0.5732,
-          "boiler": 0.52,
-          "domestic": 0.0
-        },
-        "uncapped_total_saving_rate": 0.5328,
-        "total_saving_rate": 0.5328,
-        "total_saving_pct": 53.28,
-        "was_capped_at_sectoral_limit": false
-      },
-      "annual_water_saved_m3": 79920.0,
-      "post_investment_water_demand_m3": 70080.0,
-      "annual_water_bill_saving_tl": 1982016.0,
-      "avoided_cutback_days_p50": 25.2,
-      "avoided_downtime_loss_p50_tl": 18887094.0,
-      "annual_opex_change_tl": -142000.0,
-      "net_annual_financial_benefit_tl": 21011110.0,
-      "npv_5yr_tl": 62395334.0,
-      "roi_5yr_pct": 2936.3,
-      "payback_months": 2.0,
-      "payback_years": 0.16,
-      "low_budget_advisory": null
+      "saving_m3": 154091.0,
+      "saving_pct": 35.77,
+      "total_capex_tl": 5711300.0,
+      "capex_scale_factor": 2.87,
+      "npv_5yr_tl": 43304189.0,
+      "payback_months": 4.4,
+      "certificate_tier": "Yeşil Su Verimliliği Belgesi",
+      "certificate_compliant": true,
+      "latency_ms": 45.1
     },
-    "cashflow_5yr": {
-      "years": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5
+    "vestel_manisa": {
+      "facility_name": "Vestel Elektronik A.Ş. — Manisa Vestel City Kampüsü",
+      "annual_water_m3": 1510208,
+      "water_source": "hybrid",
+      "employee_count": 29000,
+      "data_provenance": "Ölçülmüş (Vestel 2024 Sürdürülebilirlik Raporu)",
+      "data_source_note": "Su: 1.510.208 m³/yıl (şebeke 1.078.635 + yeraltı 421.294 + yağmur 10.279). Çalışan: Vestel City kampüsü ~29.000 (2024). Proses payları/bütçe: sektör kalibrasyonu.",
+      "target_year": 2030,
+      "scenario": "BAU",
+      "unit_cost_tl_m3": 91.7,
+      "selected_measures": [
+        "M01",
+        "M02",
+        "M10"
       ],
-      "cumulative_net_cashflow_tl": [
-        -3460000.0,
-        17551110.0,
-        38562220.0,
-        59573330.0,
-        80584440.0,
-        101595550.0
+      "saving_m3": 362450.0,
+      "saving_pct": 24.0,
+      "total_capex_tl": 10674200.0,
+      "capex_scale_factor": 10.07,
+      "npv_5yr_tl": 160590505.0,
+      "payback_months": 2.3,
+      "certificate_tier": "Yeşil Su Verimliliği Belgesi",
+      "certificate_compliant": true,
+      "latency_ms": 12.0
+    },
+    "petkim_aliaga": {
+      "facility_name": "SOCAR Petkim Petrokimya A.Ş. — Aliağa Kompleksi",
+      "annual_water_m3": 14230105,
+      "water_source": "surface_water",
+      "employee_count": 2433,
+      "data_provenance": "Ölçülmüş (Petkim 2024 Entegre Faaliyet Raporu, s.85-86)",
+      "data_source_note": "Su: 14.230.105 m³/yıl toplam çekim; net tüketim 8.858.508 m³; 2.433 çalışan (2024). Kaynak: petkim.com.tr 2024 Entegre Faaliyet Raporu. Proses payları/bütçe: sektör kalibrasyonu.",
+      "target_year": 2050,
+      "scenario": "BAU",
+      "unit_cost_tl_m3": 15.0,
+      "selected_measures": [
+        "M01",
+        "M04",
+        "M05",
+        "M10"
       ],
-      "cumulative_do_nothing_loss_tl": [
-        0.0,
-        -34545000.0,
-        -69090000.0,
-        -103635000.0,
-        -138180000.0,
-        -172725000.0
-      ]
-    },
-    "certification_2029": {
-      "regulation": "Su Verimliliği Yönetmeliği (RG 27.12.2024, No. 32765)",
-      "mandatory_deadline": "2029-12-27",
-      "is_mandatory_for_facility": true,
-      "achieved_tier": "Turkuaz Su Verimliliği Belgesi",
-      "compliance_status": "ÜSTÜN UYUM (2029 Zorunluluğu Aşıldı + Yeşil Finansman İndirimi)",
-      "compliant_with_2029_green_mandate": true,
-      "achieved_saving_pct": 53.28,
-      "green_threshold_pct": 15.0,
-      "turquoise_threshold_pct": 30.0,
-      "remaining_gap_to_green_pct": 0.0,
-      "badge_color": "cyan"
-    }
-  },
-  "izsu_anomalies": {
-    "month": "2025-11",
-    "tahtali_peak_aug_2025_mm3": 6.91,
-    "tahtali_nov_2025_mm3": 1.62,
-    "tahtali_collapse_pct": -76.5,
-    "well_share_nov_2025_pct": 69.33,
-    "isolation_forest_anomaly_score": 0.5932,
-    "is_flagged_anomaly": true,
-    "explanation": "Kasım 2025 kuraklığında Tahtalı Barajı aylık üretimi 6.91 Mm³ yaz zirvesinden 1.62 Mm³'e (-76.5%) çökerken, yeraltı kuyuları (Göksu, Halkapınar, Sarıkız, Menemen) toplam İzmir arzının %69.3'ini üstlenmiştir."
-  },
-  "ml_metrics": {
-    "naive_coarse_annual": {
-      "mae": 0.4789,
-      "rmse": 0.9598,
-      "r2": -0.0044
-    },
-    "ridge_linear_regression": {
-      "mae": 0.294,
-      "rmse": 0.5827,
-      "r2": 0.6297
-    },
-    "xgboost_downscaler": {
-      "mae": 0.1534,
-      "rmse": 0.4328,
-      "r2": 0.7958,
-      "mae_reduction_vs_naive_pct": 68.0,
-      "max_depth": 4
-    }
-  },
-  "gediz_backtest": {
-    "period_total": "1984-2025 (504 takvim ayı, GloFAS 1997-2025 aktif debi serisi)",
-    "train_period": "1997-2014 (216 ay)",
-    "test_period": "2015-2025 (132 ay)",
-    "total_months": 504,
-    "active_discharge_months": 348,
-    "xgb_test_r2": 0.6732,
-    "xgb_test_mae_m3s": 0.0269,
-    "xgb_test_rmse_m3s": 0.0545,
-    "naive_test_r2": 0.5714,
-    "naive_test_mae_m3s": 0.0326,
-    "drought_years_validation": {
-      "2021": {
-        "observed_mean_m3s": 0.0988,
-        "predicted_mean_m3s": 0.1107,
-        "min_summer_observed_m3s": 0.0
-      },
-      "2024": {
-        "observed_mean_m3s": 0.0473,
-        "predicted_mean_m3s": 0.0341,
-        "min_summer_observed_m3s": 0.0
-      },
-      "2025": {
-        "observed_mean_m3s": 0.0374,
-        "predicted_mean_m3s": 0.053,
-        "min_summer_observed_m3s": 0.0
-      }
+      "saving_m3": 7793829.0,
+      "saving_pct": 54.77,
+      "total_capex_tl": 233380200.0,
+      "capex_scale_factor": 94.87,
+      "npv_5yr_tl": 903683138.0,
+      "payback_months": 7.7,
+      "certificate_tier": "Turkuaz Su Verimliliği Belgesi",
+      "certificate_compliant": true,
+      "latency_ms": 26.3
     }
   }
 }

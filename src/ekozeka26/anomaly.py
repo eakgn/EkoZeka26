@@ -3,7 +3,7 @@ WBS-3: İZSU & Gediz Hidrolojik Anomali Tespiti (`anomaly.py`)
 
 V&V Veri Kuralı:
 - `baraj.csv` (14.10.2026) ve `gunluk.csv` tek günlük anlık kesitlerdir.
-- Gerçek aylık zaman serisi `izsu_aylik.html` içindeki 137 aylık üretim kaydından
+- Gerçek aylık zaman serisi `izsu_aylik.html` içindeki 137 ham satırdan (126 tekil tesis-ay)
   (2025 yılı 12 ay × 11 baraj/kuyu tesisi) çıkarılmıştır (`izsu_snapshot.json`).
 - Isolation Forest (Liu, Ting & Zhou 2008) ile:
   1. Kasım 2025'te Tahtalı Barajı üretiminin 6,91 Mm³ -> 1,62 Mm³'e (-%76,5) çöküp
@@ -28,7 +28,7 @@ from ekozeka26.data_pipeline import PROCESSED_DIR
 
 def detect_izsu_and_gediz_anomalies() -> dict[str, Any]:
     """
-    İZSU 2025 aylık üretim zaman serisi (137 kayıt) üzerinde Isolation Forest çalıştırır
+    İZSU 2025 aylık üretim zaman serisi (137 ham satır → 126 tekil tesis-ay) üzerinde Isolation Forest çalıştırır
     ve 23 günlük baraj kesit deltası (14 Ekim -> 6 Kasım 2026) ile birleştirilmiş
     anomali raporunu döner.
     """
@@ -37,7 +37,7 @@ def detect_izsu_and_gediz_anomalies() -> dict[str, Any]:
 
     records = izsu["monthly_production_2025"]
     df_raw = pd.DataFrame(records)
-    # İZSU verisinde aynı (yıl, ay, tesis) için mükerrer satır varsa (137 ham -> 132 tekil tesis-ay) tekilleştir
+    # İZSU verisinde aynı (yıl, ay, tesis) için mükerrer satır varsa (137 ham -> 126 tekil tesis-ay) tekilleştir
     df = df_raw.drop_duplicates(subset=["year", "month", "facility_name"]).copy()
 
     monthly_source = (

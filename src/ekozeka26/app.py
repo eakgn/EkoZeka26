@@ -6,11 +6,11 @@ Uç Noktalar (REST API):
 - `GET /api/health` : Sistem durumu, veri soyu ve doğrulanan ML model metrikleri
 - `GET /api/basins` : Türkiye'nin 639 alt-havzasının GeoJSON harita katmanı + seçilen yıl/senaryo/sektör risk özetleri
 - `GET /api/osb-compare` & `POST /api/osb-compare` : Aday OSB'lerin şeffaf bileşik risk, P10-P90 kesinti günü ve iklim karşılaştırması
-- `GET /api/predict-location` & `POST /api/predict-location` : Tıklanan (lat, lon) veya seçilen OSB için coğrafi sınır korumalı şeffaf risk + SHAP (<50 ms) + KMeans arketip + 7 CMIP6 model P10-P90 su dengesi serisi
-- `POST /api/simulate-roi` & `GET /api/simulate-roi` : Bütçe kısıtlı 0-1 Knapsack su verimliliği portföy optimizasyonu, kuyu vs şebeke analizi ve 27.12.2029 Yeşil Belge kademesi
+- `GET /api/predict-location` & `POST /api/predict-location` : Tıklanan (lat, lon) veya seçilen OSB için coğrafi sınır korumalı şeffaf risk + SHAP (<50 ms) + KMeans arketip + 7 gerçek CMIP6 HighResMIP modeli P10-P90 su dengesi serisi
+- `POST /api/simulate-roi` & `GET /api/simulate-roi` : Bütçe kısıtlı 0-1 Knapsack su verimliliği portföy optimizasyonu, kuyu/şebeke/yüzey suyu analizi ve 27.12.2029 Yeşil Belge kademesi
 - `POST /api/executive-summary` : Hesaplanan kesin JSON çıktısından Gemini / Deterministik Yönetim Kurulu Raporu
-- `GET /api/izsu-live` : İZSU 6 Kasım 2026 baraj dolulukları (%34,0 ağırlıklı vs %44,2 basit ort.), 23 günlük Balçova düşüşü (-7,43 puan) ve 137 aylık üretim kaydı üzerinde Isolation Forest anomali raporu
-- `GET /api/facility-sample` : Açık tesis şeması (`facility.schema.json`) ve hazır örnek tesis profilleri (`kemalpasa_textile`, `manisa_food`, `aliaga_chemical`)
+- `GET /api/izsu-live` : İZSU 6 Kasım 2026 baraj dolulukları (%34,0 ağırlıklı vs %44,2 basit ort.), 23 günlük Balçova düşüşü (-7,43 puan) ve 137 ham satır → 126 tekil tesis-ay üretim kaydı üzerinde Isolation Forest anomali raporu
+- `GET /api/facility-sample` : Açık tesis şeması (`facility.schema.json`) ve gerçek tesis profilleri (`tofas_bursa`, `vestel_manisa`, `petkim_aliaga`)
 - `GET /api/export/json` & `POST /api/export/json` : Açık şema uyumlu JSON rapor indirme
 - `GET /api/export/csv` & `POST /api/export/csv` : Kurumsal envanter eşlenebilir CSV rapor indirme
 """
@@ -117,17 +117,17 @@ class OSBCompareRequest(BaseModel):
 
 
 class ROISimulateRequest(BaseModel):
-    facility_name: str = Field(default="EgeDokuma Tekstil Terbiye & Boyahane A.Ş. (Kemalpaşa OSB)")
-    osb_id: str = Field(default="izmir_kemalpasa")
+    facility_name: str = Field(default="Tofaş Türk Otomobil Fabrikası A.Ş. — Bursa Tesisi")
+    osb_id: str = Field(default="bursa_osb")
     string_id: str | None = Field(default=None, description="OSB dışı seçilen alt-havza poligon anahtarı")
-    sector: str = Field(default="textile")
-    employee_count: int = Field(default=320, ge=1)
-    annual_water_m3: float = Field(default=150000.0, gt=0)
-    water_source: str = Field(default="osb_grid")
-    grid_share_pct: float = Field(default=100.0, ge=0, le=100)
+    sector: str = Field(default="metal")
+    employee_count: int = Field(default=4409, ge=1)
+    annual_water_m3: float = Field(default=430782.0, gt=0)
+    water_source: str = Field(default="groundwater_well")
+    grid_share_pct: float = Field(default=0.0, ge=0, le=100)
     process_shares: dict[str, float] | None = Field(default=None)
-    daily_downtime_cost_tl: float = Field(default=240000.0, ge=0)
-    capex_budget_tl: float = Field(default=2750000.0, ge=0)
+    daily_downtime_cost_tl: float = Field(default=1500000.0, ge=0)
+    capex_budget_tl: float = Field(default=6000000.0, ge=0)
     target_year: int | str = Field(default=2030)
     scenario: str = Field(default="BAU")
 
@@ -364,6 +364,7 @@ def _evaluate_location_payload(req: LocationPredictRequest) -> dict[str, Any]:
         "climate_water_balance_2026_2050": c_scen,
         "climate_metadata": {
             "ensemble_models": climate_all.get("ensemble_models", []),
+            "ensemble_method": c_osb.get("ensemble_method", "7 gerçek CMIP6 HighResMIP modeli + QDM"),
             "provenance_badge": c_osb.get("provenance_badge", "Model (ERA5 + QDM CMIP6 + Aqueduct 4.0)"),
             "methodology_note": c_osb.get("methodology_note", ""),
             "et0_method": c_osb.get("et0_method", "FAO-56 / Hargreaves-Samani"),
@@ -425,24 +426,31 @@ def api_simulate_roi_post(req: ROISimulateRequest) -> dict[str, Any]:
 
 @app.get("/api/simulate-roi")
 def api_simulate_roi_get(
-    osb_id: str = Query(default="izmir_kemalpasa"),
-    sector: str = Query(default="textile"),
-    annual_water_m3: float = Query(default=150000.0, gt=0),
-    water_source: str = Query(default="izsu_grid"),
-    daily_downtime_cost_tl: float = Query(default=750000.0, ge=0),
-    capex_budget_tl: float = Query(default=3500000.0, ge=0),
+    osb_id: str = Query(default="bursa_osb"),
+    sector: str = Query(default="metal"),
+    annual_water_m3: float = Query(default=430782.0, gt=0),
+    water_source: str = Query(default="groundwater_well"),
+    grid_share_pct: float = Query(default=0.0, ge=0, le=100),
+    daily_downtime_cost_tl: float = Query(default=1500000.0, ge=0),
+    capex_budget_tl: float = Query(default=6000000.0, ge=0),
     target_year: str = Query(default="2030"),
     scenario: str = Query(default="BAU"),
+    employee_count: int = Query(default=4409, ge=1),
+    facility_name: str = Query(default="Tofaş Türk Otomobil Fabrikası A.Ş. — Bursa Tesisi"),
 ) -> dict[str, Any]:
     sim = optimize_facility_roi(
         osb_id=osb_id,
         sector=sector,
         annual_water_m3=annual_water_m3,
         water_source=water_source,
+        grid_share_pct=grid_share_pct,
+        process_shares={"cooling": 30.0, "process": 48.0, "boiler": 12.0, "domestic": 10.0},
         daily_downtime_cost_tl=daily_downtime_cost_tl,
         capex_budget_tl=capex_budget_tl,
         target_year=target_year,
         scenario=scenario,
+        employee_count=employee_count,
+        facility_name=facility_name,
     )
     exec_summary = generate_executive_summary(sim, prefer_online_llm=False)
     return {
@@ -491,14 +499,14 @@ def api_izsu_live() -> dict[str, Any]:
 
 
 @app.get("/api/facility-sample")
-def api_facility_sample(profile_id: str = Query(default="kemalpasa_textile")) -> dict[str, Any]:
+def api_facility_sample(profile_id: str = Query(default="tofas_bursa")) -> dict[str, Any]:
     osb_meta = _load_osb_profiles()
     schema_obj = json.loads(SCHEMA_PATH.read_text(encoding="utf-8")) if SCHEMA_PATH.exists() else {}
     samples = osb_meta["sample_facilities"]
-    selected = samples.get(profile_id, samples["kemalpasa_textile"])
+    selected = samples.get(profile_id, samples["tofas_bursa"])
     return {
         "schema": schema_obj,
-        "selected_profile_id": profile_id if profile_id in samples else "kemalpasa_textile",
+        "selected_profile_id": profile_id if profile_id in samples else "tofas_bursa",
         "facility_data": selected,
         "available_profiles": samples,
         "sector_defaults": osb_meta["sector_defaults"],

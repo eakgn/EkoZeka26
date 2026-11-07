@@ -22,7 +22,7 @@ def test_api_response_latencies_under_200ms() -> None:
         ("GET", "/api/basins?sector=textile&year=2050&scenario=BAU", None),
         ("GET", "/api/osb-compare?sector=textile&year=2050&scenario=BAU", None),
         ("GET", "/api/izsu-live", None),
-        ("GET", "/api/facility-sample?profile_id=manisa_food", None),
+        ("GET", "/api/facility-sample?profile_id=vestel_manisa", None),
         ("POST", "/api/predict-location", {"osb_id": "manisa_osb", "sector": "food", "year": 2050, "scenario": "PES"}),
         ("POST", "/api/simulate-roi", {"osb_id": "izmir_aliaga", "sector": "chemical", "annual_water_m3": 310000, "water_source": "hybrid", "capex_budget_tl": 6000000}),
     ]

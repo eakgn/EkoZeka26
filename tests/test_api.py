@@ -97,9 +97,9 @@ def test_all_rest_endpoints_200_ok_and_fast_fallback() -> None:
     assert izsu_data["anomaly_analysis"]["november_2025_regime_shift"]["is_flagged_anomaly"] is True
 
     # 8. /api/facility-sample
-    r_sample = client.get("/api/facility-sample?profile_id=kemalpasa_textile")
+    r_sample = client.get("/api/facility-sample?profile_id=tofas_bursa")
     assert r_sample.status_code == 200
-    assert r_sample.json()["facility_data"]["annual_water_m3"] == 150000
+    assert r_sample.json()["facility_data"]["annual_water_m3"] == 430782
 
     # 9. /api/export/json & /api/export/csv
     r_exp_json = client.get("/api/export/json?osb_id=izmir_kemalpasa")
@@ -115,7 +115,7 @@ def test_all_rest_endpoints_200_ok_and_fast_fallback() -> None:
     assert r_bad.status_code == 422
 
 
-def test_custom_basin_click_and_5_scenarios_and_vendor_assets() -> None:
+def test_custom_basin_click_and_3_real_cases_and_vendor_assets() -> None:
     # 1. Yerelleştirilmiş kütüphaneler (offline demo garantisi)
     for asset in ("/static/vendor/tailwindcss.js", "/static/vendor/leaflet.js", "/static/vendor/chart.umd.min.js"):
         r_asset = client.get(asset)
@@ -133,8 +133,8 @@ def test_custom_basin_click_and_5_scenarios_and_vendor_assets() -> None:
     assert c_json["selected_location"]["location_type"] == "custom_basin"
     assert c_json["transparent_risk"]["indicators"]["groundwater_dependency_pct"] < 90.0
 
-    # 3. 5 hızlı senaryonun tamamı erişilebilir ve kriter kontrol listesi üretiyor olmalı
-    for pid in ("kemalpasa_textile", "manisa_food", "aliaga_chemical", "konya_metal", "izmir_city_izsu"):
+    # 3. Gerçek fabrika vakalarının tamamı erişilebilir ve kriter kontrol listesi üretiyor olmalı
+    for pid in ("tofas_bursa", "vestel_manisa", "petkim_aliaga"):
         r_prof = client.get(f"/api/facility-sample?profile_id={pid}")
         assert r_prof.status_code == 200
         f_data = r_prof.json()["facility_data"]

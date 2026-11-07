@@ -69,7 +69,7 @@
       "xgb_r2": 0.9194
     }
   ],
-  "shap_latency_ms": 1.82,
+  "shap_latency_ms": 3.89,
   "global_shap_importance": [
     {
       "feature": "summer_x_bws",
@@ -183,24 +183,24 @@
       {
         "archetype_id": 0,
         "label": "Arketip A — Dengeli / Düşük Stresli Karadeniz-Kuzey Havzası",
-        "basin_count": 193,
-        "mean_bws_raw": 0.222,
-        "mean_bau50_ws_raw": 0.33,
+        "basin_count": 192,
+        "mean_bws_raw": 0.223,
+        "mean_bau50_ws_raw": 0.331,
         "mean_gtd_raw": -0.022,
         "sample_provinces": [
           "Afyon",
           "Amasya",
           "Ankara",
-          "Artvin",
-          "Bartın"
+          "Bartın",
+          "Batman"
         ]
       },
       {
         "archetype_id": 1,
         "label": "Arketip B — Yüksek Mevsimsel Oynaklıklı Kıyı & Akdeniz Havzası",
-        "basin_count": 142,
-        "mean_bws_raw": 0.269,
-        "mean_bau50_ws_raw": 0.378,
+        "basin_count": 143,
+        "mean_bws_raw": 0.267,
+        "mean_bau50_ws_raw": 0.376,
         "mean_gtd_raw": 0.15,
         "sample_provinces": [
           "Adiyaman",
@@ -214,8 +214,8 @@
         "archetype_id": 2,
         "label": "Arketip C — Aşırı Yeraltı Suyu Çöküşü & Yaz Pik Kriz Havzası (Gediz / Konya Tipi)",
         "basin_count": 20,
-        "mean_bws_raw": 503.979,
-        "mean_bau50_ws_raw": 507.333,
+        "mean_bws_raw": 4.104,
+        "mean_bau50_ws_raw": 7.569,
         "mean_gtd_raw": 0.052,
         "sample_provinces": [
           "Diyarbakir",

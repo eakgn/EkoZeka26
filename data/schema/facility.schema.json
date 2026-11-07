@@ -68,7 +68,7 @@
     },
     "water_source": {
       "type": "string",
-      "enum": ["izsu_grid", "osb_grid", "groundwater_well", "hybrid"],
+      "enum": ["izsu_grid", "osb_grid", "groundwater_well", "surface_water", "hybrid"],
       "description": "Ana su temin kaynağı"
     },
     "grid_share_pct": {

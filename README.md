@@ -48,30 +48,33 @@ uv run python -m ekozeka26.ml_engine --backtest
 
 | Modül | Metodoloji & Literatür Dayanağı | Doğrulanmış Çıktı / Metrik |
 |---|---|---|
-| `data_pipeline.py` | WRI Aqueduct 4.0 GDB (`where="gid_0 = 'TUR'"`) + CSV `m:1` (`string_id` ← `pfaf_id`) birleştirme; İZSU Next.js JSON & CSV ayrıştırma | `639` alt-havza poligonu (`116` tekil `pfaf_id`), `<3.8 MB` GeoJSON, `137` aylık İZSU üretim kaydı |
-| `climate_engine.py` | **FAO-56 Penman-Monteith** (ERA5) + **Hargreaves-Samani (1985)** (`ET₀` CMIP6); **Quantile Delta Mapping (QDM, Cannon vd. 2015)** dağılımsal kalibrasyon (`YYYY-MM` takvim eşleştirmesi yapılmaz!) | `7` CMIP6 modeli × `3` senaryo (`OPT`, `BAU`, `PES`), `2026–2050` P10/P50/P90 su dengesi ve `%85,7` model mutabakatı |
+| `data_pipeline.py` | WRI Aqueduct 4.0 GDB (`where="gid_0 = 'TUR'"`) + CSV `m:1` (`string_id` ← `pfaf_id`) birleştirme; İZSU Next.js JSON & CSV ayrıştırma; `9999` "veri yok" temizliği | `639` alt-havza poligonu (`116` tekil `pfaf_id`), `<3.8 MB` GeoJSON, `137` ham İZSU satırı → `126` tekil tesis-ay |
+| `climate_engine.py` | **FAO-56 Penman-Monteith** (ERA5) + **Hargreaves-Samani (1985)** (`ET₀` CMIP6); **Quantile Delta Mapping (QDM, Cannon vd. 2015)** her model için ayrı | **7 gerçek CMIP6 HighResMIP modeli** × `3` senaryo (`OPT`, `BAU`, `PES`), `2026–2050` P10/P50/P90 su dengesi; model mutabakatı `%71–86` (gerçek model yayılımı) |
 | `drought_index.py` | **SPI-3/12** (McKee vd. 1993, Gamma) ve **SPEI-3/12** (Vicente-Serrano vd. 2010, 3-parametreli Log-Logistic / Fisk dağılımı) | `1940–2050` aylık seri (`1.332` ay), 2024/2025 rekor kuraklık doğrulaması |
-| `risk_index.py` | **Şeffaf Bileşik Endüstriyel Kesinti Risk Skoru (`0–100`)**: Yeraltı düşüşü (`25p`) + Su stresi (`25p`) + SPEI/Kuraklık (`20p`) + Sektörel AWR (`15p`) + Oynaklık (`15p`) + Coğrafi sınır koruması | Her bileşenin puan katkısı ve formülü açık; deniz/sınır dışı tıklamada en yakın kara havzası önerisi |
+| `risk_index.py` | **Şeffaf Bileşik Endüstriyel Kesinti Risk Skoru (`0–100`)**: Yeraltı düşüşü (`25p`) + Su stresi (`25p`) + SPEI/Kuraklık (`20p`) + Sektörel AWR (`15p`) + Oynaklık (`15p`) + Coğrafi sınır koruması | Her bileşenin puan katkısı ve formülü açık; Aqueduct "ölçüm" değil **resmî model** olarak etiketli; deniz/sınır dışı tıklamada en yakın kara havzası önerisi |
 | `ml_engine.py` | **XGBoost Mevsimsel/Mekânsal Ölçek İndirme (Annual→Monthly Peak Downscaler)** + **5-Katlı `GroupKFold(groups=pfaf_id)`** + **SHAP (`TreeExplainer`)** + **KMeans (`k=5` havza arketipi)** + **ERA5/GloFAS Gediz Backtest** | Naive `MAE=0,4789 (R²=-0,004)` → Ridge `MAE=0,2940 (R²=0,630)` → **XGBoost `MAE=0,1534, RMSE=0,4328, R²=0,7958` (-%68 hata)**; Gediz Backtest `R²=0,6732`; SHAP `<15 ms` |
-| `anomaly.py` | **Isolation Forest** (Liu vd. 2008) ile İZSU 2025 aylık üretim serisi (137 kayıt) + 23 günlük baraj kesit deltası (`14.10.2026 → 06.11.2026`) | Kasım 2025 Tahtalı çöküşü (`6,91 → 1,62 Mm³`, `-%76,5`) ve kuyu payı sıçraması (`%69,3`, `Skor=0,5932`); Balçova 23 günde `-%7,43 puan` düşüş |
-| `roi_optimizer.py` | **0-1 Knapsack Kesin Çözüm** + Proses bazlı **çarpımsal azalan verim** ($S_p = 1 - \prod(1-r_i) \le \%78$) + Kuyu vs Şebeke ekonomisi + **27.12.2029 Belge Kademesi** | 12 SYGM/IFC önlemi; Kemalpaşa Tekstil örneğinde `%53,28` net tasarruf (`79.920 m³/yıl`), `NPV=128,95M TL`, `Turkuaz Belge` |
+| `anomaly.py` | **Isolation Forest** (Liu vd. 2008) ile İZSU 2025 aylık üretim serisi (137 ham → 126 tekil tesis-ay) + 23 günlük baraj kesit deltası (`14.10.2026 → 06.11.2026`) | Kasım 2025 Tahtalı çöküşü (`6,91 → 1,62 Mm³`, `-%76,5`) ve kuyu payı sıçraması (`%69,3`, `Skor=0,5932`); Balçova 23 günde `-%7,43 puan` düşüş |
+| `roi_optimizer.py` | **0-1 Knapsack Kesin Çözüm** + Proses bazlı **çarpımsal azalan verim** ($S_p = 1 - \prod(1-r_i) \le \%78$) + Kuyu/Şebeke/Yüzey suyu ekonomisi + **CAPEX ölçek kalibrasyonu** + **27.12.2029 Belge Kademesi** | 12 SYGM/IFC önlemi; **Tofaş**: `%35,8` tasarruf, `4,4 ay`, Yeşil; **Vestel**: `%24,0`, `2,3 ay`, Yeşil; **Petkim**: `%54,8`, `7,7 ay`, Turkuaz |
 | `llm_agent.py` | `google-genai` (`gemini-2.5-flash`) + **Sıfır Halüsinasyon Kilidi (`STRICT_JSON_LOCKED`)** + `<5 ms` çevrimdışı deterministik uzman şablonu | LLM hiçbir çarpma/bölme yapmaz; yalnızca doğrulanmış JSON çıktılarını raporlar |
 
 ---
 
 ## 4. Veri Soyu (Data Lineage) ve Lisanslar
 1. **WRI Aqueduct 4.0 Water Risk Atlas (2023):** CC BY 4.0 — Türkiye `639` alt-havza poligonu (`string_id`) ve `116` hidrolojik havza (`pfaf_id`) baseline/future/monthly serileri (`data/raw/aqueduct_*_tur.csv`, `turkey_gdb_baseline.gpkg`).
-2. **Open-Meteo ERA5 (1940–2025), CMIP6 HighResMIP (2020–2050, 7 model) & GloFAS v4 (1984–2025):** CC BY 4.0 (`data/raw/era5.json`, `cmip6.json`, `cm4.json`, `flood.json`).
+2. **Open-Meteo ERA5 (1940–2025), CMIP6 HighResMIP (2020–2050, 7 gerçek model) & GloFAS v4 (1984–2025):** CC BY 4.0 (`data/raw/era5.json`, `cmip6_7models.json`, `cmip6.json`, `cm4.json`, `flood.json`).
 3. **İZSU Kamuya Açık Baraj Doluluk, Aylık/Günlük Üretim ve Haziran 2026 Sanayi Tarifesi:** Kamu açık verisi (`data/raw/izsu.html`, `izsu_aylik.html`, `baraj.csv`, `gunluk.csv`, `tarife.html`).
 4. **T.C. Tarım ve Orman Bakanlığı (SYGM) NACE Rehberleri, Gediz Tahsis Planı & IFC (2017):** Yalnızca atıflı teknik tasarruf/geri ödeme katsayıları kataloglanmıştır (`data/processed/measures_catalog.json`); telifli PDF'ler dağıtılmaz.
-5. **Ticari Bağımsızlık:** Hiçbir ticari platformun (CarbonEmit, Blueit, 3pmetrics vb.) verisi veya API'si kullanılmaz. Tesis verisi kendi açık şemamızla (`data/schema/facility.schema.json`) JSON/CSV olarak içe/dışa aktarılır.
+5. **Gerçek Tesis Verileri (2024):** Tofaş 2024 Entegre Raporu (`430.782 m³` yeraltı suyu, `4.409` çalışan), Vestel 2024 Sürdürülebilirlik Raporu (`1.510.208 m³`), Petkim 2024 Entegre Faaliyet Raporu (`14.230.105 m³`, `2.433` çalışan). Yalnızca kamuya açık özet göstergeler kullanılır; proses payları/bütçe kalibre varsayımdır.
+6. **Ticari Bağımsızlık:** Hiçbir ticari platformun (CarbonEmit, Blueit, 3pmetrics vb.) verisi veya API'si kullanılmaz. Tesis verisi kendi açık şemamızla (`data/schema/facility.schema.json`) JSON/CSV olarak içe/dışa aktarılır.
 
 ---
 
 ## 5. Bilinen Sınırlamalar ve Şeffaf Varsayımlar
 - **Mekânsal Çözünürlük:** Aqueduct 4.0 gelecek projeksiyonları alt-havza (`pfaf_id`) ölçeğindedir; aynı alt-havzadaki iki farklı kuyu arasındaki mikro-hidrojeolojik farklar yerinde pompaj testi gerektirir.
 - **Tarihsel Kesinti Etiketi:** Fabrika bazında tarihsel "su kesinti günü" kamuya açık olmadığı için geriye dönük doğrulama (backtest) ERA5 + GloFAS Gediz nehir debisi (`1997–2025`, `R² = 0,6732`) ve Aqueduct aylık su stresi (`R² = 0,7958`) üzerinden hidrolojik yeniden üretim olarak gerçekleştirilmiştir.
-- **Önlem CAPEX Ölçeklemesi:** Katalogdaki 12 SYGM/IFC önleminin yatırım maliyetleri orta-büyük ölçekli (`100.000 – 300.000 m³/yıl`) standart fabrika kapasitelerine göre kalibre edilmiştir.
+- **Önlem CAPEX Ölçeklemesi:** Katalogdaki 12 SYGM/IFC önleminin yatırım maliyetleri `150.000 m³/yıl` referans tesise göre kalibre edilmiştir. Farklı kapasitelerde CAPEX doğrusal ölçeklenir (`0,5–100×`), böylece katalogdaki tipik geri ödeme oranı korunur; bu bir mühendislik yaklaşımıdır, yerinde keşif/teklif yerine geçmez.
+- **7 CMIP6 Modeli:** Open-Meteo HighResMIP serisi yüksek emisyon (RCP8.5 benzeri) yolundadır. `OPT/BAU/PES` ayrımı, model anomalisinin `0,70/0,85/1,00` ölçeklenmesi ve Aqueduct SSP projeksiyonlarıyla yapılır; bu bir senaryo haritalamasıdır, üç ayrı emisyon simülasyonu değildir.
+- **Örnek Tesis Verileri:** Tofaş/Vestel/Petkim su çekimi ve çalışan sayıları kamuya açık 2024 raporlarından alınmıştır; proses payları, duruş maliyeti ve bütçe şeffaf kalibre varsayımdır.
 
 ---
 
