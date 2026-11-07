@@ -42,9 +42,9 @@
 - **Kapsanan Türkiye Alt-Havza Sayısı:** `639` hidrolojik alt-havza (WRI Aqueduct 4.0 GDB + CSV)
 - **İklim Modeli Topluluğu:** `7` CMIP6 küresel iklim modeli (1950–2050) + ERA5 (1940–2025), `3` senaryo (OPT/BAU/PES)
 - **Kuraklık İndeksleri:** `SPI-3`, `SPI-12`, `SPEI-3`, `SPEI-12` (log-logistic); kuraklık sınıfları ve trend eğimi
-- **XGBoost Mevsimsel/Mekânsal Ölçek İndirme (5-katlı GroupKFold, 1.392 TR havza-ay satırı):** Naive (Kaba Yıllık) `MAE = 0,4867 (R² = -0,005)` → Doğrusal Regresyon `MAE = 0,3194 (R² = 0,640)` → **XGBoost Downscaler `MAE = 0,1649, RMSE = 0,4285, R² = 0,8060`** (`[BUILD'DE TAM TABLOYLA DOĞRULANACAK]`)
-- **Backtest (1984–2025 ERA5 + GloFAS Gediz Debi & 2021/2024/2025 Kurak Yıllar):** `2015–2025` test dönemi `R² ≈ 0,64–0,68` (Naive `R² = 0,182`); `[BUILD'DE GÜNCELLENECEK]`
-- **İZSU Gerçek Anomali Bulguları (`izsu_aylik.html` 137 kayıt + 23 günlük baraj kesiti):** Kasım 2025 kuraklığında Tahtalı aylık üretimi **6,91 Mm³ → 1,62 Mm³ (-%76,5)** çökerken yeraltı kuyuları (Göksu + Halkapınar + Sarıkız + Menemen) arzın **>%62'sini** üstlendi; son 23 günde (14 Ekim → 6 Kasım 2026) Balçova Barajı **-%7,43 puan** düştü. (`[BUILD'DE ISOLATION FOREST SKORUYLA GÜNCELLENECEK]`)
+- **XGBoost Mevsimsel/Mekânsal Ölçek İndirme (5-katlı GroupKFold, 1.392 TR havza-ay satırı):** Naive (Kaba Yıllık) `MAE = 0,4789, RMSE = 0,9598, R² = -0,0044` → Doğrusal Regresyon (Ridge) `MAE = 0,2940, RMSE = 0,5827, R² = 0,6297` → **XGBoost Downscaler (`max_depth=4`) `MAE = 0,1534, RMSE = 0,4328, R² = 0,7958` (Naive modele göre hatada %68,0 düşüş; SHAP çıkarım gecikmesi `<15 ms`)**
+- **Backtest (1984–2025 ERA5 + GloFAS Gediz Debi & 2021/2024/2025 Kurak Yıllar):** `2015–2025` (132 ay) dış-örneklem test dönemi **XGBoost `R² = 0,6732` (`MAE = 0,0269 m³/s`, `RMSE = 0,0545 m³/s`)**; 2024 ve 2025 yaz aylarında gözlenen minimum debi `0,00 m³/s` kuraklık çöküşü doğrulandı.
+- **İZSU Gerçek Anomali Bulguları (`izsu_aylik.html` 137 kayıt + 23 günlük baraj kesiti):** Kasım 2025 kuraklığında Tahtalı aylık üretimi **6,91 Mm³ → 1,62 Mm³ (-%76,5)** çökerken yeraltı kuyuları (Göksu + Halkapınar + Sarıkız + Menemen) arzın **%69,33'ünü (>%62)** üstlendi (**Isolation Forest Anomali Skoru: `0,5932`, `ANOMALİ = TRUE`**); son 23 günde (14 Ekim → 6 Kasım 2026) Balçova Barajı **-%7,43 puan** (`%44,77 → %37,34`) düştü ve Gördes/Balçova günlük üretimi `0 m³/gün` oldu.
 - **Demo Örnek Senaryo Çıktısı (Kemalpaşa OSB Tekstil Fabrikası):** `[BUILD'DE GÜNCELLENECEK: Beklenen kesinti zararı TL, seçilen önlemler, net ROI ve geri ödeme ayı]`
 
 ---

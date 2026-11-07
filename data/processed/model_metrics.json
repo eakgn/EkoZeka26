@@ -1,0 +1,260 @@
+{
+  "task_name": "XGBoost Mevsimsel/Mekânsal Hidrolojik Ölçek İndirme (Annual-to-Monthly Peak Downscaler)",
+  "validation_scheme": "5-Katlı GroupKFold (groups=pfaf_id, 116 havza × 12 ay = 1.392 havza-ay satırı, sıfır mekânsal sızıntı)",
+  "sample_size_rows": 1392,
+  "unique_basins": 116,
+  "models_comparison": {
+    "naive_coarse_annual": {
+      "mae": 0.4789,
+      "rmse": 0.9598,
+      "r2": -0.0044
+    },
+    "ridge_linear_regression": {
+      "mae": 0.294,
+      "rmse": 0.5827,
+      "r2": 0.6297
+    },
+    "xgboost_downscaler": {
+      "mae": 0.1534,
+      "rmse": 0.4328,
+      "r2": 0.7958,
+      "mae_reduction_vs_naive_pct": 68.0,
+      "max_depth": 4
+    }
+  },
+  "fold_breakdown": [
+    {
+      "fold": 1,
+      "test_basins_count": 24,
+      "test_rows": 288,
+      "naive_mae": 0.4784,
+      "ridge_mae": 0.2708,
+      "xgb_mae": 0.1478,
+      "xgb_r2": 0.8281
+    },
+    {
+      "fold": 2,
+      "test_basins_count": 23,
+      "test_rows": 276,
+      "naive_mae": 0.4082,
+      "ridge_mae": 0.2074,
+      "xgb_mae": 0.1114,
+      "xgb_r2": 0.8902
+    },
+    {
+      "fold": 3,
+      "test_basins_count": 23,
+      "test_rows": 276,
+      "naive_mae": 0.6353,
+      "ridge_mae": 0.3736,
+      "xgb_mae": 0.1714,
+      "xgb_r2": 0.8634
+    },
+    {
+      "fold": 4,
+      "test_basins_count": 23,
+      "test_rows": 276,
+      "naive_mae": 0.4353,
+      "ridge_mae": 0.286,
+      "xgb_mae": 0.2228,
+      "xgb_r2": 0.593
+    },
+    {
+      "fold": 5,
+      "test_basins_count": 23,
+      "test_rows": 276,
+      "naive_mae": 0.4374,
+      "ridge_mae": 0.3334,
+      "xgb_mae": 0.1139,
+      "xgb_r2": 0.9194
+    }
+  ],
+  "shap_latency_ms": 1.97,
+  "global_shap_importance": [
+    {
+      "feature": "summer_x_bws",
+      "label_tr": "Yaz Pik × Yıllık Su Stresi Etkileşimi",
+      "mean_abs_shap": 0.2073
+    },
+    {
+      "feature": "bws_raw",
+      "label_tr": "Yıllık Temel Su Stresi Oranı (bws_raw)",
+      "mean_abs_shap": 0.198
+    },
+    {
+      "feature": "cos_m",
+      "label_tr": "Mevsimsel Harmonik (Kosinüs Fazı)",
+      "mean_abs_shap": 0.1231
+    },
+    {
+      "feature": "month",
+      "label_tr": "Takvim Ayı (1–12)",
+      "mean_abs_shap": 0.0757
+    },
+    {
+      "feature": "bwd_raw",
+      "label_tr": "Yıllık Su Tükenme Oranı (bwd_raw)",
+      "mean_abs_shap": 0.0622
+    },
+    {
+      "feature": "bws_score",
+      "label_tr": "Yıllık Su Stresi Skoru (bws_score)",
+      "mean_abs_shap": 0.049
+    },
+    {
+      "feature": "iav_raw",
+      "label_tr": "Yıllar Arası Arz Değişkenliği (iav_raw)",
+      "mean_abs_shap": 0.03
+    },
+    {
+      "feature": "sin_m",
+      "label_tr": "Mevsimsel Harmonik (Sinüs Fazı)",
+      "mean_abs_shap": 0.0193
+    },
+    {
+      "feature": "summer_x_sev",
+      "label_tr": "Yaz Pik × Mevsimsel Değişkenlik Etkileşimi",
+      "mean_abs_shap": 0.018
+    },
+    {
+      "feature": "sev_raw",
+      "label_tr": "Mevsimsel Arz Değişkenliği (sev_raw)",
+      "mean_abs_shap": 0.0098
+    },
+    {
+      "feature": "gtd_raw",
+      "label_tr": "Yeraltı Su Tablası Düşüş Hızı (gtd_raw)",
+      "mean_abs_shap": 0.0094
+    },
+    {
+      "feature": "is_summer",
+      "label_tr": "Yaz/Sonbahar Kurak Pik Dönemi (Tem–Eki)",
+      "mean_abs_shap": 0.0092
+    },
+    {
+      "feature": "drr_raw",
+      "label_tr": "Hidrolojik Kuraklık Riski (drr_raw)",
+      "mean_abs_shap": 0.0058
+    },
+    {
+      "feature": "rfr_raw",
+      "label_tr": "Nehir Taşkın/Akış Rejimi (rfr_raw)",
+      "mean_abs_shap": 0.0045
+    },
+    {
+      "feature": "cfr_raw",
+      "label_tr": "Kıyı Hidrolojik Etkisi (cfr_raw)",
+      "mean_abs_shap": 0.004
+    }
+  ],
+  "gediz_hydrological_backtest_1984_2025": {
+    "period_total": "1984-2025 (504 takvim ayı, GloFAS 1997-2025 aktif debi serisi)",
+    "train_period": "1997-2014 (216 ay)",
+    "test_period": "2015-2025 (132 ay)",
+    "total_months": 504,
+    "active_discharge_months": 348,
+    "xgb_test_r2": 0.6732,
+    "xgb_test_mae_m3s": 0.0269,
+    "xgb_test_rmse_m3s": 0.0545,
+    "naive_test_r2": 0.5714,
+    "naive_test_mae_m3s": 0.0326,
+    "drought_years_validation": {
+      "2021": {
+        "observed_mean_m3s": 0.0988,
+        "predicted_mean_m3s": 0.1107,
+        "min_summer_observed_m3s": 0.0
+      },
+      "2024": {
+        "observed_mean_m3s": 0.0473,
+        "predicted_mean_m3s": 0.0341,
+        "min_summer_observed_m3s": 0.0
+      },
+      "2025": {
+        "observed_mean_m3s": 0.0374,
+        "predicted_mean_m3s": 0.053,
+        "min_summer_observed_m3s": 0.0
+      }
+    }
+  },
+  "kmeans_basin_archetypes": {
+    "n_clusters": 5,
+    "total_polygons": 639,
+    "clusters": [
+      {
+        "archetype_id": 0,
+        "label": "Arketip A — Dengeli / Düşük Stresli Karadeniz-Kuzey Havzası",
+        "basin_count": 193,
+        "mean_bws_raw": 0.222,
+        "mean_bau50_ws_raw": 0.33,
+        "mean_gtd_raw": -0.022,
+        "sample_provinces": [
+          "Afyon",
+          "Amasya",
+          "Ankara",
+          "Artvin",
+          "Bartın"
+        ]
+      },
+      {
+        "archetype_id": 1,
+        "label": "Arketip B — Yüksek Mevsimsel Oynaklıklı Kıyı & Akdeniz Havzası",
+        "basin_count": 142,
+        "mean_bws_raw": 0.269,
+        "mean_bau50_ws_raw": 0.378,
+        "mean_gtd_raw": 0.15,
+        "sample_provinces": [
+          "Adiyaman",
+          "Afyon",
+          "Aksaray",
+          "Amasya",
+          "Ankara"
+        ]
+      },
+      {
+        "archetype_id": 2,
+        "label": "Arketip C — Aşırı Yeraltı Suyu Çöküşü & Yaz Pik Kriz Havzası (Gediz / Konya Tipi)",
+        "basin_count": 20,
+        "mean_bws_raw": 503.979,
+        "mean_bau50_ws_raw": 507.333,
+        "mean_gtd_raw": 0.052,
+        "sample_provinces": [
+          "Diyarbakir",
+          "Gaziantep",
+          "Hakkari",
+          "Hatay",
+          "Kilis"
+        ]
+      },
+      {
+        "archetype_id": 3,
+        "label": "Arketip D — Orta-Yüksek Sanayi Çekimli Marmara-İç Anadolu Geçiş Havzası",
+        "basin_count": 167,
+        "mean_bws_raw": 0.49,
+        "mean_bau50_ws_raw": 0.909,
+        "mean_gtd_raw": 0.039,
+        "sample_provinces": [
+          "Adana",
+          "Adiyaman",
+          "Agri",
+          "Antalya",
+          "Balikesir"
+        ]
+      },
+      {
+        "archetype_id": 4,
+        "label": "Arketip E — Kuraklık Hassasiyeti Yüksek Doğu / İç Havza",
+        "basin_count": 117,
+        "mean_bws_raw": 1.289,
+        "mean_bau50_ws_raw": 1.747,
+        "mean_gtd_raw": 0.107,
+        "sample_provinces": [
+          "Afyon",
+          "Aksaray",
+          "Ankara",
+          "Antalya",
+          "Aydin"
+        ]
+      }
+    ]
+  }
+}
