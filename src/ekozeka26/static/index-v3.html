@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AquaSanayi AI — Su Riski, Yer Seçimi ve 2029 ROI</title>
+  <link rel="stylesheet" href="/static/vendor/leaflet.css" />
+  <link rel="stylesheet" href="/static/vendor/fonts/fonts.css" />
+  <script src="/static/vendor/leaflet.js"></script>
+  <script src="/static/vendor/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --paper: #F7F8F5;
+      --surface: #FFFFFF;
+      --ink: #15211F;
+      --muted: #5B6762;
+      --faint: #7A8680;
+      --line: #E3E7E2;
+      --line-strong: #CBD3CD;
+      --teal: #0F3D3E;
+      --teal-600: #1B5253;
+      --sage: #6E9C95;
+      --sage-wash: #EDF3F1;
+      --clay: #C2542F;
+      --clay-ink: #8A3A1F;
+      --clay-wash: #FBEEE9;
+      --r: 8px;
+      --hdr: 100px;
+      --sans: "IBM Plex Sans", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 400 13px/1.5 var(--sans); }
+    h1, h2, h3, p { margin: 0; }
+    button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+    input, select { font: inherit; color: inherit; }
+    .hidden { display: none !important; }
+    .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+    .muted { color: var(--muted); }
+    .small { font-size: 11px; }
+    :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+    /* ---------- Üst bar ---------- */
+    header {
+      position: sticky; top: 0; z-index: 900;
+      background: var(--surface); border-bottom: 1px solid var(--line);
+    }
+    .bar {
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+      gap: 16px; height: 60px; padding: 0 24px;
+    }
+    .brand { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
+    .brand span { color: var(--clay); }
+    .steps { display: flex; align-items: center; gap: 6px; }
+    .step {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 14px 7px 8px; border-radius: 999px;
+      color: var(--muted); font-weight: 500; white-space: nowrap;
+    }
+    .step .n {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 1px solid var(--line-strong); font-family: var(--mono); font-size: 11px;
+    }
+    .step:hover { color: var(--ink); }
+    .step.is-active { background: var(--sage-wash); color: var(--teal); }
+    .step.is-active .n { background: var(--teal); border-color: var(--teal); color: #fff; }
+    .step-arrow { color: var(--line-strong); }
+    .bar-right { display: flex; justify-content: flex-end; }
+    .btn-guide {
+      display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 14px;
+      border: 1px solid var(--teal); border-radius: 999px; color: var(--teal); font-weight: 500;
+    }
+    .btn-guide:hover { background: var(--teal); color: #fff; }
+    .btn-guide .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--clay); }
+
+    .ticker {
+      display: flex; align-items: center; gap: 22px; height: 40px; padding: 0 24px;
+      border-top: 1px solid var(--line); font-size: 11.5px; color: var(--muted);
+      overflow-x: auto; white-space: nowrap; scrollbar-width: none;
+    }
+    .ticker::-webkit-scrollbar { display: none; }
+    .ticker b { color: var(--ink); font-weight: 500; font-family: var(--mono); }
+    .ticker .alert-txt { color: var(--clay-ink); }
+    .ticker .label { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); font-weight: 600; }
+
+    /* ---------- Yerleşim ---------- */
+    .layout {
+      display: grid; grid-template-columns: 300px minmax(0, 1fr);
+      gap: 16px; padding: 16px 24px 40px; max-width: 1600px; margin: 0 auto;
+    }
+    .side {
+      position: sticky; top: calc(var(--hdr) + 16px); align-self: start;
+      max-height: calc(100vh - var(--hdr) - 32px); overflow-y: auto;
+      display: flex; flex-direction: column; gap: 12px; scrollbar-width: thin;
+    }
+    .content { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+    .row { display: grid; gap: 16px; }
+    .row-map { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
+    .row-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .row-2 { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+    .row-2eq { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: 1280px) { .row-3 { grid-template-columns: 1fr 1fr; } .row-3 > :last-child { grid-column: 1 / -1; } }
+    @media (max-width: 1080px) {
+      .layout { grid-template-columns: minmax(0, 1fr); }
+      .side { position: static; max-height: none; }
+      .row-map, .row-2, .row-2eq, .row-3 { grid-template-columns: minmax(0, 1fr); }
+      .row-3 > :last-child { grid-column: auto; }
+    }
+    @media (max-width: 760px) {
+      .bar { grid-template-columns: 1fr auto; height: auto; padding: 10px 14px; row-gap: 8px; }
+      .steps { grid-column: 1 / -1; grid-row: 2; justify-content: center; }
+      .ticker, .layout { padding-left: 14px; padding-right: 14px; }
+      :root { --hdr: 136px; }
+    }
+
+    /* ---------- Kart ---------- */
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; }
+    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .title { display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600; }
+    .meta { font-size: 10.5px; color: var(--faint); font-family: var(--mono); white-space: nowrap; }
+    .info-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 17px; height: 17px; border-radius: 50%;
+      border: 1px solid var(--line-strong); color: var(--faint);
+      font: 600 10px/1 var(--mono); flex-shrink: 0;
+    }
+    .info-btn:hover, .info-btn[aria-expanded="true"] { border-color: var(--teal); color: #fff; background: var(--teal); }
+    .info-box {
+      margin: -4px 0 12px; padding: 10px 12px; border-radius: 6px;
+      background: var(--sage-wash); color: var(--teal); font-size: 11.5px; line-height: 1.6;
+    }
+    .info-box b { font-weight: 600; }
+    .label {
+      display: block; margin-bottom: 5px;
+      font-size: 10px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muted);
+    }
+
+    /* ---------- Form ---------- */
+    select, input[type="text"], input[type="number"] {
+      width: 100%; height: 34px; padding: 0 9px;
+      background: var(--surface); border: 1px solid var(--line-strong); border-radius: 6px; font-size: 12.5px;
+    }
+    input[type="number"] { font-family: var(--mono); }
+    select:focus, input:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 2px rgba(15,61,62,.12); }
+    input[type="range"] { width: 100%; accent-color: var(--teal); }
+    .field + .field, .field + .grid2, .grid2 + .field, .grid2 + .grid2 { margin-top: 10px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .grid4 input { text-align: center; padding: 0 4px; }
+    .grid4 .label { font-size: 9px; letter-spacing: .03em; }
+    .sep { height: 1px; background: var(--line); margin: 14px 0; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      height: 34px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 6px;
+      background: var(--surface); font-size: 12px; font-weight: 500; white-space: nowrap;
+    }
+    .btn:hover { border-color: var(--teal); color: var(--teal); }
+    .btn-primary { background: var(--teal); border-color: var(--teal); color: #fff; }
+    .btn-primary:hover { background: var(--teal-600); color: #fff; }
+    .btn-block { width: 100%; height: 38px; }
+    .btn-sm { height: 26px; padding: 0 9px; font-size: 11px; }
+
+    .tag { display: inline-block; padding: 1px 7px; border-radius: 4px; background: var(--sage-wash); color: var(--teal); font-size: 10.5px; font-weight: 500; white-space: nowrap; }
+    .tag.hot { background: var(--clay-wash); color: var(--clay-ink); }
+
+    .alert {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+      padding: 9px 12px; border-radius: 6px; border: 1px solid var(--clay);
+      background: var(--clay-wash); color: var(--clay-ink); font-size: 12px;
+    }
+
+    /* ---------- Özet (sol panel, adım 1) ---------- */
+    .score-wrap { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin-top: 10px; }
+    .score { font: 500 44px/1 var(--mono); letter-spacing: -0.03em; }
+    .score small { font-size: 13px; color: var(--faint); letter-spacing: 0; }
+    .score.hot { color: var(--clay); }
+    .score.ok { color: var(--teal); }
+    .loc-title { font-size: 15px; font-weight: 600; line-height: 1.3; margin-top: 6px; }
+    .days { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 14px; border: 1px solid var(--line); border-radius: 6px; }
+    .days > div { padding: 8px 10px; }
+    .days > div + div { border-left: 1px solid var(--line); }
+    .days .k { font-size: 9.5px; color: var(--faint); text-transform: uppercase; letter-spacing: .05em; }
+    .days .v { font: 500 15px/1.3 var(--mono); }
+    .days .v.mid { color: var(--clay-ink); }
+    .days .u { font-size: 10px; color: var(--faint); }
+
+    /* ---------- Harita ---------- */
+    #turkey-map { height: 440px; border-radius: 6px; background: #EEF2EF; }
+    .leaflet-container { font-family: var(--sans); }
+    .leaflet-tooltip { font-size: 11.5px; border: 1px solid var(--line); border-radius: 5px; box-shadow: none; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 10px; font-size: 11px; color: var(--muted); }
+    .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+    .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 6px; overflow: hidden; }
+    .seg button { height: 26px; padding: 0 10px; font-size: 11px; color: var(--muted); }
+    .seg button + button { border-left: 1px solid var(--line-strong); }
+    .seg button:hover { color: var(--teal); background: var(--sage-wash); }
+
+    /* ---------- Risk bileşenleri ---------- */
+    .comp { padding: 9px 0; border-bottom: 1px solid var(--line); }
+    .comp:first-child { padding-top: 0; }
+    .comp:last-child { border-bottom: 0; }
+    .comp-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+    .comp-row .lbl { font-weight: 500; }
+    .comp-row .pts { font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+    .comp-row .pts small { color: var(--faint); }
+    .bar-track { height: 5px; border-radius: 3px; background: var(--sage-wash); margin: 6px 0 4px; overflow: hidden; }
+    .bar-track i { display: block; height: 100%; background: var(--sage); border-radius: 3px; }
+    .bar-track i.hot { background: var(--clay); }
+    .comp-sub { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--muted); }
+    .comp details summary { font-size: 11px; color: var(--faint); cursor: pointer; list-style: none; }
+    .comp details summary::-webkit-details-marker { display: none; }
+    .comp details summary:hover { color: var(--teal); }
+    .comp details p { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .comp details .f { font-family: var(--mono); font-size: 10.5px; color: var(--faint); }
+    .inds { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .inds .k { display: block; font-size: 9.5px; color: var(--faint); text-transform: uppercase; letter-spacing: .04em; }
+    .inds .v { font: 500 12.5px/1.4 var(--mono); }
+
+    .chart { position: relative; height: 230px; }
+
+    /* ---------- Barajlar ---------- */
+    .dam-list { display: flex; flex-direction: column; }
+    .dam { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+    .dam:first-child { padding-top: 0; }
+    .dam:last-child { border-bottom: 0; }
+    .dam .n { font-weight: 500; }
+    .dam .p { font: 500 14px/1.2 var(--mono); text-align: right; }
+    .dam .s { font-size: 10.5px; color: var(--faint); }
+    .dam .d { font: 400 10.5px/1.4 var(--mono); text-align: right; color: var(--clay-ink); }
+    .dam .d.up { color: var(--teal); }
+    .dam-bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: var(--sage-wash); overflow: hidden; margin-top: 3px; }
+    .dam-bar i { display: block; height: 100%; background: var(--sage); }
+
+    /* ---------- Tablo ---------- */
+    .table-wrap { overflow-x: auto; scrollbar-width: thin; }
+    table { width: 100%; border-collapse: collapse; }
+    td.num, td.r { white-space: nowrap; }
+    @media (max-width: 760px) { table { min-width: 620px; } }
+    th {
+      padding: 0 10px 8px; text-align: left; white-space: nowrap;
+      font-size: 10px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--faint);
+      border-bottom: 1px solid var(--line-strong);
+    }
+    th.r, td.r { text-align: right; }
+    td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover td { background: #FBFCFA; }
+    tr.is-current td { background: var(--sage-wash); }
+    .rank { display: inline-block; width: 22px; font: 400 11px var(--mono); color: var(--faint); }
+    .cell-sub { font-size: 11px; color: var(--muted); }
+    .risk-cell { display: flex; align-items: center; gap: 8px; }
+    .risk-cell .mini { width: 60px; height: 5px; border-radius: 3px; background: var(--sage-wash); overflow: hidden; }
+    .risk-cell .mini i { display: block; height: 100%; }
+
+    /* ---------- Adım 2 ---------- */
+    .cases { display: grid; grid-template-columns: 1fr; gap: 6px; }
+    .case { text-align: left; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; }
+    .case:hover { border-color: var(--sage); }
+    .case.is-active { border-color: var(--teal); background: var(--sage-wash); }
+    .case .n { font-weight: 600; font-size: 12.5px; }
+    .case .m { font-size: 11px; color: var(--muted); }
+    .root { margin-top: 8px; font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .root b { color: var(--teal); font-weight: 600; }
+
+    .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+    @media (max-width: 1280px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 480px) { .kpis { grid-template-columns: minmax(0, 1fr); } }
+    .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; }
+    .kpi .k { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--muted); }
+    .kpi .v { font: 500 22px/1.2 var(--mono); letter-spacing: -0.02em; margin-top: 8px; }
+    .kpi .v.hot { color: var(--clay); }
+    .kpi .v.ok { color: var(--teal); }
+    .kpi .v.txt { font: 600 15px/1.3 var(--sans); letter-spacing: 0; }
+    .kpi .s { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+    .kpi .n { font-size: 11px; color: var(--faint); margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--line); }
+    .kpi .info-box { margin: 8px 0 0; }
+
+    .pills { display: flex; flex-wrap: wrap; gap: 5px; }
+    .pill { padding: 1px 7px; border-radius: 4px; background: var(--paper); border: 1px solid var(--line); font: 400 10.5px/1.6 var(--mono); color: var(--muted); }
+
+    .criteria { display: flex; flex-direction: column; }
+    .crit { display: grid; grid-template-columns: 18px 1fr; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+    .crit:first-child { padding-top: 0; }
+    .crit:last-child { border-bottom: 0; }
+    .crit .m { font: 600 12px/1.5 var(--mono); }
+    .crit.met .m { color: var(--teal); }
+    .crit.miss .m { color: var(--clay); }
+    .crit .t { font-weight: 500; }
+    .crit.miss .t { color: var(--muted); }
+    .crit .d { font-size: 11px; color: var(--muted); }
+
+    .summary { font-size: 12px; line-height: 1.65; max-height: 300px; overflow-y: auto; padding: 0 6px 8px 0; }
+    .summary h4 { margin: 12px 0 3px; font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--teal); }
+    .summary h4:first-child { margin-top: 0; }
+    .summary code { font-family: var(--mono); font-size: 11px; background: var(--sage-wash); padding: 0 4px; border-radius: 3px; }
+
+    /* ---------- Rehber (spot ışıklı sunum) ---------- */
+    #tour-block { position: fixed; inset: 0; z-index: 1000; }
+    #tour-spot {
+      position: fixed; z-index: 1001; border-radius: 10px; pointer-events: none;
+      box-shadow: 0 0 0 3px var(--clay), 0 0 0 9999px rgba(15, 26, 25, .66);
+      transition: top .35s ease, left .35s ease, width .35s ease, height .35s ease;
+    }
+    #tour-card {
+      position: fixed; z-index: 1002; width: 380px; max-width: calc(100vw - 24px);
+      background: var(--surface); border-radius: 10px; padding: 18px 20px 16px;
+      transition: top .35s ease, left .35s ease;
+    }
+    #tour-card .top { display: flex; align-items: center; justify-content: space-between; }
+    #tour-card .chap { font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--clay); }
+    #tour-card .cnt { font: 400 11px var(--mono); color: var(--faint); }
+    #tour-card h3 { font-size: 17px; font-weight: 600; margin-top: 8px; letter-spacing: -0.01em; }
+    #tour-card .body { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin-top: 6px; }
+    #tour-card ul { margin: 10px 0 0; padding: 10px 12px 10px 28px; background: var(--sage-wash); border-radius: 6px; color: var(--teal); font-size: 12px; line-height: 1.55; }
+    #tour-card .progress { height: 3px; background: var(--line); border-radius: 2px; margin-top: 14px; overflow: hidden; }
+    #tour-card .progress i { display: block; height: 100%; background: var(--teal); transition: width .3s; }
+    #tour-card .foot { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+    #tour-card .keys { font-size: 10.5px; color: var(--faint); }
+    #tour-card .nav { display: flex; gap: 6px; }
+
+    footer { padding: 18px 24px 30px; font-size: 11px; color: var(--faint); text-align: center; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <div class="brand">AquaSanayi <span>AI</span></div>
+    <nav id="g-steps" class="steps" aria-label="Akış">
+      <button id="btn-tab-1" class="step is-active" onclick="switchTab(1)" title="1. Yatırım & Yer Seçimi"><span class="n">1</span>Konum seç</button>
+      <span class="step-arrow">→</span>
+      <button id="btn-tab-2" class="step" onclick="switchTab(2)" title="2. Mevcut Fabrika ROI & 2029 Yeşil Belge Simülatörü"><span class="n">2</span>Fabrikayı hesapla</button>
+    </nav>
+    <div class="bar-right">
+      <button class="btn-guide" onclick="startGuidedTour()"><span class="dot"></span>Rehber</button>
+    </div>
+  </div>
+  <div id="g-ticker" class="ticker">
+    <span class="label">İzmir · 6 Kas 2026</span>
+    <span>Baraj doluluğu <b id="hdr-weighted-occ">%34,01</b></span>
+    <span>Gördes <b id="hdr-gordes-occ">%27,96</b></span>
+    <span>Tahtalı <b id="hdr-tahtali-today">%41,39</b> <span class="muted">(geçen yıl %1,54)</span></span>
+    <span class="alert-txt">Anomali: <span id="hdr-anomaly-text">Kas 2025 Tahtalı −%76,5 · kuyu payı %69,3</span></span>
+    <span>İZSU sanayi tarifesi <b>403,79 TL/m³</b></span>
+  </div>
+</header>
+
+<!-- ======================= ADIM 1 ======================= -->
+<div id="tab-content-1" class="layout">
+  <aside class="side">
+    <div id="g-controls" class="card">
+      <div class="card-head" style="margin-bottom:10px;">
+        <div class="title">Senaryo <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+      </div>
+      <div class="info-box hidden">Analizin varsayımlarını seçin. <b>Sektör</b> suyun nasıl kullanıldığını, <b>yıl</b> ve <b>iklim senaryosu</b> geleceğin ne kadar kurak olacağını belirler. Her değişiklikte harita, skor ve tablo anında güncellenir.</div>
+      <div class="field">
+        <label class="label" for="t1-sector">Sektör</label>
+        <select id="t1-sector" onchange="refreshTab1()">
+          <option value="textile">Tekstil &amp; boyahane</option>
+          <option value="food">Gıda &amp; içecek</option>
+          <option value="chemical">Kimya &amp; ilaç</option>
+          <option value="metal">Metal &amp; otomotiv</option>
+          <option value="semiconductor">Yarı iletken &amp; elektronik</option>
+          <option value="energy">Elektrik &amp; enerji</option>
+          <option value="mining">Madencilik</option>
+          <option value="general">Genel imalat</option>
+        </select>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label" for="t1-year">Yıl</label>
+          <select id="t1-year" onchange="refreshTab1()">
+            <option value="baseline">Bugün</option>
+            <option value="2030">2030</option>
+            <option value="2050" selected>2050</option>
+            <option value="2080">2080</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label" for="t1-scenario">İklim</label>
+          <select id="t1-scenario" onchange="refreshTab1()">
+            <option value="OPT">İyimser</option>
+            <option value="BAU" selected>Olası</option>
+            <option value="PES">Kötümser</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label" for="t1-osb">Bölge</label>
+        <select id="t1-osb" onchange="onSelectOSBFromDropdown()">
+          <optgroup label="Odak koridor">
+            <option value="izmir_kemalpasa" selected>İzmir Kemalpaşa OSB</option>
+            <option value="manisa_osb">Manisa OSB</option>
+            <option value="izmir_aliaga">İzmir Aliağa OSB</option>
+            <option value="izmir_iaosb">İzmir Atatürk OSB</option>
+            <option value="bursa_osb">Bursa OSB</option>
+            <option value="kocaeli_gosb">Kocaeli Gebze OSB</option>
+            <option value="konya_osb">Konya OSB</option>
+          </optgroup>
+          <optgroup label="Diğer">
+            <option value="denizli_osb">Denizli OSB</option>
+            <option value="ankara_aso1">Ankara ASO 1. OSB</option>
+            <option value="adana_osb">Adana Hacı Sabancı OSB</option>
+            <option value="gaziantep_osb">Gaziantep OSB</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+
+    <div id="g-score" class="card">
+      <div class="card-head" style="margin-bottom:0;">
+        <div class="title">Su riski <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+        <span id="t1-loc-mode-badge" class="tag">Odak koridor</span>
+      </div>
+      <div class="info-box hidden" style="margin-top:10px;">Seçili konumun gelecekte su sıkıntısı yaşama ihtimalini <b>0–100</b> arası tek puanla özetler; <b>70 üstü yüksek risktir</b>. Alttaki kutular yılda kaç gün suyun kısıtlanabileceğini gösterir: <b>İyi yıl</b> (P10), <b>beklenen</b> (P50) ve <b>kurak yıl</b> (P90).</div>
+      <h2 id="t1-loc-title" class="loc-title">İzmir Kemalpaşa OSB</h2>
+      <div id="t1-archetype-label" class="small muted">Hesaplanıyor…</div>
+      <div class="score-wrap">
+        <div id="t1-risk-score-wrap" class="score"><span id="t1-risk-score">—</span><small>/100</small></div>
+        <span id="t1-risk-cat" class="tag hot">—</span>
+      </div>
+      <div class="days">
+        <div><div class="k">İyi yıl</div><div id="t1-days-p10" class="v">—</div><div class="u">gün</div></div>
+        <div><div class="k">Beklenen</div><div id="t1-days-p50" class="v mid">—</div><div class="u">gün</div></div>
+        <div><div class="k">Kurak yıl</div><div id="t1-days-p90" class="v">—</div><div class="u">gün</div></div>
+      </div>
+      <div id="t1-loc-badge" class="meta" style="margin-top:10px; white-space:normal;">—</div>
+      <button id="g-cta" class="btn btn-primary btn-block" style="margin-top:12px;" onclick="transferLocationToTab2()">Bu konumda fabrikayı hesapla →</button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div id="t1-boundary-alert" class="alert hidden">
+      <span id="t1-boundary-alert-text"></span>
+      <button class="btn btn-sm" onclick="document.getElementById('t1-boundary-alert').classList.add('hidden')">Kapat</button>
+    </div>
+
+    <div class="row row-map">
+      <section id="g-map" class="card">
+        <div class="card-head">
+          <div class="title">Su stresi haritası <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+          <div class="seg"><button onclick="focusCorridorMap()">Koridor</button><button onclick="focusFullTurkeyMap()">Türkiye</button></div>
+        </div>
+        <div class="info-box hidden">Türkiye'nin 639 alt-havzası, seçtiğiniz yıl ve senaryoya göre renklenir. Renk, <b>çekilen suyun yenilenebilir suya oranıdır</b>: 1,0x üstü bölgede doğanın yerine koyabileceğinden fazla su kullanıldığını gösterir. Koyu yeşil noktalar sanayi bölgeleridir (OSB). Bir noktaya veya herhangi bir havzaya tıklayın; soldaki risk kartı o konum için güncellenir. Kaynak: WRI Aqueduct 4.0.</div>
+        <div id="turkey-map"></div>
+        <div class="legend">
+          <span><i style="background:#8FB5AE"></i>Düşük &lt;0,4x</span>
+          <span><i style="background:#D9A57F"></i>Orta 0,4–0,8x</span>
+          <span><i style="background:#C2542F"></i>Yüksek 0,8–1,4x</span>
+          <span><i style="background:#8A3A1F"></i>Aşırı &gt;1,4x</span>
+          <span><i style="background:#0F3D3E; border-radius:50%"></i>OSB</span>
+        </div>
+      </section>
+
+      <section id="g-components" class="card">
+        <div class="card-head">
+          <div class="title">Riskin nedenleri <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+          <span class="meta">5 bileşen = 100p</span>
+        </div>
+        <div class="info-box hidden">Risk puanı kara kutu değildir; 5 ölçülebilir bileşenin toplamıdır. Her satır bir bileşenin <b>aldığı puanı / alabileceği en yüksek puanı</b> gösterir. Çubuk ne kadar doluysa o faktör riski o kadar artırıyor demektir. “Formül” ile hesaplamayı görebilirsiniz. En alttaki dört gösterge ham verilerdir.</div>
+        <div id="t1-components-list"></div>
+        <div class="inds">
+          <div><span class="k">Yıllık stres</span><span id="t1-ind-bws" class="v">—</span></div>
+          <div><span class="k">Yaz piki</span><span id="t1-ind-summer" class="v">—</span></div>
+          <div><span class="k">Yeraltı suyu</span><span id="t1-ind-gtd" class="v">—</span></div>
+          <div><span class="k">Kuraklık</span><span id="t1-ind-spei" class="v">—</span></div>
+        </div>
+      </section>
+    </div>
+
+    <div id="g-analytics" class="row row-3">
+      <section class="card">
+        <div class="card-head">
+          <div class="title">Yaz stresini etkileyenler <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+          <span id="t1-shap-latency" class="meta">R² 0,80</span>
+        </div>
+        <div class="info-box hidden">Yapay zekâ modeli (XGBoost) bu bölgenin yaz aylarındaki su stresini tahmin ederken hangi faktöre ne kadar ağırlık verdi? <b>Kil renkli</b> çubuklar stresi artırır, <b>yeşil</b> olanlar azaltır. Çubuk ne kadar uzunsa etkisi o kadar büyük. Model doğruluğu R² 0,80.</div>
+        <div class="chart"><canvas id="chart-shap"></canvas></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="title">Su dengesi 2026–2050 <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+          <span id="t1-cmip-agreement" class="meta">—</span>
+        </div>
+        <div class="info-box hidden">Yağış ile buharlaşma arasındaki fark (mm/yıl). <b>Çizgi düşüyorsa bölge kuruyor</b> demektir. Koyu çizgi 7 iklim modelinin ortak tahmini, bant ise modeller arasındaki belirsizliktir. Sağ üstteki not, 2050'deki değişimi ve kaç modelin kuraklaşma öngördüğünü gösterir.<span id="t1-climate-proxy-note" class="hidden" style="display:block; margin-top:6px;"></span></div>
+        <div class="chart"><canvas id="chart-climate"></canvas></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="title">İzmir barajları <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+          <span class="meta">İZSU</span>
+        </div>
+        <div class="info-box hidden">İzmir'e su sağlayan barajların bugünkü doluluk oranı. Sağdaki küçük sayı son 23 gündeki değişimdir (kil: azalıyor). Alt satırda geçen yılın aynı günü ve barajın toplam kapasitedeki payı yer alır. Resmî İZSU verisidir.</div>
+        <div id="izsu-dams-strip" class="dam-list"></div>
+      </section>
+    </div>
+
+    <section id="g-compare" class="card">
+      <div class="card-head">
+        <div class="title">Bölgeleri karşılaştır <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+        <span class="meta">güvenliden riskliye</span>
+      </div>
+      <div class="info-box hidden">Aynı sektör, yıl ve senaryo için tüm sanayi bölgelerinin sıralaması. <b>Kısıt günü</b>: yılda beklenen su kısıtı (iyi / beklenen / kurak yıl). <b>Tarife</b>: OSB'nin m³ başına su fiyatı. <b>Kesinti riski</b>: kuraklıkta su tahsisinin kesilme ihtimali. “Hesapla” ile o bölgeyi doğrudan 2. adıma taşıyın.</div>
+      <p id="t1-recommendation-banner" class="small" style="color:var(--teal); margin:-4px 0 12px;"></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Bölge</th><th>Risk</th><th class="r">Kısıt günü</th><th class="r">Tarife TL/m³</th><th class="r">Kesinti riski</th><th></th>
+          </tr></thead>
+          <tbody id="t1-osb-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ======================= ADIM 2 ======================= -->
+<div id="tab-content-2" class="layout hidden">
+  <aside class="side">
+    <div id="g-cases" class="card">
+      <div class="card-head" style="margin-bottom:10px;">
+        <div class="title">Örnek fabrika <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+      </div>
+      <div class="info-box hidden">Üç gerçek şirketin 2024 sürdürülebilirlik raporu verisi. Birini seçince aşağıdaki tüm alanlar dolar ve hesap yenilenir. Kendi fabrikanızı denemek için alanları elle değiştirin.</div>
+      <div class="cases">
+        <button id="scen-btn-tofas_bursa" class="case" onclick="loadSampleFacility('tofas_bursa')"><div class="n">Tofaş · Bursa</div><div class="m">Otomotiv · 431 bin m³ · %100 kuyu</div></button>
+        <button id="scen-btn-vestel_manisa" class="case" onclick="loadSampleFacility('vestel_manisa')"><div class="n">Vestel · Manisa</div><div class="m">Elektronik · 1,51 Mm³ · %71 şebeke</div></button>
+        <button id="scen-btn-petkim_aliaga" class="case" onclick="loadSampleFacility('petkim_aliaga')"><div class="n">Petkim · Aliağa</div><div class="m">Petrokimya · 14,2 Mm³ · yüzey suyu</div></button>
+      </div>
+      <p class="root"><b id="t2-scenario-badge">Tofaş:</b> <span id="t2-scenario-summary">2024'te 430.782 m³ suyun tamamı yeraltı kuyularından.</span> <span id="t2-scenario-source" style="display:block; color:var(--faint); margin-top:3px;"></span></p>
+    </div>
+
+    <div id="g-form" class="card">
+      <div class="card-head" style="margin-bottom:10px;">
+        <div class="title">Fabrika bilgileri <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+      </div>
+      <div class="info-box hidden">Hesaplamanın girdileri. <b>Su kaynağı</b> m³ maliyetini ve kesinti riskini değiştirir. <b>Duruş zararı</b>, su kesildiğinde bir günlük üretim kaybıdır. <b>Bütçe</b>, önlemlere ayrılabilecek en yüksek yatırımdır. <b>Su dağılımı</b>, suyun hangi işlerde kullanıldığını yüzde olarak gösterir. Değişiklikler otomatik hesaplanır.</div>
+
+      <div id="t2-custom-basin-banner" class="alert hidden" style="margin-bottom:10px;">
+        <div><b>Haritadan seçilen havza</b><div id="t2-custom-basin-label" class="small"></div></div>
+        <button class="btn btn-sm" onclick="clearCustomBasinInTab2()">OSB'ye dön</button>
+      </div>
+
+      <div class="field"><label class="label" for="t2-name">Tesis</label><input id="t2-name" type="text" oninput="this.title=this.value" value="Tofaş Türk Otomobil Fabrikası A.Ş. — Bursa Tesisi" /></div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label" for="t2-osb">Bölge</label>
+          <select id="t2-osb" onchange="onChangeTab2OSB()">
+            <option value="izmir_kemalpasa">İzmir Kemalpaşa</option>
+            <option value="manisa_osb">Manisa</option>
+            <option value="izmir_aliaga">İzmir Aliağa</option>
+            <option value="izmir_iaosb">İzmir Atatürk</option>
+            <option value="bursa_osb" selected>Bursa</option>
+            <option value="kocaeli_gosb">Kocaeli Gebze</option>
+            <option value="konya_osb">Konya</option>
+            <option value="denizli_osb">Denizli</option>
+            <option value="ankara_aso1">Ankara ASO 1.</option>
+            <option value="adana_osb">Adana</option>
+            <option value="gaziantep_osb">Gaziantep</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label" for="t2-sector">Sektör</label>
+          <select id="t2-sector" onchange="onChangeTab2Sector()">
+            <option value="textile">Tekstil</option>
+            <option value="food">Gıda</option>
+            <option value="chemical">Kimya</option>
+            <option value="metal" selected>Metal &amp; otomotiv</option>
+            <option value="semiconductor">Yarı iletken</option>
+            <option value="energy">Enerji</option>
+            <option value="mining">Madencilik</option>
+            <option value="general">Genel imalat</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label class="label" for="t2-year">Yıl</label>
+          <select id="t2-year" onchange="scheduleROISimulation()">
+            <option value="2030" selected>2030</option><option value="2050">2050</option><option value="2080">2080</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label" for="t2-scenario">İklim</label>
+          <select id="t2-scenario" onchange="scheduleROISimulation()">
+            <option value="OPT">İyimser</option><option value="BAU" selected>Olası</option><option value="PES">Kötümser</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+      <div class="grid2">
+        <div class="field"><label class="label" for="t2-water">Su m³/yıl</label><input id="t2-water" type="number" min="1000" step="5000" value="430782" oninput="scheduleROISimulation()" /></div>
+        <div class="field"><label class="label" for="t2-emp">Çalışan</label><input id="t2-emp" type="number" min="1" step="10" value="4409" oninput="scheduleROISimulation()" /></div>
+      </div>
+      <div class="field">
+        <label class="label" for="t2-source">Su kaynağı</label>
+        <select id="t2-source" onchange="onChangeWaterSource()">
+          <option value="osb_grid">OSB şebekesi</option>
+          <option value="groundwater_well" selected>Yeraltı kuyusu</option>
+          <option value="surface_water">Yüzey suyu</option>
+          <option value="hybrid">Karma (şebeke + kuyu)</option>
+          <option value="izsu_grid">İZSU sanayi</option>
+        </select>
+      </div>
+      <div id="t2-hybrid-slider-wrap" class="hidden" style="margin-top:8px;">
+        <div style="display:flex; justify-content:space-between;" class="small"><span class="muted">Şebeke payı</span><b id="t2-grid-share-label" class="num">%55 / %45</b></div>
+        <input id="t2-grid-share" type="range" min="0" max="100" step="0.1" value="55" oninput="onHybridSliderInput()" />
+      </div>
+      <p id="t2-source-note" class="small" style="color:var(--clay-ink); margin-top:6px;"></p>
+      <span id="t2-source-prov" class="meta"></span>
+      <div class="grid2" style="margin-top:10px;">
+        <div class="field"><label class="label" for="t2-downtime">Günlük duruş zararı TL</label><input id="t2-downtime" type="number" min="0" step="25000" value="1500000" oninput="scheduleROISimulation()" /></div>
+        <div class="field"><label class="label" for="t2-budget">Bütçe TL</label><input id="t2-budget" type="number" min="0" step="100000" value="6000000" oninput="scheduleROISimulation()" /></div>
+      </div>
+
+      <div class="sep"></div>
+      <span class="label">Su dağılımı %</span>
+      <div class="grid4">
+        <div><label class="label" for="t2-p-cool">Soğutma</label><input id="t2-p-cool" type="number" value="30" oninput="scheduleROISimulation()" /></div>
+        <div><label class="label" for="t2-p-proc">Proses</label><input id="t2-p-proc" type="number" value="48" oninput="scheduleROISimulation()" /></div>
+        <div><label class="label" for="t2-p-boil">Kazan</label><input id="t2-p-boil" type="number" value="12" oninput="scheduleROISimulation()" /></div>
+        <div><label class="label" for="t2-p-dom">Evsel</label><input id="t2-p-dom" type="number" value="10" oninput="scheduleROISimulation()" /></div>
+      </div>
+
+      <button class="btn btn-primary btn-block" style="margin-top:14px;" onclick="runROISimulation()">Hesapla</button>
+      <div id="g-export" class="grid2" style="margin-top:8px;">
+        <button class="btn" onclick="downloadReport('json')">JSON indir</button>
+        <button class="btn" onclick="downloadReport('csv')">CSV indir</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div id="g-kpis" class="kpis">
+      <div class="kpi">
+        <div class="k">Hiçbir şey yapılmazsa <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+        <div class="info-box hidden">Önlem alınmazsa fabrikanın <b>yıllık</b> su kaynaklı maliyeti: su faturası + su kesintisi günlerinde kaybedilen üretim. Alt satırda iyi ve kurak yıl aralığı yer alır.</div>
+        <div id="t2-dn-total" class="v hot">—</div>
+        <div id="t2-dn-band" class="s">—</div>
+        <div id="t2-dn-breakdown" class="n">—</div>
+      </div>
+      <div class="kpi">
+        <div class="k">Su tasarrufu <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+        <div class="info-box hidden">Seçilen önlemlerle yılda ne kadar daha az su kullanılacağı ve bunun toplam tüketime oranı. Daha az su = daha az kesinti etkisi; alt satır önlenen duruş gününü gösterir.</div>
+        <div id="t2-saved-m3" class="v">—</div>
+        <div id="t2-saved-pct" class="s">—</div>
+        <div id="t2-avoided-days" class="n">—</div>
+      </div>
+      <div class="kpi">
+        <div class="k">5 yıllık net kazanç <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+        <div class="info-box hidden">Yatırımın 5 yılda bugünkü parayla getireceği net kazanç (NPV, %18 iskonto). <b>Geri dönüş</b>: yatırımın kendini kaç ayda ödediği.</div>
+        <div id="t2-npv" class="v ok">—</div>
+        <div id="t2-payback" class="s">—</div>
+        <div id="t2-annual-benefit" class="n">—</div>
+      </div>
+      <div class="kpi">
+        <div class="k">2029 belgesi <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+        <div class="info-box hidden">27.12.2029'da zorunlu olan Su Verimliliği Belgesi için ön değerlendirme. Hangi seviyeye ulaşıldığı aşağıdaki kriter listesine göre belirlenir. Resmî denetimin yerine geçmez.</div>
+        <div id="t2-cert-tier" class="v txt">—</div>
+        <div id="t2-cert-status" class="s">—</div>
+        <div class="n">Yönetmelik RG 32765 · Madde 7</div>
+      </div>
+    </div>
+
+    <div id="t2-low-budget-alert" class="alert hidden"></div>
+
+    <div class="row row-2">
+      <section id="g-measures" class="card">
+        <div class="card-head">
+          <div class="title">Önerilen yatırımlar <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+          <div id="t2-process-rates-pills" class="pills"></div>
+        </div>
+        <div class="info-box hidden">Bütçeyi aşmadan 5 yıllık kazancı en yükseğe çıkaran önlem seti, optimizasyonla seçildi. <b>Tasarruf</b>: önlemin uygulandığı hattaki su azalması. <b>CAPEX</b>: ilk yatırım, <b>OPEX</b>: yıllık işletme maliyeti değişimi, <b>Geri dönüş</b>: ay cinsinden. Üstteki etiketler hat bazında toplam tasarruf oranlarıdır.</div>
+        <p id="t2-solver-info" class="small muted" style="margin:-4px 0 10px;">Hesaplanıyor…</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Önlem</th><th>Hat</th><th class="r">Tasarruf</th><th class="r">CAPEX TL</th><th class="r">OPEX TL/yıl</th><th class="r">Geri dönüş</th></tr></thead>
+            <tbody id="t2-measures-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="g-cashflow" class="card">
+        <div class="card-head">
+          <div class="title">5 yıllık nakit akışı <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+        </div>
+        <div class="info-box hidden"><b>Yeşil çizgi</b>: yatırım yapılırsa biriken net kazanç (sıfırın üstüne çıktığı an yatırım geri dönmüştür). <b>Kil kesikli çizgi</b>: hiçbir şey yapılmazsa biriken kayıp. İki çizgi arasındaki fark, kararın değeridir.</div>
+        <div class="chart" style="height:260px;"><canvas id="chart-cashflow"></canvas></div>
+      </section>
+    </div>
+
+    <div class="row row-2eq">
+      <section id="g-criteria" class="card">
+        <div class="card-head">
+          <div class="title">Belge kriterleri <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+          <span class="meta">✓ sağlandı · ✕ eksik</span>
+        </div>
+        <div class="info-box hidden">2029 Su Verimliliği Yönetmeliği'nin aradığı şartlar. İlk kriterler ölçüm ve yönetim sistemi kurulumunu, sonrakiler sektörel verimlilik ve geri kazanım hedeflerini kapsar. Eksik (✕) kriterler, belge için yapılması gerekenleri gösterir.</div>
+        <div id="t2-criteria-grid" class="criteria"></div>
+      </section>
+
+      <section id="g-summary" class="card">
+        <div class="card-head">
+          <div class="title">Yönetici özeti <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span id="t2-llm-badge" class="meta">—</span>
+            <button class="btn btn-sm" onclick="requestOnlineGeminiSummary()">Yenile</button>
+          </div>
+        </div>
+        <div class="info-box hidden">Tüm sonuçların yönetim kuruluna sunulabilecek kısa metin özeti. Yalnızca yukarıdaki doğrulanmış hesap sonuçlarını kullanır; yeni sayı uydurmaz. “Yenile”, varsa çevrimiçi yapay zekâ ile metni yeniden yazar.</div>
+        <div id="t2-exec-summary-box" class="summary"></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<footer>AquaSanayi AI · WRI Aqueduct 4.0 · ERA5 · CMIP6 · İZSU · Veriler 6 Kasım 2026 itibarıyla</footer>
+
+<!-- Rehber -->
+<div id="tour-root" class="hidden">
+  <div id="tour-block" onclick="stepGuidedTour(1)"></div>
+  <div id="tour-spot"></div>
+  <div id="tour-card" role="dialog" aria-live="polite">
+    <div class="top"><span id="tour-chap" class="chap"></span><span id="tour-cnt" class="cnt"></span></div>
+    <h3 id="tour-title"></h3>
+    <p id="tour-body" class="body"></p>
+    <ul id="tour-points"></ul>
+    <div class="progress"><i id="tour-progress"></i></div>
+    <div class="foot">
+      <span class="keys">← → ile gezin · Esc kapat</span>
+      <div class="nav">
+        <button class="btn btn-sm" onclick="closeGuidedTour()">Kapat</button>
+        <button id="tour-prev" class="btn btn-sm" onclick="stepGuidedTour(-1)">←</button>
+        <button id="tour-next" class="btn btn-sm btn-primary" onclick="stepGuidedTour(1)">İleri →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let mapInstance = null, geojsonLayer = null, osbMarkersLayer = null, cachedBasinsPayload = null;
+  let cachedSectorDefaults = null, shapChart = null, climateChart = null, cashflowChart = null;
+  let currentTab = 1, currentSelectedOSB = "izmir_kemalpasa", currentSelectedLocation = null;
+  let tab2CustomStringId = null, lastSimResult = null, roiDebounceTimer = null;
+
+  const P = {
+    teal: "#0F3D3E", sage: "#6E9C95", clay: "#C2542F", clayDeep: "#8A3A1F",
+    clayTint: "#D9A57F", sageLight: "#8FB5AE", ink: "#15211F", muted: "#5B6762", line: "#E3E7E2"
+  };
+  if (window.Chart) {
+    Chart.defaults.font.family = "'IBM Plex Sans', system-ui, sans-serif";
+    Chart.defaults.font.size = 10.5;
+    Chart.defaults.color = P.muted;
+    Chart.defaults.borderColor = P.line;
+  }
+
+  const $ = (id) => document.getElementById(id);
+  function fmtNum(n, dec = 0) {
+    if (n === null || n === undefined || isNaN(n)) return "—";
+    return Number(n).toLocaleString("tr-TR", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  }
+  function fmtTL(n) {
+    const v = Number(n);
+    if (Math.abs(v) >= 1e9) return `${fmtNum(v / 1e9, 2)} Mr TL`;
+    if (Math.abs(v) >= 1e6) return `${fmtNum(v / 1e6, 1)} M TL`;
+    return `${fmtNum(v, 0)} TL`;
+  }
+  function wsColor(ws) {
+    const v = Number(ws || 0);
+    if (v >= 1.4) return P.clayDeep;
+    if (v >= 0.8) return P.clay;
+    if (v >= 0.4) return P.clayTint;
+    return P.sageLight;
+  }
+  function riskColor(score) { return score >= 70 ? P.clay : (score >= 45 ? P.clayTint : P.sage); }
+  function resolveActiveWsColumn(year, scenario) {
+    const y = String(year).toLowerCase();
+    if (y === "baseline" || y === "2025" || y === "2026") return "bws_raw";
+    const s = ["opt", "bau", "pes"].includes(String(scenario).toLowerCase()) ? String(scenario).toLowerCase() : "bau";
+    return `${s}${y.includes("30") ? "30" : (y.includes("80") ? "80" : "50")}_ws_x_r`;
+  }
+  function toggleInfo(btn) {
+    const scope = btn.closest(".card, .kpi");
+    const box = scope && scope.querySelector(".info-box");
+    if (!box) return;
+    const open = box.classList.toggle("hidden") === false;
+    btn.setAttribute("aria-expanded", String(open));
+  }
+  const tooltipBase = {
+    backgroundColor: P.ink, padding: 8, cornerRadius: 4, displayColors: false,
+    titleFont: { family: "'IBM Plex Sans'", size: 11 }, bodyFont: { family: "'IBM Plex Mono'", size: 11 }
+  };
+  const axis = (extra = {}) => ({
+    ticks: { color: P.muted, font: { size: 10 }, ...(extra.ticks || {}) },
+    grid: { color: P.line, drawTicks: false, ...(extra.grid || {}) },
+    border: { display: false }
+  });
+
+  /* ---------- Adımlar ---------- */
+  function switchTab(n) {
+    currentTab = n;
+    $("tab-content-1").classList.toggle("hidden", n !== 1);
+    $("tab-content-2").classList.toggle("hidden", n !== 2);
+    $("btn-tab-1").classList.toggle("is-active", n === 1);
+    $("btn-tab-2").classList.toggle("is-active", n === 2);
+    window.scrollTo({ top: 0 });
+    if (n === 1) setTimeout(() => mapInstance && mapInstance.invalidateSize(), 80);
+    else runROISimulation();
+  }
+  function transferLocationToTab2() {
+    $("t2-sector").value = $("t1-sector").value;
+    const loc = currentSelectedLocation;
+    if (loc && loc.location_type === "custom_basin") {
+      tab2CustomStringId = loc.string_id;
+      $("t2-osb").value = loc.nearest_osb_id || currentSelectedOSB;
+      $("t2-name").value = `${loc.province_name} Münferit Sanayi Tesisi (Havza #${loc.pfaf_id})`;
+      $("t2-custom-basin-banner").classList.remove("hidden");
+      $("t2-custom-basin-label").textContent = `${loc.display_title} · kuyu bağımlılığı havza verisinden tahmin edildi.`;
+    } else {
+      tab2CustomStringId = null;
+      $("t2-custom-basin-banner").classList.add("hidden");
+      $("t2-osb").value = $("t1-osb").value;
+    }
+    const y = $("t1-year").value;
+    if (["2030", "2050", "2080"].includes(y)) $("t2-year").value = y;
+    $("t2-scenario").value = $("t1-scenario").value;
+    highlightScenarioButton(null);
+    switchTab(2);
+  }
+  function clearCustomBasinInTab2() {
+    tab2CustomStringId = null;
+    $("t2-custom-basin-banner").classList.add("hidden");
+    runROISimulation();
+  }
+
+  /* ---------- İZSU ---------- */
+  async function loadIZSUBanner() {
+    try {
+      const data = await (await fetch("/api/izsu-live")).json();
+      const hm = data.headline_metrics;
+      $("hdr-weighted-occ").textContent = `%${fmtNum(hm.capacity_weighted_occupancy_pct, 2)}`;
+      $("hdr-gordes-occ").textContent = `%${fmtNum(hm.gordes_occupancy_pct, 2)}`;
+      if (hm.tahtali_today_pct !== undefined) $("hdr-tahtali-today").textContent = `%${fmtNum(hm.tahtali_today_pct, 2)}`;
+      const nov = data.anomaly_analysis && data.anomaly_analysis.november_2025_regime_shift;
+      if (nov) $("hdr-anomaly-text").textContent =
+        `Kas 2025 Tahtalı ${fmtNum(nov.tahtali_collapse_pct, 1)}% · kuyu payı %${fmtNum(nov.well_share_nov_2025_pct, 1)}`;
+      $("izsu-dams-strip").innerHTML = data.dams.map(d => {
+        const up = d.delta_23d_pct_points > 0;
+        return `<div class="dam">
+          <div class="n">${d.name.replace(" Barajı", "")}</div>
+          <div class="p">%${fmtNum(d.occupancy_pct, 1)}</div>
+          <div class="s">geçen yıl %${fmtNum(d.last_year_occupancy_pct, 1)} · pay %${fmtNum(d.capacity_share_pct, 0)}</div>
+          <div class="d ${up ? "up" : ""}">${up ? "+" : ""}${fmtNum(d.delta_23d_pct_points, 1)} p</div>
+          <div class="dam-bar"><i style="width:${Math.min(100, d.occupancy_pct)}%"></i></div>
+        </div>`;
+      }).join("");
+    } catch (e) { console.error("İZSU:", e); }
+  }
+
+  /* ---------- Harita ---------- */
+  function focusCorridorMap() { mapInstance && mapInstance.setView([39.25, 29.4], 7); }
+  function focusFullTurkeyMap() { mapInstance && mapInstance.setView([39.0, 35.2], 6); }
+  const basinStyle = (wsCol) => (f) => ({
+    fillColor: wsColor(f.properties[wsCol] ?? f.properties.bws_raw ?? 0.5),
+    weight: 0.6, opacity: 0.9, color: "#FFFFFF", fillOpacity: 0.6
+  });
+
+  async function initMapAndBasins() {
+    if (!mapInstance) {
+      mapInstance = L.map("turkey-map", { center: [39.25, 29.4], zoom: 7, minZoom: 5, maxZoom: 11 });
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap | WRI Aqueduct 4.0", opacity: 0.8
+      }).addTo(mapInstance);
+      mapInstance.on("click", (ev) => predictLocation({ lat: ev.latlng.lat, lon: ev.latlng.lng }));
+    }
+    await loadBasinsLayer();
+  }
+
+  async function loadBasinsLayer() {
+    const year = $("t1-year").value, scenario = $("t1-scenario").value;
+    const wsCol = resolveActiveWsColumn(year, scenario);
+    if (cachedBasinsPayload) { geojsonLayer && geojsonLayer.setStyle(basinStyle(wsCol)); return; }
+    cachedBasinsPayload = await (await fetch(`/api/basins?year=${year}&scenario=${scenario}`)).json();
+    geojsonLayer = L.geoJSON(cachedBasinsPayload.features, {
+      style: basinStyle(wsCol),
+      onEachFeature: (feature, layer) => {
+        layer.on("mouseover", () => {
+          const p = feature.properties;
+          const col = resolveActiveWsColumn($("t1-year").value, $("t1-scenario").value);
+          layer.bindTooltip(
+            `<b>${p.name_1 || "Türkiye"} · havza #${p.pfaf_id}</b><br/>Su stresi <b>${fmtNum(p[col] ?? p.bws_raw, 2)}x</b> · yaz ${fmtNum(p.summer_bws_raw, 2)}x`,
+            { sticky: true }).openTooltip();
+        });
+        layer.on("click", (ev) => { L.DomEvent.stopPropagation(ev); predictLocation({ string_id: feature.properties.string_id }); });
+      }
+    }).addTo(mapInstance);
+    osbMarkersLayer = L.layerGroup().addTo(mapInstance);
+    (cachedBasinsPayload.osb_markers || []).forEach(o => {
+      const focus = o.in_focus_corridor !== false;
+      const m = L.circleMarker([o.lat, o.lon], {
+        radius: focus ? 7 : 5, fillColor: P.teal, color: "#FFFFFF", weight: 2, fillOpacity: focus ? 1 : 0.7
+      });
+      m.bindTooltip(`<b>${o.name}</b><br/>Tarife ${fmtNum(o.osb_grid_tariff_tl_m3 || 118.5, 2)} TL/m³ · kuyu %${o.groundwater_dependency_pct}`);
+      m.on("click", (ev) => { L.DomEvent.stopPropagation(ev); $("t1-osb").value = o.osb_id; predictLocation({ osb_id: o.osb_id }); highlightTableRow(); });
+      m.addTo(osbMarkersLayer);
+    });
+  }
+
+  /* ---------- Konum analizi ---------- */
+  async function predictLocation(params = {}) {
+    const payload = {
+      sector: $("t1-sector").value, year: $("t1-year").value, scenario: $("t1-scenario").value,
+      osb_id: params.osb_id || currentSelectedOSB, string_id: params.string_id || null,
+      lat: params.lat ?? null, lon: params.lon ?? null
+    };
+    const data = await (await fetch("/api/predict-location", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+    })).json();
+
+    if (!data.inside_turkey && data.boundary_warning) {
+      $("t1-boundary-alert").classList.remove("hidden");
+      $("t1-boundary-alert-text").textContent = data.boundary_warning;
+    } else $("t1-boundary-alert").classList.add("hidden");
+
+    const r = data.transparent_risk, shap = data.xgboost_shap_explanation, osb = data.selected_osb;
+    const loc = data.selected_location || {};
+    currentSelectedOSB = osb.osb_id;
+    currentSelectedLocation = loc;
+
+    $("t1-loc-badge").textContent = `Havza #${r.pfaf_id} · ${r.string_id}`;
+    const mode = $("t1-loc-mode-badge");
+    if (loc.location_type === "custom_basin") {
+      mode.textContent = "Seçili havza"; mode.className = "tag hot";
+      $("t1-loc-title").textContent = `${r.province_name} · havza #${r.pfaf_id}`;
+      $("t1-archetype-label").textContent = `Referans: ${osb.name} · ${shap.archetype.archetype_label}`;
+    } else {
+      mode.textContent = osb.in_focus_corridor !== false ? "Odak koridor" : "Ulusal"; mode.className = "tag";
+      $("t1-loc-title").textContent = osb.name;
+      $("t1-archetype-label").textContent = shap.archetype.archetype_label;
+    }
+    const score = r.composite_risk_score;
+    $("t1-risk-score").textContent = fmtNum(score, 1);
+    $("t1-risk-score-wrap").className = `score ${score >= 70 ? "hot" : "ok"}`;
+    $("t1-risk-cat").textContent = r.risk_category;
+    $("t1-risk-cat").className = score >= 70 ? "tag hot" : "tag";
+    $("t1-days-p10").textContent = fmtNum(r.expected_cutback_days.p10, 1);
+    $("t1-days-p50").textContent = fmtNum(r.expected_cutback_days.p50, 1);
+    $("t1-days-p90").textContent = fmtNum(r.expected_cutback_days.p90, 1);
+    $("t1-ind-bws").textContent = `${fmtNum(r.indicators.projected_annual_ws_raw, 2)}x`;
+    $("t1-ind-summer").textContent = `${fmtNum(r.indicators.projected_summer_peak_ws_raw, 2)}x`;
+    $("t1-ind-gtd").textContent = `${fmtNum(r.indicators.gtd_raw, 2)} cm/y`;
+    $("t1-ind-spei").textContent = `${fmtNum(r.indicators.spei12_decadal_trend, 2)}`;
+
+    $("t1-components-list").innerHTML = r.component_breakdown.map(c => {
+      const pct = Math.min(100, Math.round((c.points / c.weight_max) * 100));
+      return `<div class="comp">
+        <div class="comp-row"><span class="lbl">${c.label}</span><span class="pts">${fmtNum(c.points, 1)}<small> / ${fmtNum(c.weight_max, 0)}</small></span></div>
+        <div class="bar-track"><i class="${pct >= 70 ? "hot" : ""}" style="width:${pct}%"></i></div>
+        <div class="comp-sub"><span>${c.raw_indicator}</span>
+          <details><summary>Formül</summary></details></div>
+        <div class="comp-detail hidden"><p class="small muted" style="margin-top:4px;">${c.info_summary || ""}</p><p class="small num" style="color:var(--faint);">${c.formula_note}</p></div>
+      </div>`;
+    }).join("");
+    document.querySelectorAll("#t1-components-list details").forEach(d => {
+      d.addEventListener("toggle", () => d.closest(".comp").querySelector(".comp-detail").classList.toggle("hidden", !d.open));
+    });
+
+    $("t1-shap-latency").title = `Hesap süresi ${fmtNum(shap.inference_latency_ms, 1)} ms`;
+    renderSHAPChart(shap.top_drivers);
+
+    const cwb = data.climate_water_balance_2026_2050;
+    if (cwb && cwb.years) {
+      $("t1-cmip-agreement").textContent = `2050: ${fmtNum(cwb.delta_wb_2050_vs_baseline_mm, 0)} mm · ${cwb.models_agreeing_count}/${cwb.total_models_count} model`;
+      const note = $("t1-climate-proxy-note");
+      if (data.is_custom_basin && data.selected_location) {
+        note.textContent = `Not: Bu havzanın iklim serisi en yakın OSB'den (${data.selected_location.nearest_osb_name}) ölçeklenmiştir.`;
+        note.classList.remove("hidden");
+      } else note.classList.add("hidden");
+      renderClimateChart(cwb);
+    }
+    highlightTableRow();
+  }
+
+  function renderSHAPChart(drivers) {
+    if (shapChart) shapChart.destroy();
+    shapChart = new Chart($("chart-shap"), {
+      type: "bar",
+      data: {
+        labels: drivers.map(d => d.label_tr),
+        datasets: [{
+          data: drivers.map(d => d.shap_value),
+          backgroundColor: drivers.map(d => d.shap_value >= 0 ? P.clay : P.sage),
+          borderRadius: 2, barThickness: 12
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, indexAxis: "y",
+        plugins: { legend: { display: false }, tooltip: { ...tooltipBase, callbacks: { title: (i) => drivers[i[0].dataIndex].label_tr } } },
+        scales: {
+          x: axis(),
+          y: { grid: { display: false }, border: { display: false },
+               ticks: { color: P.ink, font: { size: 10 }, callback: function (v) { const l = this.getLabelForValue(v); const max = innerWidth < 700 ? 20 : 30; return l.length > max ? l.slice(0, max - 1) + "…" : l; } } }
+        }
+      }
+    });
+  }
+
+  function renderClimateChart(cwb) {
+    if (climateChart) climateChart.destroy();
+    climateChart = new Chart($("chart-climate"), {
+      type: "line",
+      data: {
+        labels: cwb.years,
+        datasets: [
+          { label: "Islak", data: cwb.water_balance_p90_mm, borderColor: "rgba(110,156,149,.6)", borderWidth: 1, pointRadius: 0, fill: false },
+          { label: "Ortak tahmin", data: cwb.water_balance_p50_mm, borderColor: P.teal, backgroundColor: "rgba(110,156,149,.16)", borderWidth: 2, pointRadius: 0, fill: 0 },
+          { label: "Kurak", data: cwb.water_balance_p10_mm, borderColor: P.clay, backgroundColor: "rgba(194,84,47,.10)", borderWidth: 1, pointRadius: 0, fill: 1 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
+        plugins: { legend: { display: true, position: "bottom", labels: { boxWidth: 8, boxHeight: 8, font: { size: 10 } } }, tooltip: { ...tooltipBase, displayColors: true } },
+        scales: { x: axis({ ticks: { maxTicksLimit: 6, maxRotation: 0 } }), y: axis() }
+      }
+    });
+  }
+
+  /* ---------- Karşılaştırma ---------- */
+  async function loadOSBComparisonTable() {
+    const q = `sector=${$("t1-sector").value}&year=${$("t1-year").value}&scenario=${$("t1-scenario").value}`;
+    const data = await (await fetch(`/api/osb-compare?${q}`)).json();
+    $("t1-recommendation-banner").textContent = data.recommendation_summary;
+    $("t1-osb-table-body").innerHTML = data.rankings.map(row => {
+      const s = row.composite_risk_score;
+      const measured = String(row.tariff_provenance || "").includes("Ölçülmüş");
+      return `<tr data-osb="${row.osb_id}">
+        <td><span class="rank">${row.safety_rank}</span><b style="font-weight:600;">${row.name}</b>
+          <div class="cell-sub" style="padding-left:22px;">${row.corridor_region || row.basin_name}</div></td>
+        <td><div class="risk-cell"><span class="num" style="min-width:34px;">${fmtNum(s, 1)}</span>
+          <span class="mini"><i style="width:${Math.min(100, s)}%; background:${riskColor(s)}"></i></span></div></td>
+        <td class="r num"><span class="muted">${fmtNum(row.expected_cutback_days.p10, 0)}</span> · <b style="font-weight:500;">${fmtNum(row.expected_cutback_days.p50, 0)}</b> · <span class="muted">${fmtNum(row.expected_cutback_days.p90, 0)}</span></td>
+        <td class="r"><span class="num">${fmtNum(row.osb_grid_tariff_tl_m3 || 118.5, 2)}</span><div class="cell-sub">${measured ? "resmî" : "tahmini"}</div></td>
+        <td class="r num" style="color:var(--clay-ink);">%${fmtNum(row.drought_cutback_risk_pct, 1)}</td>
+        <td class="r"><button class="btn btn-sm" onclick="selectOSBAndGoTab2('${row.osb_id}')">Hesapla →</button></td>
+      </tr>`;
+    }).join("");
+    highlightTableRow();
+  }
+  function highlightTableRow() {
+    document.querySelectorAll("#t1-osb-table-body tr").forEach(tr =>
+      tr.classList.toggle("is-current", tr.dataset.osb === currentSelectedOSB && !(currentSelectedLocation && currentSelectedLocation.location_type === "custom_basin")));
+  }
+  async function selectOSBAndGoTab2(id) {
+    $("t1-osb").value = id; currentSelectedOSB = id;
+    await predictLocation({ osb_id: id });
+    transferLocationToTab2();
+  }
+  async function onSelectOSBFromDropdown() {
+    currentSelectedOSB = $("t1-osb").value;
+    await predictLocation({ osb_id: currentSelectedOSB });
+  }
+  async function refreshTab1() {
+    await Promise.all([loadBasinsLayer(), predictLocation({ osb_id: $("t1-osb").value }), loadOSBComparisonTable()]);
+  }
+
+  /* ---------- Adım 2 ---------- */
+  function highlightScenarioButton(pid) {
+    ["tofas_bursa", "vestel_manisa", "petkim_aliaga"].forEach(id => $(`scen-btn-${id}`).classList.toggle("is-active", id === pid));
+  }
+  async function loadSampleFacility(pid) {
+    tab2CustomStringId = null;
+    $("t2-custom-basin-banner").classList.add("hidden");
+    highlightScenarioButton(pid);
+    const data = await (await fetch(`/api/facility-sample?profile_id=${pid}`)).json();
+    cachedSectorDefaults = data.sector_defaults || cachedSectorDefaults;
+    const f = data.facility_data;
+    $("t2-name").value = f.facility_name;
+    $("t2-osb").value = f.osb_id;
+    $("t2-sector").value = f.sector_code;
+    $("t2-year").value = String(f.target_year || 2030);
+    $("t2-scenario").value = String(f.scenario || "BAU").toUpperCase();
+    $("t2-water").value = f.annual_water_m3;
+    $("t2-emp").value = f.employee_count;
+    $("t2-source").value = f.water_source;
+    $("t2-grid-share").value = f.grid_share_pct ?? 55;
+    $("t2-downtime").value = f.daily_downtime_cost_tl;
+    $("t2-budget").value = f.capex_budget_tl;
+    $("t2-p-cool").value = f.process_shares.cooling;
+    $("t2-p-proc").value = f.process_shares.process;
+    $("t2-p-boil").value = f.process_shares.boiler;
+    $("t2-p-dom").value = f.process_shares.domestic;
+    if (f.scenario_badge) {
+      $("t2-scenario-badge").textContent = f.scenario_badge + ":";
+      $("t2-scenario-summary").textContent = f.root_cause_summary || "";
+      $("t2-scenario-source").textContent = f.data_source_note ? `Kaynak: ${f.data_source_note}` : "";
+    }
+    updateHybridSliderVisibility();
+    await runROISimulation();
+  }
+  function updateHybridSliderVisibility() {
+    const hybrid = $("t2-source").value === "hybrid";
+    $("t2-hybrid-slider-wrap").classList.toggle("hidden", !hybrid);
+    if (hybrid) {
+      const v = Number($("t2-grid-share").value || 55);
+      $("t2-grid-share-label").textContent = `%${fmtNum(v, 0)} şebeke / %${fmtNum(100 - v, 0)} kuyu`;
+    }
+  }
+  function onChangeWaterSource() { updateHybridSliderVisibility(); runROISimulation(); }
+  function onHybridSliderInput() { updateHybridSliderVisibility(); scheduleROISimulation(); }
+  function onChangeTab2OSB() { tab2CustomStringId = null; $("t2-custom-basin-banner").classList.add("hidden"); runROISimulation(); }
+  function onChangeTab2Sector() {
+    const d = cachedSectorDefaults && cachedSectorDefaults[$("t2-sector").value];
+    if (d) { $("t2-p-cool").value = d.cooling; $("t2-p-proc").value = d.process; $("t2-p-boil").value = d.boiler; $("t2-p-dom").value = d.domestic; }
+    runROISimulation();
+  }
+  function scheduleROISimulation() { clearTimeout(roiDebounceTimer); roiDebounceTimer = setTimeout(runROISimulation, 250); }
+
+  function getTab2Payload() {
+    const src = $("t2-source").value;
+    return {
+      facility_name: $("t2-name").value, osb_id: $("t2-osb").value, string_id: tab2CustomStringId,
+      sector: $("t2-sector").value,
+      annual_water_m3: Number($("t2-water").value || 150000),
+      employee_count: Number($("t2-emp").value || 250),
+      water_source: src,
+      grid_share_pct: src === "hybrid" ? Number($("t2-grid-share").value || 55) : (src === "groundwater_well" ? 0 : 100),
+      process_shares: {
+        cooling: Number($("t2-p-cool").value || 22), process: Number($("t2-p-proc").value || 58),
+        boiler: Number($("t2-p-boil").value || 14), domestic: Number($("t2-p-dom").value || 6)
+      },
+      daily_downtime_cost_tl: Number($("t2-downtime").value || 240000),
+      capex_budget_tl: Number($("t2-budget").value || 2750000),
+      target_year: Number($("t2-year").value || 2030),
+      scenario: $("t2-scenario").value || "BAU"
+    };
+  }
+
+  async function runROISimulation() {
+    let res;
+    try {
+      res = await fetch("/api/simulate-roi", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getTab2Payload()) });
+    } catch (e) { console.error("Simülasyon:", e); return; }
+    if (!res.ok) return;
+    const sim = await res.json();
+    lastSimResult = sim;
+    const dn = sim.do_nothing_projection, opt = sim.optimized_portfolio, cert = sim.certification_2029, src = sim.water_source_economics;
+
+    $("t2-source-note").textContent = src.allocation_note;
+    $("t2-source-prov").textContent = src.provenance || "";
+    $("t2-dn-total").textContent = `${fmtTL(dn.total_annual_exposure_tl.p50)}/yıl`;
+    $("t2-dn-band").textContent = `İyi yıl ${fmtTL(dn.total_annual_exposure_tl.p10)} · kurak ${fmtTL(dn.total_annual_exposure_tl.p90)}`;
+    $("t2-dn-breakdown").textContent = `Fatura ${fmtTL(dn.annual_water_bill_tl)} + ${dn.expected_cutback_days.p50} gün duruş ${fmtTL(dn.expected_downtime_loss_tl.p50)}`;
+    $("t2-saved-m3").textContent = `${fmtNum(opt.annual_water_saved_m3, 0)} m³`;
+    $("t2-saved-pct").textContent = `Tüketimin %${fmtNum(opt.multiplicative_savings_breakdown.total_saving_pct, 1)}'i / yıl`;
+    $("t2-avoided-days").textContent = `${fmtNum(opt.avoided_cutback_days_p50, 1)} gün duruş önlenir · ${fmtTL(opt.avoided_downtime_loss_p50_tl)}`;
+    $("t2-npv").textContent = `+${fmtTL(opt.npv_5yr_tl)}`;
+    $("t2-payback").textContent = `Geri dönüş ${fmtNum(opt.payback_months, 1)} ay`;
+    $("t2-annual-benefit").textContent = `Yıllık net kazanç ${fmtTL(opt.net_annual_financial_benefit_tl)}`;
+    $("t2-cert-tier").textContent = cert.achieved_tier;
+    $("t2-cert-status").textContent = String(cert.compliance_status).split("(")[0].trim();
+    $("t2-cert-status").title = cert.compliance_status;
+
+    if (cert.criteria_checklist) {
+      $("t2-criteria-grid").innerHTML = cert.criteria_checklist.map(c => `
+        <div class="crit ${c.met ? "met" : "miss"}"><span class="m">${c.met ? "✓" : "✕"}</span>
+          <div><div class="t">${c.title}</div><div class="d">${c.detail}</div></div></div>`).join("");
+    }
+    const low = $("t2-low-budget-alert");
+    low.classList.toggle("hidden", !opt.low_budget_advisory);
+    low.textContent = opt.low_budget_advisory || "";
+
+    $("t2-solver-info").textContent =
+      `${opt.selected_measures_count} önlem · toplam ${fmtTL(opt.total_capex_tl)} yatırım · bütçenin %${fmtNum(opt.budget_utilization_pct, 0)}'i · ${opt.solver_method}`;
+    const pr = opt.multiplicative_savings_breakdown.process_saving_rates;
+    $("t2-process-rates-pills").innerHTML = [["Soğutma", pr.cooling], ["Proses", pr.process], ["Kazan", pr.boiler], ["Evsel", pr.domestic]]
+      .map(([k, v]) => `<span class="pill">${k} %${fmtNum(v * 100, 0)}</span>`).join("");
+    $("t2-measures-tbody").innerHTML = opt.selected_measures.length ? opt.selected_measures.map(m => `
+      <tr>
+        <td><b style="font-weight:600;">${m.name}</b><div class="cell-sub">${m.measure_id} · ${m.nace_reference}</div></td>
+        <td class="small">${m.target_process_label}</td>
+        <td class="r num" style="color:var(--teal);">%${fmtNum(m.process_saving_rate_pct, 0)}</td>
+        <td class="r num">${fmtNum(m.capex_tl, 0)}</td>
+        <td class="r num">${m.annual_opex_change_tl > 0 ? "+" : ""}${fmtNum(m.annual_opex_change_tl, 0)}</td>
+        <td class="r num">${fmtNum(m.estimated_payback_months, 1)} ay</td>
+      </tr>`).join("") : `<tr><td colspan="6" class="muted small">Bu bütçeyle seçilebilecek önlem yok.</td></tr>`;
+
+    renderCashflowChart(sim.cashflow_5yr);
+    renderExecutiveSummary(sim.executive_summary);
+  }
+
+  function renderCashflowChart(cf) {
+    if (cashflowChart) cashflowChart.destroy();
+    cashflowChart = new Chart($("chart-cashflow"), {
+      type: "line",
+      data: {
+        labels: cf.years.map(y => `${y}. yıl`),
+        datasets: [
+          { label: "Yatırım yapılırsa", data: cf.cumulative_net_cashflow_tl, borderColor: P.teal, backgroundColor: "rgba(15,61,62,.07)", borderWidth: 2, pointRadius: 3, pointBackgroundColor: P.teal, fill: true },
+          { label: "Hiçbir şey yapılmazsa", data: cf.cumulative_do_nothing_loss_tl, borderColor: P.clay, borderDash: [5, 4], borderWidth: 1.6, pointRadius: 0, fill: false }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { display: true, position: "bottom", labels: { boxWidth: 8, boxHeight: 8, font: { size: 10 } } },
+          tooltip: { ...tooltipBase, displayColors: true, callbacks: { label: (c) => `${c.dataset.label}: ${fmtTL(c.parsed.y)}` } }
+        },
+        scales: { x: axis({ grid: { display: false } }), y: axis({ ticks: { callback: (v) => `${fmtNum(v / 1e6, 0)}M` } }) }
+      }
+    });
+  }
+
+  function renderExecutiveSummary(exec) {
+    if (!exec) return;
+    $("t2-llm-badge").textContent = String(exec.source_mode).includes("fallback") ? "Yerel şablon" : "Yapay zekâ";
+    $("t2-llm-badge").title = `${exec.source_mode} · ${fmtNum(exec.latency_ms, 0)} ms`;
+    $("t2-exec-summary-box").innerHTML = (exec.markdown_report || "")
+      .replace(/^### (.*$)/gim, "<h4>$1</h4>")
+      .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+      .replace(/`(.*?)`/g, "<code>$1</code>")
+      .replace(/\n/g, "<br/>");
+  }
+  async function requestOnlineGeminiSummary() {
+    if (!lastSimResult) return;
+    const res = await fetch("/api/executive-summary", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ simulation_result: lastSimResult, prefer_online_llm: true })
+    });
+    if (res.ok) renderExecutiveSummary(await res.json());
+  }
+  async function downloadReport(fmt) {
+    const res = await fetch(`/api/export/${fmt}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getTab2Payload()) });
+    const url = URL.createObjectURL(await res.blob());
+    const a = document.createElement("a");
+    a.href = url; a.download = `aquasanayi_roi_raporu.${fmt}`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  /* ---------- Rehber: spot ışıklı sunum ---------- */
+  const TOUR = [
+    { tab: 1, el: null, chap: "Giriş", title: "AquaSanayi AI'ya hoş geldiniz",
+      body: "Bu platform bir sanayi yatırımcısının iki sorusunu yanıtlar: Fabrikamı nereye kurmalıyım ki susuz kalmayayım? Mevcut fabrikamda suya ne kadar yatırım yapmalıyım ve bu kendini öder mi?",
+      points: ["Adım 1: Konumların su riskini karşılaştırın", "Adım 2: Seçilen konumda fabrikanın yatırım getirisini hesaplayın", "Her başlığın yanındaki (i) tam açıklamayı açar"] },
+    { tab: 1, el: "g-steps", chap: "Gezinme", title: "İki adımlı akış",
+      body: "Üstteki iki düğme uygulamanın iki ekranıdır. Soldan sağa ilerlenir; istediğiniz an geri dönebilirsiniz.",
+      points: ["1 · Konum seç: risk haritası ve karşılaştırma", "2 · Fabrikayı hesapla: yatırım ve 2029 belgesi"] },
+    { tab: 1, el: "g-ticker", chap: "Canlı veri", title: "İzmir su durumu şeridi",
+      body: "Resmî İZSU verisiyle barajların bugünkü doluluğu ve yapay zekânın yakaladığı anomali. Sorunun gerçek ve güncel olduğunu tek bakışta gösterir.",
+      points: ["Baraj doluluğu kapasiteye göre ağırlıklıdır", "Kil renkli metin: Kasım 2025'te Tahtalı'daki ani çöküş"] },
+    { tab: 1, el: "g-controls", chap: "Adım 1 · Konum", title: "Senaryoyu belirleyin",
+      body: "Sektör, hedef yıl, iklim senaryosu ve bölge seçilir. Her değişiklikte harita, risk puanı ve karşılaştırma tablosu anında yenilenir.",
+      points: ["İyimser / Olası / Kötümser = SSP1-2.6 / SSP2-4.5 / SSP3-7.0", "Bölge listesi odak koridor ve ulusal OSB'leri içerir"] },
+    { tab: 1, el: "g-score", chap: "Adım 1 · Konum", title: "Tek bakışta su riski",
+      body: "Seçili konumun 0–100 risk puanı ve yılda kaç gün su kısıtı beklendiği. Asıl karar burada okunur.",
+      points: ["70 üstü yüksek risk (kil rengi)", "İyi yıl / beklenen / kurak yıl kısıt günleri", "Alttaki düğme bu konumu Adım 2'ye taşır"] },
+    { tab: 1, el: "g-map", chap: "Adım 1 · Konum", title: "Türkiye su stresi haritası",
+      body: "639 alt-havza, seçilen yıl ve senaryoya göre renklenir. Yeşil noktalar sanayi bölgeleridir. Herhangi bir yere tıklamak o noktanın analizini başlatır.",
+      points: ["Renk = çekilen su / yenilenebilir su", "Koridor / Türkiye düğmeleri görünümü değiştirir"] },
+    { tab: 1, el: "g-components", chap: "Adım 1 · Konum", title: "Puan nereden geliyor?",
+      body: "Risk puanı 5 şeffaf bileşenin toplamıdır. Her çubuk o bileşenin riske katkısını gösterir; formülü açılabilir.",
+      points: ["Kil çubuk: bileşen neredeyse tam puanda", "Alttaki 4 sayı ham göstergelerdir"] },
+    { tab: 1, el: "g-analytics", chap: "Adım 1 · Konum", title: "Yapay zekâ, iklim ve barajlar",
+      body: "Soldan sağa: yapay zekâ modelinin yaz stresini neye bağladığı (SHAP), 7 iklim modeline göre 2050'ye kadar su dengesi ve İzmir barajlarının tek tek durumu.",
+      points: ["SHAP: kil artırır, yeşil azaltır", "Su dengesi çizgisi düşüyorsa bölge kuruyor"] },
+    { tab: 1, el: "g-compare", chap: "Adım 1 · Konum", title: "Bölgeleri karşılaştırın",
+      body: "Tüm sanayi bölgeleri en güvenliden en riskliye sıralanır. Seçili bölge vurgulanır. “Hesapla” ile doğrudan Adım 2'ye geçilir.",
+      points: ["Kısıt günü: iyi · beklenen · kurak yıl", "Tarife: resmî veya tahmini m³ fiyatı"] },
+    { tab: 2, el: "g-cases", chap: "Adım 2 · Fabrika", title: "Gerçek fabrikalarla başlayın",
+      body: "Tofaş, Vestel ve Petkim'in 2024 rapor verileri tek tıkla yüklenir. Her biri farklı bir su kaynağı ve risk hikâyesidir.",
+      points: ["Tofaş: %100 kuyu suyu", "Vestel: ağırlıkla şebeke", "Petkim: dev ölçek, yüzey suyu"] },
+    { tab: 2, el: "g-form", chap: "Adım 2 · Fabrika", title: "Fabrika bilgileri",
+      body: "Su miktarı, kaynak, duruş zararı, bütçe ve suyun proseslere dağılımı. Herhangi bir alan değiştiğinde sonuçlar otomatik hesaplanır.",
+      points: ["Karma kaynakta şebeke/kuyu oranı kaydırıcıyla ayarlanır", "Raporu JSON veya CSV olarak indirebilirsiniz"] },
+    { tab: 2, el: "g-kpis", chap: "Adım 2 · Fabrika", title: "Dört temel sonuç",
+      body: "Hiçbir şey yapılmazsa yıllık maliyet, yatırımla kazanılan su, 5 yıllık net kazanç ve 2029 belgesi durumu.",
+      points: ["Kil rakam: risk / kayıp", "Yeşil rakam: kazanç"] },
+    { tab: 2, el: "g-measures", chap: "Adım 2 · Fabrika", title: "Önerilen yatırımlar",
+      body: "Bütçeyi aşmadan en yüksek getiriyi sağlayan önlem seti optimizasyonla seçilir. Her önlemin maliyeti ve geri dönüş süresi ayrı gösterilir.",
+      points: ["Bütçe yetersizse uyarı çıkar", "Etiketler hat bazında toplam tasarruf"] },
+    { tab: 2, el: "g-cashflow", chap: "Adım 2 · Fabrika", title: "Kararın değeri",
+      body: "Yatırım yapılırsa biriken kazanç ile yapılmazsa biriken kayıp yan yana. Aradaki fark yatırımı savunmanın en kısa yoludur.",
+      points: ["Yeşil çizgi sıfırı geçtiğinde yatırım geri döner"] },
+    { tab: 2, el: "g-criteria", chap: "Adım 2 · Fabrika", title: "2029 Su Verimliliği Belgesi",
+      body: "27.12.2029'da zorunlu olan belgenin kriterleri tek tek kontrol edilir. Eksikler, yapılması gerekenlerin listesidir.",
+      points: ["✓ sağlandı · ✕ eksik", "Ön değerlendirmedir, resmî denetim değildir"] },
+    { tab: 2, el: "g-summary", chap: "Kapanış", title: "Yönetici özeti",
+      body: "Bütün sonuçlar, yönetim kuruluna sunulabilecek kısa bir metne dönüştürülür. Yalnızca doğrulanmış rakamlar kullanılır.",
+      points: ["Rehberi istediğiniz an sağ üstten yeniden açabilirsiniz"] }
+  ];
+  let tourIdx = 0;
+
+  function placeTour() {
+    const step = TOUR[tourIdx];
+    const spot = $("tour-spot"), card = $("tour-card");
+    const vw = window.innerWidth, vh = window.innerHeight, pad = 8, gap = 16;
+    const cw = card.offsetWidth, ch = card.offsetHeight;
+    const target = step.el && $(step.el);
+    if (!target) {
+      Object.assign(spot.style, { top: `${vh / 2}px`, left: `${vw / 2}px`, width: "0px", height: "0px" });
+      Object.assign(card.style, { top: `${(vh - ch) / 2}px`, left: `${(vw - cw) / 2}px` });
+      return;
+    }
+    const r = target.getBoundingClientRect();
+    const top = Math.max(r.top - pad, 4), left = Math.max(r.left - pad, 4);
+    const bottom = Math.min(r.bottom + pad, vh - 4), right = Math.min(r.right + pad, vw - 4);
+    Object.assign(spot.style, { top: `${top}px`, left: `${left}px`, width: `${right - left}px`, height: `${bottom - top}px` });
+    const clampY = (y) => Math.min(Math.max(y, 12), vh - ch - 12);
+    const clampX = (x) => Math.min(Math.max(x, 12), vw - cw - 12);
+    let x, y;
+    if (vw - right >= cw + gap * 2) { x = right + gap; y = clampY(top); }
+    else if (left >= cw + gap * 2) { x = left - cw - gap; y = clampY(top); }
+    else if (vh - bottom >= ch + gap * 2) { x = clampX(left); y = bottom + gap; }
+    else if (top >= ch + gap * 2) { x = clampX(left); y = top - ch - gap; }
+    else { x = clampX(vw - cw - 20); y = vh - ch - 20; }
+    Object.assign(card.style, { top: `${y}px`, left: `${x}px` });
+  }
+
+  function renderTourStep() {
+    const step = TOUR[tourIdx];
+    if (currentTab !== step.tab) switchTab(step.tab);
+    $("tour-chap").textContent = step.chap;
+    $("tour-cnt").textContent = `${tourIdx + 1} / ${TOUR.length}`;
+    $("tour-title").textContent = step.title;
+    $("tour-body").textContent = step.body;
+    $("tour-points").innerHTML = (step.points || []).map(p => `<li>${p}</li>`).join("");
+    $("tour-progress").style.width = `${((tourIdx + 1) / TOUR.length) * 100}%`;
+    $("tour-prev").disabled = tourIdx === 0;
+    $("tour-prev").style.opacity = tourIdx === 0 ? ".4" : "1";
+    $("tour-next").textContent = tourIdx === TOUR.length - 1 ? "Bitir" : "İleri →";
+    const target = step.el && $(step.el);
+    if (target) {
+      const r = target.getBoundingClientRect();
+      const hdr = document.querySelector("header").offsetHeight;
+      if (r.top < hdr || r.bottom > window.innerHeight) {
+        const tallerThanView = r.height > window.innerHeight - hdr - 40;
+        const y = window.scrollY + r.top - (tallerThanView ? hdr + 16 : (window.innerHeight + hdr - r.height) / 2);
+        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+      }
+    }
+    placeTour();
+    setTimeout(placeTour, 380);
+    setTimeout(placeTour, 700);
+  }
+  function startGuidedTour() {
+    tourIdx = 0;
+    $("tour-root").classList.remove("hidden");
+    renderTourStep();
+  }
+  function stepGuidedTour(d) {
+    const n = tourIdx + d;
+    if (n < 0) return;
+    if (n >= TOUR.length) { closeGuidedTour(); return; }
+    tourIdx = n;
+    renderTourStep();
+  }
+  function closeGuidedTour() { $("tour-root").classList.add("hidden"); }
+  const tourOpen = () => !$("tour-root").classList.contains("hidden");
+  window.addEventListener("resize", () => tourOpen() && placeTour());
+  window.addEventListener("scroll", () => tourOpen() && placeTour(), { passive: true });
+  document.addEventListener("keydown", (e) => {
+    if (!tourOpen()) return;
+    if (e.key === "ArrowRight" || e.key === "Enter") { e.preventDefault(); stepGuidedTour(1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); stepGuidedTour(-1); }
+    else if (e.key === "Escape") closeGuidedTour();
+  });
+
+  /* ---------- Başlangıç ---------- */
+  window.addEventListener("DOMContentLoaded", async () => {
+    highlightScenarioButton("tofas_bursa");
+    loadIZSUBanner();
+    await initMapAndBasins();
+    await Promise.all([predictLocation({ osb_id: "izmir_kemalpasa" }), loadOSBComparisonTable()]);
+    fetch("/api/facility-sample?profile_id=tofas_bursa").then(r => r.json()).then(d => { cachedSectorDefaults = d.sector_defaults; }).catch(() => {});
+    if (new URLSearchParams(location.search).get("tab") === "2") switchTab(2);
+  });
+</script>
+</body>
+</html>

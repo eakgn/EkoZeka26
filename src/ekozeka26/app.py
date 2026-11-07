@@ -2,7 +2,7 @@
 WBS-5: AquaSanayi AI FastAPI Backend (`app.py`)
 
 Uç Noktalar (REST API):
-- `GET /` : 2 Sekmeli Etkileşimli Web Arayüzü (`static/index.html`)
+- `GET /` : 2 Sekmeli Etkileşimli Web Arayüzü (`static/index-v3.html`; eski arayüzler `/static/index.html` ve `/static/index-minimal.html`)
 - `GET /api/health` : Sistem durumu, veri soyu ve doğrulanan ML model metrikleri
 - `GET /api/basins` : Türkiye'nin 639 alt-havzasının GeoJSON harita katmanı + seçilen yıl/senaryo/sektör risk özetleri
 - `GET /api/osb-compare` & `POST /api/osb-compare` : Aday OSB'lerin şeffaf bileşik risk, P10-P90 kesinti günü ve iklim karşılaştırması
@@ -140,7 +140,7 @@ class ExecutiveSummaryRequest(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 def serve_index() -> HTMLResponse:
-    index_file = STATIC_DIR / "index.html"
+    index_file = STATIC_DIR / "index-v3.html"
     if index_file.exists():
         return HTMLResponse(index_file.read_text(encoding="utf-8"))
     return HTMLResponse("<h1>AquaSanayi AI Çalışıyor</h1>")
