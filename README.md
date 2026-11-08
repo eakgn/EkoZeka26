@@ -2,8 +2,8 @@
 
 > **EkoZeka26 Hackathonu (İzmir — 7–8 Kasım 2026)** · **Geliştirici:** Ege Akgün (DEÜ Bilgisayar Bilimleri)
 
-**AquaSanayi AI**, sanayi tesisleri, OSB yönetimleri, yatırım ajansları ve yeşil finansman sağlayan bankalar için geliştirilmiş **fizik-öncelikli + makine öğrenmesi destekli** bir karar destek platformudur. İklim projeksiyonlarını (ERA5 + 7 CMIP6 HighResMIP modeli), küresel/yerel hidrolojik verileri (WRI Aqueduct 4.0 Türkiye 639 alt-havza + İZSU baraj/kuyu üretim serileri) ve Bakanlık (SYGM) NACE su verimliliği rehberlerini birleştirerek:
-1. **Yeni fabrika yatırımları için** Türkiye'nin **639 alt-havzasında** şeffaf bileşik su kesintisi riskini (`0–100`), P10/P50/P90 beklenen kısıt günlerini ve SHAP sürücülerini hesaplar,
+**AquaSanayi AI**, sanayi tesisleri, OSB yönetimleri, yatırım ajansları ve yeşil finansman sağlayan bankalar için geliştirilmiş **fizik-öncelikli + makine öğrenmesi destekli** bir karar destek platformudur. İklim projeksiyonlarını (ERA5 + 7 CMIP6 HighResMIP modeli), küresel/yerel hidrolojik verileri (WRI Aqueduct 4.0 Türkiye 639 poligon / 116 tekil hidrolojik havza + İZSU baraj/kuyu üretim serileri) ve Bakanlık (SYGM) NACE su verimliliği rehberlerini birleştirerek:
+1. **Yeni fabrika yatırımları için** Türkiye'nin **639 poligonunda (116 tekil `pfaf_id` havzası)** şeffaf bileşik su kesintisi riskini (`0–100`), P10/P50/P90 beklenen kısıt günlerini ve SHAP sürücülerini hesaplar,
 2. **Mevcut fabrikalar için** **27 Aralık 2029 Yeşil Su Verimliliği Belgesi** (RG 27.12.2024, Sayı: 32765) zorunluluğuna uyumu ve 5 yıllık NPV'yi maksimize eden **bütçe kısıtlı optimum önlem portföyünü (0-1 Knapsack + çarpımsal azalan verim)** optimize eder.
 
 ---
@@ -75,6 +75,14 @@ uv run python -m ekozeka26.ml_engine --backtest
 - **Önlem CAPEX Ölçeklemesi:** Katalogdaki 12 SYGM/IFC önleminin yatırım maliyetleri `150.000 m³/yıl` referans tesise göre kalibre edilmiştir. Farklı kapasitelerde CAPEX doğrusal ölçeklenir (`0,5–100×`), böylece katalogdaki tipik geri ödeme oranı korunur; bu bir mühendislik yaklaşımıdır, yerinde keşif/teklif yerine geçmez.
 - **7 CMIP6 Modeli:** Open-Meteo HighResMIP serisi yüksek emisyon (RCP8.5 benzeri) yolundadır. `OPT/BAU/PES` ayrımı, model anomalisinin `0,70/0,85/1,00` ölçeklenmesi ve Aqueduct SSP projeksiyonlarıyla yapılır; bu bir senaryo haritalamasıdır, üç ayrı emisyon simülasyonu değildir.
 - **Örnek Tesis Verileri:** Tofaş/Vestel/Petkim su çekimi ve çalışan sayıları kamuya açık 2024 raporlarından alınmıştır; proses payları, duruş maliyeti ve bütçe şeffaf kalibre varsayımdır.
+
+### 5.1 Kapsam ve Çözünürlük (Dürüstlük Notu)
+- **Tier 0 — Ulusal tarama:** 639 poligon, **116 tekil `pfaf_id`** hidrolojik havzasının il/akifer kesişimidir; `bws` çoğu `pfaf_id` içinde sabittir. "639 bağımsız havza" değildir; bu katman yatırım **ön taramasıdır**, yerinde ölçüm değildir.
+- **Tier 1 — Odak koridor (7 OSB):** İzmir Kemalpaşa, İzmir Aliağa, İzmir Atatürk, Manisa, Bursa, Kocaeli Gebze, Konya. Bu OSB'lerde yerel tarife/OSB profili kullanılır.
+- **Tier 2 — İzmir/Gediz canlı:** İZSU baraj/üretim serileri + SYGM Gediz Tahsis Planı + gerçek fabrika vakaları; en yüksek doğrulama katmanı.
+- **İklim referansı:** ERA5/CMIP6 serisi şu an tek noktadan (İzmir, ~38.49N/27.11E) alınır; OSB farkı Aqueduct SSP projeksiyonu + enlem offseti ile üretilir. 1991–2020 ERA5 kontrolünde Bursa P−ET₀ ≈ −174 mm iken model ≈ −601 mm, Konya ≈ −1029 mm iken model ≈ −687 mm verir. Bölgesel iklim çapaları sonraki sürümde eklenecektir.
+- **SPEI/SPI:** Gerçek seri tek referans noktası (İzmir/Gediz) için hesaplanır; havza kartındaki `spei12_trend` bir proxy'dir ve UI'de "SPEI proxy" olarak etiketlenir.
+- **UI güven rozetleri:** "Odak koridor · yerel veri" ve "Ulusal · Aqueduct tarama" etiketleri hangi katmanda olduğunuzu söyler.
 
 ---
 

@@ -1,9 +1,11 @@
 # AquaSanayi AI — Kullanım Kılavuzu ve Veri Toplama Rehberi
 
 ## 1. Platformun Amacı ve Kapsamı
-**AquaSanayi AI**, Türkiye'nin sanayi kalbi olan **Ege–Marmara–Konya Sanayi Koridoru** (ve WRI Aqueduct 4.0 ulusal tarama katmanındaki 639 alt-havza) için:
+**AquaSanayi AI**, Türkiye'nin sanayi kalbi olan **Ege–Marmara–Konya Sanayi Koridoru** (ve WRI Aqueduct 4.0 ulusal tarama katmanındaki 639 poligon / 116 tekil `pfaf_id` havza) için:
 1. **Sekme 1 — Yatırım & Yer Seçimi:** Yeni fabrika yatırımı veya yeşil kredi değerlendirmesi için 0–100 şeffaf su kıtlığı risk puanını, 5 fiziksel/regülatif bileşen kırılımını, XGBoost+SHAP yaz pik sürücülerini ve 2026–2050 su dengesi projeksiyonunu sunar.
 2. **Sekme 2 — Mevcut Fabrika ROI & 2029 Yeşil Belge Simülatörü:** Mevcut bir fabrikanın su kaynağına (OSB şebekesi, kendi yeraltı kuyusu, yüzey suyu/baraj, karma veya İZSU belediye şebekesi), proses su dağılımına ve yatırım bütçesine göre **0-1 Knapsack** algoritmasıyla en yüksek 5 yıllık NPV'yi sağlayan SYGM/IFC teknik önlemlerini seçer ve **27.12.2029 Su Verimliliği Yönetmeliği (RG 32765)** kriter kontrol listesini değerlendirir.
+
+**Kapsam katmanları:** Uygulama üç güven katmanı sunar: **Tier 0 — Ulusal tarama** (639 poligon / 116 tekil `pfaf_id`, yalnızca Aqueduct 4.0; yatırım ön taraması), **Tier 1 — Odak koridor** (İzmir Kemalpaşa/Aliağa/Atatürk, Manisa, Bursa, Kocaeli, Konya; yerel tarife/OSB profili) ve **Tier 2 — İzmir/Gediz canlı** (İZSU + SYGM). Ayrıntılı dürüstlük notu: `SPEC.md §13`.
 
 ---
 

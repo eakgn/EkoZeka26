@@ -69,7 +69,7 @@
       "xgb_r2": 0.9194
     }
   ],
-  "shap_latency_ms": 3.89,
+  "shap_latency_ms": 1.98,
   "global_shap_importance": [
     {
       "feature": "summer_x_bws",
@@ -182,77 +182,77 @@
     "clusters": [
       {
         "archetype_id": 0,
-        "label": "Arketip A — Dengeli / Düşük Stresli Karadeniz-Kuzey Havzası",
+        "label": "Arketip A — Dengeli / Düşük Stresli Kuzey & Marmara Havzası",
         "basin_count": 192,
         "mean_bws_raw": 0.223,
         "mean_bau50_ws_raw": 0.331,
         "mean_gtd_raw": -0.022,
         "sample_provinces": [
-          "Afyon",
-          "Amasya",
-          "Ankara",
-          "Bartın",
-          "Batman"
+          "Edirne",
+          "Samsun",
+          "Sakarya",
+          "Istanbul",
+          "Çankiri"
         ]
       },
       {
         "archetype_id": 1,
-        "label": "Arketip B — Yüksek Mevsimsel Oynaklıklı Kıyı & Akdeniz Havzası",
+        "label": "Arketip B — Yüksek Yeraltı Düşüşlü, Oynak Orta Stres Havzası",
         "basin_count": 143,
         "mean_bws_raw": 0.267,
         "mean_bau50_ws_raw": 0.376,
         "mean_gtd_raw": 0.15,
         "sample_provinces": [
-          "Adiyaman",
-          "Afyon",
-          "Aksaray",
-          "Amasya",
-          "Ankara"
+          "Antalya",
+          "Samsun",
+          "Konya",
+          "Sivas",
+          "Bursa"
         ]
       },
       {
         "archetype_id": 2,
-        "label": "Arketip C — Aşırı Yeraltı Suyu Çöküşü & Yaz Pik Kriz Havzası (Gediz / Konya Tipi)",
+        "label": "Arketip C — Aşırı Su Stresi & Yaz Pik Kriz Havzası (Güneydoğu / Doğu Akdeniz)",
         "basin_count": 20,
         "mean_bws_raw": 4.104,
         "mean_bau50_ws_raw": 7.569,
         "mean_gtd_raw": 0.052,
         "sample_provinces": [
-          "Diyarbakir",
-          "Gaziantep",
-          "Hakkari",
+          "Mardin",
           "Hatay",
-          "Kilis"
+          "Van",
+          "Sanliurfa",
+          "Hakkari"
         ]
       },
       {
         "archetype_id": 3,
-        "label": "Arketip D — Orta-Yüksek Sanayi Çekimli Marmara-İç Anadolu Geçiş Havzası",
+        "label": "Arketip D — Yüksek Mevsimsel Oynaklıklı Doğu / Güneydoğu Havzası",
         "basin_count": 167,
         "mean_bws_raw": 0.49,
         "mean_bau50_ws_raw": 0.909,
         "mean_gtd_raw": 0.039,
         "sample_provinces": [
+          "Mus",
           "Adana",
-          "Adiyaman",
-          "Agri",
-          "Antalya",
-          "Balikesir"
+          "Van",
+          "Bingöl",
+          "Erzurum"
         ]
       },
       {
         "archetype_id": 4,
-        "label": "Arketip E — Kuraklık Hassasiyeti Yüksek Doğu / İç Havza",
+        "label": "Arketip E — Kuraklık Hassasiyeti Yüksek Ege–İç Anadolu Geçiş Havzası",
         "basin_count": 117,
         "mean_bws_raw": 1.289,
         "mean_bau50_ws_raw": 1.747,
         "mean_gtd_raw": 0.107,
         "sample_provinces": [
+          "Izmir",
+          "Konya",
           "Afyon",
-          "Aksaray",
-          "Ankara",
-          "Antalya",
-          "Aydin"
+          "Isparta",
+          "Kütahya"
         ]
       }
     ]

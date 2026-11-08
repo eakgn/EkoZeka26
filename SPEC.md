@@ -193,8 +193,19 @@ Kullanıcının organizatörlere sorup teyit edebileceği tam liste:
 |---|---|---|
 | K1 | Python 3.12 + `uv` + FastAPI + Vanilla JS/Tailwind/Leaflet/Chart.js | CPU-only ortamda en hızlı, sıfır derleme hatası çıkaran, görsel olarak en etkileyici ve tek komutla çalışan mimari. |
 | K2 | Fikir: Endüstriyel Su Kıtlığı Risk, Yer Seçimi ve ROI Optimizasyonu | Hem ekolojik etki (m³ su tasarrufu) hem de 2029 belge zorunluluğu ve 404 TL/m³ su fiyatıyla net B2B ödeme isteği sağlıyor. |
-| K3 | Coğrafi kapsam: Türkiye geneli (639 alt-havza) + İzmir/Gediz derinliği | Aqueduct GDB/CSV tüm Türkiye'yi kapsıyor; İZSU ve Gediz tahsis verileri ise yerel jüriye derinlik sunuyor. |
+| K3 | Coğrafi kapsam: **ulusal tarama** (639 poligon / 116 tekil `pfaf_id`) + **Ege–Marmara–Konya odak koridoru** (7 OSB) + **İzmir/Gediz canlı derinliği** | Aqueduct GDB/CSV tüm Türkiye'yi kapsıyor; odak koridorda yerel veri/OSB profili ve doğrulama var. Ulusal katman düşük çözünürlüklü ön tarama olarak etiketlenir; "639 bağımsız hidrolojik havza" iddia edilmez. |
 | K4 | Arayüz: Tek ekranda 2 sekme (1: Yer Seçimi & SHAP, 2: Mevcut Fabrika ROI & 2029 Belgesi) | Hem görsel harita/ML etkisini (Sekme 1) hem de tekrarlayan B2B gelir modelini (Sekme 2) 3 dakikada göstermeyi sağlıyor. |
 | K5 | Yapay Zeka: **Fizik-öncelikli + ML destekli** hibrit. Şeffaf bileşik risk indeksi (Aqueduct + SPEI + su dengesi); XGBoost **yanlılık düzeltme/ölçek indirme** (GroupKFold + SHAP); KMeans havza arketipleri; Isolation Forest İZSU anomalileri; MILP/Knapsack ROI; Gemini yalnızca raporlayıcı | İklim projeksiyonu fizik işidir; ML onu taklit etmez, eksik kalan yeri tamamlar. "Aqueduct'in gelecek değerini tahmin etme" döngüsel hedef hatası ortadan kalkar; her adım etiketli, doğrulanabilir ve açıklanabilir olur. LLM matematik yapmaz. |
 | K6 | **CarbonEmit ve benzeri ticari platformlardan tam bağımsızlık.** Veri girişi kendi açık şemamız (`facility.schema.json`) + örnek dosya; çıkış JSON/CSV dışa aktarım | Ticari SaaS'ın müşteri verisi/API'si erişilebilir değildir; sahte entegrasyon iddiası jüride itibar kaybı riskidir. "Eşlenebilir açık şema" dürüst ve savunulabilir konumlandırmadır; ürünü dışa bağımlılıktan kurtarır. |
 | K7 | Tüm dış veri ve API'ler için yerel önbellek (offline fallback) zorunlu | Canlı demoda internet/API/rate-limit kaynaklı çökme riskini sıfırlamak. |
+
+---
+
+## 13. Kapsam ve Çözünürlük Sınırları (Dürüstlük Notu)
+- **639 poligon ≠ 639 bağımsız havza:** Aqueduct 4.0 GDB'deki 639 poligon, **116 tekil `pfaf_id`** hidrolojik havzasının il/akifer kesişimidir. Su stresi (`bws`) çoğu `pfaf_id` içinde sabittir; 639 sayısı harita poligon sayısıdır, bağımsız model birimi sayısı değildir.
+- **Tier 0 — Ulusal tarama:** Türkiye geneli yalnızca Aqueduct 4.0 göstergeleri + şeffaf indeks ile taranır. Bu katman **yatırım ön taramasıdır**, yerinde ölçüm değildir.
+- **Tier 1 — Odak koridor (7 OSB):** İzmir Kemalpaşa, İzmir Aliağa, İzmir Atatürk, Manisa, Bursa, Kocaeli Gebze, Konya. Bu OSB'lerde yerel tarife/OSB profili ve (İzmir/Gediz'de) canlı İZSU/SYGM verisi kullanılır.
+- **Tier 2 — İzmir/Gediz canlı:** İZSU baraj/üretim serileri, SYGM Gediz Tahsis Planı ve gerçek fabrika vakaları; en yüksek doğrulama katmanı.
+- **İklim referansı:** ERA5/CMIP6 serisi şu an tek referans noktasından (İzmir, ~38.49N/27.11E) alınır; OSB'ler arası fark Aqueduct SSP projeksiyonu + enlem offseti ile üretilir. Bölgesel iklim çapaları (Bursa/Kocaeli, Konya/Ankara) sonraki sürümde eklenecektir; bu nedenle Bursa/Konya P−ET₀ eğrisi şu an ikincil güvenilirliktedir.
+- **SPEI/SPI:** Gerçek SPI/SPEI serisi tek referans noktası (İzmir/Gediz) için hesaplanır; havza kartındaki `spei12_trend` bir **proxy**'dir ve UI'de "SPEI proxy" olarak etiketlenir.
+- **UI güven rozetleri:** "Odak koridor · yerel veri" ve "Ulusal · Aqueduct tarama" etiketleri, kullanıcıya hangi katmanda olduğunu söyler.

@@ -413,9 +413,9 @@
     <div id="g-score" class="card">
       <div class="card-head" style="margin-bottom:0;">
         <div class="title">Su riski <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
-        <span id="t1-loc-mode-badge" class="tag">Odak koridor</span>
+        <span id="t1-loc-mode-badge" class="tag">Odak koridor · yerel veri</span>
       </div>
-      <div class="info-box hidden" style="margin-top:10px;">Seçili konumun gelecekte su sıkıntısı yaşama ihtimalini <b>0–100</b> arası tek puanla özetler; <b>70 üstü yüksek risktir</b>. Alttaki kutular yılda kaç gün suyun kısıtlanabileceğini gösterir: <b>İyi yıl</b> (P10), <b>beklenen</b> (P50) ve <b>kurak yıl</b> (P90).</div>
+      <div class="info-box hidden" style="margin-top:10px;">Seçili konumun gelecekte su sıkıntısı yaşama ihtimalini <b>0–100</b> arası tek puanla özetler; <b>70 üstü yüksek risktir</b>. Alttaki kutular yılda kaç gün suyun kısıtlanabileceğini gösterir: <b>İyi yıl</b> (P10), <b>beklenen</b> (P50) ve <b>kurak yıl</b> (P90). <b>Odak koridor</b> OSB'lerinde yerel veri/OSB profili, <b>ulusal</b> seçimlerde yalnızca Aqueduct tarama katmanı kullanılır.</div>
       <h2 id="t1-loc-title" class="loc-title">İzmir Kemalpaşa OSB</h2>
       <div id="t1-archetype-label" class="small muted">Hesaplanıyor…</div>
       <div class="score-wrap">
@@ -444,7 +444,7 @@
           <div class="title">Su stresi haritası <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
           <div class="seg"><button onclick="focusCorridorMap()">Koridor</button><button onclick="focusFullTurkeyMap()">Türkiye</button></div>
         </div>
-        <div class="info-box hidden">Türkiye'nin 639 alt-havzası, seçtiğiniz yıl ve senaryoya göre renklenir. Renk, <b>çekilen suyun yenilenebilir suya oranıdır</b>: 1,0x üstü bölgede doğanın yerine koyabileceğinden fazla su kullanıldığını gösterir. Koyu yeşil noktalar sanayi bölgeleridir (OSB). Bir noktaya veya herhangi bir havzaya tıklayın; soldaki risk kartı o konum için güncellenir. Kaynak: WRI Aqueduct 4.0.</div>
+        <div class="info-box hidden">Türkiye'nin 639 poligonu (116 tekil hidrolojik havza), seçtiğiniz yıl ve senaryoya göre renklenir. Renk, <b>çekilen suyun yenilenebilir suya oranıdır</b>: 1,0x üstü bölgede doğanın yerine koyabileceğinden fazla su kullanıldığını gösterir. Koyu yeşil noktalar sanayi bölgeleridir (OSB). Bir noktaya veya herhangi bir havzaya tıklayın; soldaki risk kartı o konum için güncellenir. Kaynak: WRI Aqueduct 4.0. <b>Not:</b> Ulusal katman ön taramadır; odak koridor OSB'lerinde yerel veri/OSB profili kullanılır.</div>
         <div id="turkey-map"></div>
         <div class="legend">
           <span><i style="background:#8FB5AE"></i>Düşük &lt;0,4x</span>
@@ -936,11 +936,11 @@
     $("t1-loc-badge").textContent = `Havza #${r.pfaf_id} · ${r.string_id}`;
     const mode = $("t1-loc-mode-badge");
     if (loc.location_type === "custom_basin") {
-      mode.textContent = "Seçili havza"; mode.className = "tag hot";
+      mode.textContent = "Seçili havza · tarama"; mode.className = "tag hot";
       $("t1-loc-title").textContent = `${r.province_name} · havza #${r.pfaf_id}`;
       $("t1-archetype-label").textContent = `Referans: ${osb.name} · ${shap.archetype.archetype_label}`;
     } else {
-      mode.textContent = osb.in_focus_corridor !== false ? "Odak koridor" : "Ulusal"; mode.className = "tag";
+      mode.textContent = osb.in_focus_corridor !== false ? "Odak koridor · yerel veri" : "Ulusal · Aqueduct tarama"; mode.className = "tag";
       $("t1-loc-title").textContent = osb.name;
       $("t1-archetype-label").textContent = shap.archetype.archetype_label;
     }
@@ -1261,7 +1261,7 @@
       body: "Seçili konumun 0–100 risk puanı ve yılda kaç gün su kısıtı beklendiği. Asıl karar burada okunur.",
       points: ["70 üstü yüksek risk (kil rengi)", "İyi yıl / beklenen / kurak yıl kısıt günleri", "Alttaki düğme bu konumu Adım 2'ye taşır"] },
     { tab: 1, el: "g-map", chap: "Adım 1 · Konum", title: "Türkiye su stresi haritası",
-      body: "639 alt-havza, seçilen yıl ve senaryoya göre renklenir. Yeşil noktalar sanayi bölgeleridir. Herhangi bir yere tıklamak o noktanın analizini başlatır.",
+      body: "639 poligon (116 tekil hidrolojik havza), seçilen yıl ve senaryoya göre renklenir. Yeşil noktalar sanayi bölgeleridir. Herhangi bir yere tıklamak o noktanın analizini başlatır.",
       points: ["Renk = çekilen su / yenilenebilir su", "Koridor / Türkiye düğmeleri görünümü değiştirir"] },
     { tab: 1, el: "g-components", chap: "Adım 1 · Konum", title: "Puan nereden geliyor?",
       body: "Risk puanı 5 şeffaf bileşenin toplamıdır. Her çubuk o bileşenin riske katkısını gösterir; formülü açılabilir.",

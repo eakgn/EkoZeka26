@@ -2,7 +2,8 @@
 
 ## Mimari Özeti
 - **Proje:** AquaSanayi AI — Sanayi tesisleri ve yatırımcılar için İklim-Tabanlı Su Kıtlığı Risk Tahmini, Yer Seçimi ve Yatırım (ROI / 2029 Yeşil Su Verimliliği Belgesi) Optimizasyon Platformu.
-- **Yığın:** Python 3.12 (`uv` + `.venv`, CPU-only), FastAPI (`127.0.0.1:8000`), Tek Sayfa Arayüz (Tailwind CSS + Leaflet.js Türkiye 639 alt-havza haritası + Chart.js, 2 sekme).
+- **Kapsam:** **Tier 0 ulusal tarama** (639 poligon / 116 tekil `pfaf_id`, Aqueduct 4.0) + **Tier 1 Ege–Marmara–Konya odak koridoru** (7 OSB: İzmir Kemalpaşa, Aliağa, Atatürk, Manisa, Bursa, Kocaeli, Konya) + **Tier 2 İzmir/Gediz canlı derinlik** (İZSU + SYGM). Ayrıntı ve dürüstlük notu: `SPEC.md §13`.
+- **Yığın:** Python 3.12 (`uv` + `.venv`, CPU-only), FastAPI (`127.0.0.1:8000`), Tek Sayfa Arayüz (Tailwind CSS + Leaflet.js Türkiye 639 poligon / 116 hidrolojik havza haritası + Chart.js, 2 sekme).
 - **AI & Hesaplama Çekirdeği (Fizik-öncelikli + ML destekli, 8 modül):**
   1. `data_pipeline.py`: Ham veri snapshot'ı (`data/raw/`) + WRI Aqueduct 4.0 (CSV + GDB 639 TR alt-havzası) + Open-Meteo ERA5/CMIP6 + İZSU canlı/fallback; takvim normalizasyonu ve kalite kontrolü.
   2. `climate_engine.py`: FAO-56 Penman-Monteith / Hargreaves-Samani `ET₀`, **her model için ayrı QDM** yanlılık düzeltmesi, **7 gerçek CMIP6 HighResMIP modeli** × 3 senaryo topluluk belirsizliği (P10/P50/P90 + mutabakat oranı); havzalar arası fark Aqueduct 4.0 SSP projeksiyonundan.
@@ -14,9 +15,9 @@
   8. `llm_agent.py`: Gemini (`gemini-2.5-flash`) yapılandırılmış yönetici özeti + deterministik çevrimdışı yedek (offline fallback).
 
 ## Aktif Görev
-- **Faz: WBS-0 → WBS-9 tüm iş paketleri tamamlandı ve doğrulandı.**
+- **Faz: WBS-0 → WBS-10 + kapsam/arketip düzeltmesi tamamlandı ve doğrulandı.**
 - Uygulama `bash scripts/run.sh` (veya `uv run uvicorn ekozeka26.app:app --host 127.0.0.1 --port 8000`) ile canlı sunuma hazırdır.
-- **Son doğrulama (7-8 Kasım 2026):** `uv run pytest -q` → **19 passed**; canlı UI tarayıcı testinde **0 konsol hatası / 0 başarısız ağ isteği**, masaüstü (1600×1000) ve mobil (420 px) görünümde yatay taşma yok; 3 gerçek vaka (Tofaş/Vestel/Petkim) form, ROI ve 2029 belgesi akışıyla doğrulandı.
+- **Son doğrulama (7-8 Kasım 2026):** `uv run pytest -q` → **19 passed**; canlı UI tarayıcı testinde **0 konsol hatası / 0 başarısız ağ isteği**, masaüstü (1600×1000) ve mobil (420 px) görünümde yatay taşma yok; 3 gerçek vaka (Tofaş/Vestel/Petkim) form, ROI ve 2029 belgesi akışıyla doğrulandı. **8 Kasım 2026 kapsam/arketip düzeltmesi sonrası:** 19 passed; `/api/predict-location` ile Kemalpaşa/Konya → Arketip E, Bursa → Arketip B, Ankara → Arketip E doğrulandı; ana UI `GET /` 200.
 - **Veri gerçekliği sertleştirmesi (7 Kasım 2026):** Aqueduct `9999` sentinel temizlendi; **7 gerçek CMIP6 HighResMIP modeli** indirilip her biri ayrı QDM ile kalibre edildi; 5 kurgusal senaryo yerine **Tofaş (Bursa), Vestel (Manisa), Petkim (Aliağa)** 2024 rapor verileriyle 3 gerçek vaka eklendi; yüzey suyu kaynağı ve kapasiteye göre CAPEX ölçekleme eklendi.
 
 ## Tamamlanan Adımlar
@@ -35,6 +36,7 @@
 - [x] WBS-9 son doğrulaması: `/api/osb-compare` satırlarında kaybolan `string_id` kimliği düzeltildi (regresyon testi eklendi); `train_and_evaluate_models(persist=False)` ile testlerin `model_metrics.json` üzerinde gürültü üretmesi engellendi; `docs/demo/` ekran görüntüleri güncel UI ile yenilendi
 - [x] Minimalist arayüz alternatifi: `src/ekozeka26/static/index-minimal.html` (mevcut `index.html` değiştirilmedi) — 2 uyumlu + 1 zıt renk paleti (petrol yeşili `#0F3D3E`, adaçayı `#6E9C95`, kil `#C2542F`), yerel IBM Plex Sans/Mono (`static/vendor/fonts/`), açık tema, gereksiz bileşenler kaldırılmış sade yerleşim. Tüm sekme/form/harita/SHAP/ROI/2029 belgesi/rehber/dışa aktarım işlevleri korunuyor. Erişim: `http://127.0.0.1:8000/static/index-minimal.html` (masaüstü 1440 px ve mobilde 0 konsol hatası, yatay taşma yok)
 - [x] Ana arayüz v3: `src/ekozeka26/static/index-v3.html` artık `/` adresinde sunuluyor (eski arayüzler `/static/index.html` ve `/static/index-minimal.html`). 2 adımlı akış (1 Konum seç → 2 Fabrikayı hesapla), solda sabit kontrol/özet paneli, kısa başlıklar ve her başlıkta tıklanınca açılan (i) açıklaması, 16 adımlı spot ışıklı sunum rehberi (←/→/Esc). Tüm element kimlikleri ve API akışları korundu.
+- [x] Kapsam netleştirmesi ve arketip etiketi düzeltmesi (8 Kasım 2026): SPEC K3 "ulusal tarama + odak koridor + İzmir/Gediz canlı" olarak güncellendi; `SPEC.md §13` kapsam/çözünürlük dürüstlük notu eklendi; KMeans arketip etiketleri gerçek küme dağılımına göre düzeltildi (C: Güneydoğu/Doğu Akdeniz, D: Doğu/Güneydoğu, E: Ege–İç Anadolu) ve `bws>=1.2` kural tabanlı C zorlaması kaldırıldı; `sample_provinces` alfabetik ilk 5 yerine kümede en sık görülen iller oldu.
 
 ## Proje Yönetimi İlerleme Şablonu (WBS & Definition of Done)
 > `build` oturumunda her görev tamamlandığında `Durum` sütunu `[x]` yapılacak, `git commit` atılacak ve yeni sayılar `SUNUM.md`'ye işlenecektir.
@@ -61,4 +63,5 @@
 - **QDM veri yetersizliği:** Bir havzada ERA5/CMIP6 örtüşme serisi çok kısaysa (ör. model 2050'de başlıyorsa) QDM yerine **delta-change** yedeğine düşülecek; bu durum arayüzde "basitleştirilmiş düzeltme" notuyla gösterilecek.
 - **Backtest etiketi:** Gerçek "kesinti günü" tarihsel etiketi elimizde yok → 2010–2020 backtest, **SPEI/`P−ET₀` ve Aqueduct `bws` yeniden üretimi** üzerinden yapılacak; sunumda "hidrolojik yeniden üretim doğrulaması" olarak dürüstçe adlandırılacak (sahte kesinti etiketi üretilmeyecek).
 - **Ticari platform bağımlılığı:** CarbonEmit ve benzeri platformların API'si/verisi **kullanılmayacak**; tesis verisi yalnızca kullanıcı girdisi veya `data/schema/facility.schema.json` uyumlu dosyadan gelecek.
+- **Bölgesel iklim referansı (bilinçli sınırlama):** ERA5/CMIP6 serisi şu an tek noktadan (İzmir, ~38.49N/27.11E) alınır; Bursa/Kocaeli/Konya farkı Aqueduct SSP projeksiyonu + enlem offseti ile üretilir. 1991–2020 ERA5 kontrolünde Bursa P−ET₀ ≈ −174 mm iken model ≈ −601 mm, Konya ≈ −1029 mm iken model ≈ −687 mm veriyor. Risk sıralaması büyük ölçüde Aqueduct'e dayandığı için tamamen bozulmuş değil; ancak P−ET₀ eğrisi ve bölgesel anlatı bu iki il için ikincil güvenilirliktedir. Bölgesel iklim çapaları sonraki sürümde eklenecek (`SPEC.md §13`).
 - **Zararsız log gürültüsü (`GET /v1/models → 404`):** İstekler uygulamadan değil **OpenCode CLI**'den (`user-agent: opencode/latest/2.1.4/cli`) gelir; OpenCode 8000 portunda OpenAI-uyumlu yerel LLM sunucusu arar (`/health` → `/v1/models`). Uygulamamız LLM sunucusu olmadığı için `/v1/models` doğru şekilde 404 döner. **İşlevsel etkisi yoktur** (tüm `/api/*` uç noktaları 200; 8012 portunda hiç yoklama gelmiyor). İsteğe bağlı gizleme: `ACCESS_LOG=off bash scripts/run.sh`. Ayrıntı: `README.md §6`.

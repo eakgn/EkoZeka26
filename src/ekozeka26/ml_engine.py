@@ -72,12 +72,15 @@ FEATURE_LABELS_TR = {
     "cfr_raw": "Kıyı Hidrolojik Etkisi (cfr_raw)",
 }
 
+# Etiketler KMeans kümelerinin gerçek baskın il dağılımı ve ortalama göstergelerine
+# göre verilmiştir (bkz. data/processed/model_metrics.json → kmeans_basin_archetypes).
+# Coğrafi adlar yalnızca kümenin baskın bölgesini tarif eder; her il o kümede olmayabilir.
 ARCHETYPE_LABELS = {
-    0: "Arketip A — Dengeli / Düşük Stresli Karadeniz-Kuzey Havzası",
-    1: "Arketip B — Yüksek Mevsimsel Oynaklıklı Kıyı & Akdeniz Havzası",
-    2: "Arketip C — Aşırı Yeraltı Suyu Çöküşü & Yaz Pik Kriz Havzası (Gediz / Konya Tipi)",
-    3: "Arketip D — Orta-Yüksek Sanayi Çekimli Marmara-İç Anadolu Geçiş Havzası",
-    4: "Arketip E — Kuraklık Hassasiyeti Yüksek Doğu / İç Havza",
+    0: "Arketip A — Dengeli / Düşük Stresli Kuzey & Marmara Havzası",
+    1: "Arketip B — Yüksek Yeraltı Düşüşlü, Oynak Orta Stres Havzası",
+    2: "Arketip C — Aşırı Su Stresi & Yaz Pik Kriz Havzası (Güneydoğu / Doğu Akdeniz)",
+    3: "Arketip D — Yüksek Mevsimsel Oynaklıklı Doğu / Güneydoğu Havzası",
+    4: "Arketip E — Kuraklık Hassasiyeti Yüksek Ege–İç Anadolu Geçiş Havzası",
 }
 
 _MODEL_CACHE: XGBRegressor | None = None
@@ -312,7 +315,7 @@ def fit_kmeans_basin_archetypes() -> dict[str, Any]:
                 "mean_bws_raw": round(float(sub["bws_raw"].mean()), 3),
                 "mean_bau50_ws_raw": round(float(sub["bau50_ws_x_r"].mean()), 3),
                 "mean_gtd_raw": round(float(sub["gtd_raw"].mean()), 3),
-                "sample_provinces": sorted(sub["name_1"].dropna().unique().tolist())[:5],
+                "sample_provinces": sub["name_1"].value_counts().head(5).index.tolist(),
             }
         )
 
@@ -537,10 +540,9 @@ def explain_basin_summer_peak_shap(basin_row: dict[str, Any] | pd.Series, month:
     contributions.sort(key=lambda d: abs(d["shap_value"]), reverse=True)
 
     sid = str(basin_row.get("string_id", ""))
-    pfaf_val = int(basin_row.get("pfaf_id", 0))
-    if pfaf_val in (211055, 211056, 221002) or float(basin_row.get("bws_raw", 0.0)) >= 1.2:
-        archetype_info = {"archetype_id": 2, "archetype_label": ARCHETYPE_LABELS[2]}
-    elif _ARCHETYPE_MAP_CACHE and sid in _ARCHETYPE_MAP_CACHE:
+    # Arketip, KMeans küme atamasından gelir; yüksek bws diye kural tabanlı olarak
+    # C kümesine zorlanmaz (bu, "KMeans arketipi" iddiasını zayıflatıyordu).
+    if _ARCHETYPE_MAP_CACHE and sid in _ARCHETYPE_MAP_CACHE:
         archetype_info = _ARCHETYPE_MAP_CACHE[sid]
     else:
         aid = int(basin_row.get("archetype_id", 2))
