@@ -24,13 +24,16 @@ import os
 import re
 import shutil
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import geopandas as gpd
 import numpy as np
 import pandas as pd
-import pyogrio
-from shapely.geometry import Point
+
+# geopandas / pyogrio yalnızca çevrimdışı veri hattında gerekir (dev grubu).
+# Çalışma anı (FastAPI / Vercel) bu modülden sadece sabitleri alır; bu yüzden
+# ağır coğrafi bağımlılıklar fonksiyon içinde import edilir.
+if TYPE_CHECKING:
+    import geopandas as gpd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 TMP_TEST_DIR = Path("/tmp/opencode/ekozeka_tests")
@@ -207,6 +210,8 @@ def snapshot_raw_data(force: bool = False) -> dict[str, Path]:
     raw_bm_csv = RAW_DIR / "aqueduct_baseline_monthly_tur.csv"
 
     if (force or not raw_gpkg.exists()) and GDB_TMP_PATH.exists():
+        import pyogrio
+
         # KRİTİK V&V KURALI: Tüm dünyayı belleğe yüklememek için where="gid_0 = 'TUR'" ile oku
         gdf_tur = pyogrio.read_dataframe(
             str(GDB_TMP_PATH),
@@ -276,6 +281,8 @@ def build_turkey_basins() -> gpd.GeoDataFrame:
     çoka-bir (`m:1`, left join) birleştirir, `-9999` olan eksik/ada değerlerini
     komşu/il ortalamasıyla doldurur ve `data/processed/turkey_basins.{geojson,parquet}` üretir.
     """
+    import pyogrio
+
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
     raw_gpkg = RAW_DIR / "turkey_gdb_baseline.gpkg"
     if raw_gpkg.exists():
@@ -612,6 +619,8 @@ def build_osb_profiles(gdf: gpd.GeoDataFrame) -> dict[str, Any]:
     Türkiye'nin 11 büyük OSB'sini gerçek WRI Aqueduct 4.0 `string_id` ve `pfaf_id`
     poligonlarıyla eşleştirir ve Sekme 2 için gerçek şirket raporlarına dayalı 3 tesis profili üretir.
     """
+    from shapely.geometry import Point
+
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
     osb_specs = [
         {

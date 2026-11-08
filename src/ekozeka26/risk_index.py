@@ -12,32 +12,61 @@ Metodoloji İlkesi:
 from __future__ import annotations
 
 import json
+import warnings
+from pathlib import Path
 from typing import Any
 
-import geopandas as gpd
 import numpy as np
 import pandas as pd
-from shapely.geometry import Point
+import shapely
+from shapely.geometry import Point, shape
 
 from ekozeka26.data_pipeline import PROCESSED_DIR, SECTOR_AWR_MAP
 
-_GDF_CACHE: gpd.GeoDataFrame | None = None
+# Not: Çalışma anında geopandas/pyogrio (~140 MB) ve pyarrow (~166 MB) kullanılmaz;
+# Vercel Python paket sınırı 500 MB. Poligonlar GeoJSON'dan doğrudan shapely ile,
+# parquet ise pyarrow yoksa fastparquet ile okunur.
+_GDF_CACHE: pd.DataFrame | None = None
 _PARQUET_CACHE: pd.DataFrame | None = None
 _CLIMATE_CACHE: dict[str, Any] | None = None
 _OSB_CACHE: dict[str, Any] | None = None
 
 
-def _load_basins_gdf() -> gpd.GeoDataFrame:
+def _load_basins_gdf() -> pd.DataFrame:
+    """639 alt-havza: GeoJSON özellikleri + `geometry` sütununda shapely nesneleri."""
     global _GDF_CACHE
     if _GDF_CACHE is None:
-        _GDF_CACHE = gpd.read_file(PROCESSED_DIR / "turkey_basins.geojson")
+        gj = json.loads((PROCESSED_DIR / "turkey_basins.geojson").read_text(encoding="utf-8"))
+        features = gj.get("features", [])
+        df = pd.DataFrame([feat.get("properties") or {} for feat in features])
+        df["geometry"] = [
+            shape(feat["geometry"]) if feat.get("geometry") else None for feat in features
+        ]
+        _GDF_CACHE = df
     return _GDF_CACHE
+
+
+def _read_parquet(path: Path) -> pd.DataFrame:
+    try:
+        import pyarrow  # noqa: F401  (yerel geliştirme ortamı)
+
+        return pd.read_parquet(path)
+    except ImportError:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            df = pd.read_parquet(path, engine="fastparquet")
+        # fastparquet metin sütunlarını object/None olarak okur; pyarrow ile aynı
+        # sonucu vermek için pandas `str` tipine (eksik = NaN) çevir.
+        for col in df.columns[df.dtypes == object]:
+            if df[col].map(lambda v: v is None or isinstance(v, str)).all():
+                df[col] = df[col].astype("str")
+        return df
 
 
 def _load_basins_df() -> pd.DataFrame:
     global _PARQUET_CACHE
     if _PARQUET_CACHE is None:
-        _PARQUET_CACHE = pd.read_parquet(PROCESSED_DIR / "turkey_basins.parquet")
+        _PARQUET_CACHE = _read_parquet(PROCESSED_DIR / "turkey_basins.parquet")
     return _PARQUET_CACHE
 
 
@@ -284,7 +313,11 @@ def find_basin_by_coords(lat: float, lon: float) -> dict[str, Any]:
     pt = Point(float(lon), float(lat))
 
     in_bbox = (35.5 <= lat <= 42.3) and (25.5 <= lon <= 45.0)
-    contains_hits = gdf[gdf.geometry.contains(pt)] if in_bbox else gdf.iloc[0:0]
+    if in_bbox:
+        mask = shapely.contains(gdf["geometry"].to_numpy(), pt)
+        contains_hits = gdf[np.asarray(mask, dtype=bool)]
+    else:
+        contains_hits = gdf.iloc[0:0]
 
     if not contains_hits.empty:
         row = contains_hits.iloc[0]

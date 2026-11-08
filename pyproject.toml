@@ -10,14 +10,11 @@ requires-python = ">=3.12"
 dependencies = [
     "beautifulsoup4>=4.15.0",
     "fastapi>=0.162.1",
-    "geopandas>=1.2.0",
     "google-genai>=3.0.0",
     "httpx>=0.28.1",
     "numpy>=2.5.4",
+    "fastparquet>=2024.11.0",
     "pandas>=3.1.1",
-    "pyarrow>=26.0.1",
-    "pyogrio>=0.13.0",
-    "pytest>=9.2.0",
     "python-dotenv>=1.2.4",
     "scikit-learn>=1.9.1",
     "scipy>=1.18.1",
@@ -29,6 +26,20 @@ dependencies = [
 
 [project.scripts]
 ekozeka26 = "ekozeka26:main"
+
+# Yalnızca yerel geliştirme / test / veri hattı için; Vercel paketine girmez
+# (pyarrow ~166 MB + geopandas/pyogrio/pyproj ~140 MB; Vercel Python sınırı 500 MB).
+[dependency-groups]
+dev = [
+    "geopandas>=1.2.0",
+    "pyarrow>=26.0.1",
+    "pyogrio>=0.13.0",
+    "pytest>=9.2.0",
+]
+
+# Vercel FastAPI giriş noktası (src/ düzeni otomatik algılanmıyor)
+[tool.vercel]
+entrypoint = "index:app"
 
 [build-system]
 requires = ["uv_build>=0.13.7,<0.14.0"]

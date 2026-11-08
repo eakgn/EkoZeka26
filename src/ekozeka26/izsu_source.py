@@ -39,7 +39,12 @@ from ekozeka26.data_pipeline import (
 )
 
 IZSU_URL = "https://izsu.gov.tr/bilgi-merkezi/barajlar/su-durumu"
-LIVE_CACHE_PATH = PROJECT_ROOT / "data" / "cache" / "izsu_live_snapshot.json"
+# Vercel'de proje dizini salt-okunurdur; yazılabilir tek yer /tmp.
+LIVE_CACHE_PATH = (
+    Path("/tmp") / "izsu_live_snapshot.json"
+    if os.environ.get("VERCEL")
+    else PROJECT_ROOT / "data" / "cache" / "izsu_live_snapshot.json"
+)
 LIVE_CACHE_TTL_HOURS = 6.0
 MIN_DAMS = 5
 REQUEST_TIMEOUT_S = 4.0
@@ -261,10 +266,14 @@ def fetch_live_izsu_snapshot(
         merged = _merge_live(base, today, last_year)
         if not _valid_snapshot(merged):
             return None
-        LIVE_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        LIVE_CACHE_PATH.write_text(
-            json.dumps(merged, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
+        try:
+            LIVE_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+            LIVE_CACHE_PATH.write_text(
+                json.dumps(merged, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+        except OSError:
+            # Önbellek yazılamasa da (salt-okunur FS) canlı veri yine döndürülür.
+            pass
         return merged
     except (httpx.HTTPError, ValueError, json.JSONDecodeError, OSError):
         return None
