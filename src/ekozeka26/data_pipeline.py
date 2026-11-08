@@ -851,7 +851,7 @@ def build_osb_profiles(gdf: gpd.GeoDataFrame) -> dict[str, Any]:
                 "Otomotiv boyahane/proses hattı su yoğun; Bursa Nilüfer Havzası'nda akifer seviyesi ve sanayi tahsisi belirleyicidir."
             ),
             "osb_id": "bursa_osb",
-            "pfaf_id": 211059,
+            "pfaf_id": 211058,
             "sector_code": "metal",
             "nace_code": "C29.10 — Motorlu Kara Taşıtlarının İmalatı",
             "employee_count": 4409,

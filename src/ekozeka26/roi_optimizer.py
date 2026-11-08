@@ -40,6 +40,7 @@ from ekozeka26.risk_index import (
 
 _MEASURES_CACHE: dict[str, Any] | None = None
 _IZSU_CACHE: dict[str, Any] | None = None
+_CLIMATE_CACHE: dict[str, Any] | None = None
 
 PROCESS_KEYS = ("cooling", "process", "boiler", "domestic")
 PROCESS_LABELS_TR = {
@@ -66,6 +67,28 @@ def _load_izsu_snapshot() -> dict[str, Any]:
     if _IZSU_CACHE is None:
         _IZSU_CACHE = json.loads((PROCESSED_DIR / "izsu_snapshot.json").read_text(encoding="utf-8"))
     return _IZSU_CACHE
+
+
+def _load_climate_osb() -> dict[str, Any]:
+    global _CLIMATE_CACHE
+    if _CLIMATE_CACHE is None:
+        path = PROCESSED_DIR / "climate_osb.json"
+        _CLIMATE_CACHE = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"osb_projections": {}}
+    return _CLIMATE_CACHE
+
+
+def _resolve_spei_proxy_trend(osb_id: str, scenario: str) -> float:
+    """
+    Tab 1 ile aynı lokasyona özel SPEI proxy trendini kullanır.
+    `climate_osb.json` yoksa eski varsayılan (-0.32) korunur.
+    """
+    try:
+        proj = _load_climate_osb().get("osb_projections", {}).get(osb_id, {})
+        scen = proj.get("scenarios", {}).get(str(scenario).upper(), {})
+        decadal_trend_mm = float(scen.get("decadal_trend_mm", -32.0))
+        return round(decadal_trend_mm / 95.0, 2)
+    except (TypeError, ValueError, KeyError):
+        return -0.32
 
 
 def normalize_process_shares(shares: dict[str, float] | None, sector: str = "textile") -> dict[str, float]:
@@ -370,13 +393,15 @@ def optimize_facility_roi(
         float(osb_meta["sector_defaults"][sec_key].get("max_tech_saving_pct", 78.0)) / 100.0,
     )
 
-    # Konumun şeffaf risk ve kesinti günü hesabı
+    # Konumun şeffaf risk ve kesinti günü hesabı (Tab 1 ile aynı lokasyona özel SPEI proxy trendi)
+    spei_proxy_trend = _resolve_spei_proxy_trend(osb_info["osb_id"], scenario)
     risk_eval = compute_transparent_risk(
         basin_row=basin_row,
         sector=sec_key,
         year=target_year,
         scenario=scenario,
         groundwater_dependency_pct=gw_dep_input,
+        spei12_trend=spei_proxy_trend,
     )
 
     source_info = resolve_water_tariff_and_cutback_factor(water_source, grid_share_pct, osb_info=osb_info)
@@ -440,14 +465,15 @@ def optimize_facility_roi(
         saved_m3 = annual_water_m3 * sav_rate
         water_bill_saving_tl = saved_m3 * unit_tl
 
-        # Su tasarrufu ve geri kazanım döngüsü, kuraklık kesintisi (üretim duruşu) günlerini azaltır
+        # Risk azaltımı ayrı raporlanır; finansal NPV/geri ödemeye dahil edilmez.
+        # (Eski modelde duruş zararı NPV'yi domine ediyor ve geri ödemeyi 2-8 aya düşürüyordu.)
         resilience_reduction_ratio = min(0.85, 1.15 * sav_rate)
         avoided_downtime_days_p50 = eff_days_p50 * resilience_reduction_ratio
         avoided_downtime_tl = avoided_downtime_days_p50 * daily_downtime_cost_tl
 
         annual_opex_delta_tl = sum(float(m["annual_opex_change_tl"]) for m in chosen)
-        net_annual_benefit_tl = water_bill_saving_tl + avoided_downtime_tl - annual_opex_delta_tl
-        npv_5yr = net_annual_benefit_tl * pv_annuity_factor - total_capex
+        net_annual_financial_benefit_tl = water_bill_saving_tl - annual_opex_delta_tl
+        npv_5yr = net_annual_financial_benefit_tl * pv_annuity_factor - total_capex
 
         if npv_5yr > best_npv:
             best_npv = npv_5yr
@@ -461,7 +487,7 @@ def optimize_facility_roi(
                 "avoided_downtime_days_p50": avoided_downtime_days_p50,
                 "avoided_downtime_tl": avoided_downtime_tl,
                 "annual_opex_delta_tl": annual_opex_delta_tl,
-                "net_annual_benefit_tl": net_annual_benefit_tl,
+                "net_annual_financial_benefit_tl": net_annual_financial_benefit_tl,
                 "npv_5yr_tl": npv_5yr,
             }
 
@@ -475,11 +501,8 @@ def optimize_facility_roi(
         p_key = m["target_process"]
         p_share = norm_shares[p_key] / 100.0
         standalone_m3 = annual_water_m3 * p_share * float(m["process_saving_rate"])
-        standalone_tl = (
-            standalone_m3 * unit_tl
-            + (eff_days_p50 * min(0.85, 1.15 * p_share * float(m["process_saving_rate"])) * daily_downtime_cost_tl)
-            - float(m["annual_opex_change_tl"])
-        )
+        # Önlem bazlı geri ödeme de yalnızca su/OPEX tasarrufunu içerir; duruş riski ayrı karttadır.
+        standalone_tl = standalone_m3 * unit_tl - float(m["annual_opex_change_tl"])
         payback_m = (
             round(12.0 * float(m["capex_tl"]) / max(standalone_tl, 1.0), 1)
             if standalone_tl > 0
@@ -496,20 +519,23 @@ def optimize_facility_roi(
                 "annual_opex_change_tl": round(float(m["annual_opex_change_tl"]), 0),
                 "standalone_saved_m3": round(standalone_m3, 0),
                 "estimated_payback_months": min(payback_m, 60.0),
+                "catalog_typical_payback_months": float(m.get("typical_payback_months", 0.0)),
                 "nace_reference": m["nace_reference"],
                 "description": m["description"],
             }
         )
 
     total_capex_tl = round(float(best_eval["total_capex_tl"]), 0)
-    net_annual_benefit_tl = round(float(best_eval["net_annual_benefit_tl"]), 0)
+    net_annual_financial_benefit_tl = round(float(best_eval["net_annual_financial_benefit_tl"]), 0)
     saved_m3 = round(float(best_eval["saved_m3"]), 0)
     saving_pct = float(best_eval["sav_info"]["total_saving_pct"])
 
-    if total_capex_tl > 0 and net_annual_benefit_tl > 0:
-        payback_years = round(total_capex_tl / net_annual_benefit_tl, 2)
-        payback_months = round(12.0 * total_capex_tl / net_annual_benefit_tl, 1)
-        roi_5yr_pct = round(100.0 * (5.0 * net_annual_benefit_tl - total_capex_tl) / total_capex_tl, 1)
+    if total_capex_tl > 0 and net_annual_financial_benefit_tl > 0:
+        payback_years = round(total_capex_tl / net_annual_financial_benefit_tl, 2)
+        payback_months = round(12.0 * total_capex_tl / net_annual_financial_benefit_tl, 1)
+        roi_5yr_pct = round(
+            100.0 * (5.0 * net_annual_financial_benefit_tl - total_capex_tl) / total_capex_tl, 1
+        )
     else:
         payback_years = 0.0
         payback_months = 0.0
@@ -518,10 +544,16 @@ def optimize_facility_roi(
     # 5 Yıllık Kümülatif Nakit Akışı Serisi (Yıl 0 .. Yıl 5)
     cashflow_years = [0, 1, 2, 3, 4, 5]
     cumulative_net_cashflow_tl = [
-        round(-total_capex_tl + yr * net_annual_benefit_tl, 0) for yr in cashflow_years
+        round(-total_capex_tl + yr * net_annual_financial_benefit_tl, 0) for yr in cashflow_years
     ]
     cumulative_do_nothing_loss_tl = [
         round(-yr * do_nothing_total_p50_tl, 0) for yr in cashflow_years
+    ]
+    cumulative_do_nothing_water_bill_tl = [
+        round(-yr * annual_water_bill_tl, 0) for yr in cashflow_years
+    ]
+    cumulative_do_nothing_downtime_loss_tl = [
+        round(-yr * downtime_loss_p50_tl, 0) for yr in cashflow_years
     ]
 
     # Edge-case #6: Çok düşük bütçe uyarısı (<280.000 TL)
@@ -568,6 +600,8 @@ def optimize_facility_roi(
         "location_risk": risk_eval,
         "do_nothing_projection": {
             "annual_water_bill_tl": annual_water_bill_tl,
+            "annual_normal_operating_cost_tl": annual_water_bill_tl,
+            "annual_risk_exposure_tl": downtime_loss_p50_tl,
             "expected_cutback_days": {
                 "p10": eff_days_p10,
                 "p50": eff_days_p50,
@@ -584,6 +618,11 @@ def optimize_facility_roi(
                 "p90": do_nothing_total_p90_tl,
             },
             "five_year_unmitigated_exposure_p50_tl": round(5.0 * do_nothing_total_p50_tl, 0),
+            "five_year_risk_exposure_p50_tl": round(5.0 * downtime_loss_p50_tl, 0),
+            "presentation_note": (
+                "Su faturası normal işletme maliyetidir; 'hiçbir şey yapmama' kaybı olarak yalnızca "
+                "beklenen duruş riski ayrıca raporlanır."
+            ),
         },
         "optimized_portfolio": {
             "solver_method": f"0-1 Knapsack Kesin Çözüm ({1 << n_cand} kombinasyon, çarpımsal azalan verim)",
@@ -606,17 +645,34 @@ def optimize_facility_roi(
             "avoided_cutback_days_p50": round(float(best_eval["avoided_downtime_days_p50"]), 1),
             "avoided_downtime_loss_p50_tl": round(float(best_eval["avoided_downtime_tl"]), 0),
             "annual_opex_change_tl": round(float(best_eval["annual_opex_delta_tl"]), 0),
-            "net_annual_financial_benefit_tl": net_annual_benefit_tl,
+            "net_annual_financial_benefit_tl": net_annual_financial_benefit_tl,
             "npv_5yr_tl": round(float(best_eval["npv_5yr_tl"]), 0),
             "roi_5yr_pct": roi_5yr_pct,
+            "roi_5yr_label": "İskontosuz 5 yıllık getiri (NPV değil)",
             "payback_months": payback_months,
             "payback_years": payback_years,
+            "financial_npv_note": (
+                "Headline NPV ve geri ödeme yalnızca su faturası + OPEX tasarrufunu içerir; "
+                "önlenen duruş zararı finansal NPV'ye dahil edilmez, ayrı risk kartında gösterilir."
+            ),
+            "risk_reduction": {
+                "avoided_cutback_days_p50": round(float(best_eval["avoided_downtime_days_p50"]), 1),
+                "avoided_downtime_loss_p50_tl": round(float(best_eval["avoided_downtime_tl"]), 0),
+                "included_in_financial_npv": False,
+                "methodology_note": (
+                    "Su tasarrufunun kesinti günlerini 1.15×tasarruf oranıyla azalttığı varsayımıdır; "
+                    "beklenen değerdir, garanti değildir."
+                ),
+            },
             "low_budget_advisory": low_budget_advisory,
         },
         "cashflow_5yr": {
             "years": cashflow_years,
             "cumulative_net_cashflow_tl": cumulative_net_cashflow_tl,
             "cumulative_do_nothing_loss_tl": cumulative_do_nothing_loss_tl,
+            "cumulative_do_nothing_water_bill_tl": cumulative_do_nothing_water_bill_tl,
+            "cumulative_do_nothing_downtime_loss_tl": cumulative_do_nothing_downtime_loss_tl,
+            "note": "Yeşil çizgi finansal net kazanç; kil çizgi yalnızca duruş riskidir.",
         },
         "certification_2029": cert_2029,
     }
@@ -643,8 +699,9 @@ def export_simulation_to_csv(sim_result: dict[str, Any]) -> str:
     writer.writerow(["Net Yıllık Su Tasarrufu (m3/yıl)", opt["annual_water_saved_m3"]])
     writer.writerow(["Net Tasarruf Oranı (%)", opt["multiplicative_savings_breakdown"]["total_saving_pct"]])
     writer.writerow(["Net Yıllık Finansal Kazanç (TL/yıl)", opt["net_annual_financial_benefit_tl"]])
-    writer.writerow(["5 Yıllık NPV (TL)", opt["npv_5yr_tl"]])
-    writer.writerow(["Geri Ödeme Süresi (Ay)", opt["payback_months"]])
+    writer.writerow(["5 Yıllık Finansal NPV (TL)", opt["npv_5yr_tl"]])
+    writer.writerow(["Finansal Geri Ödeme Süresi (Ay)", opt["payback_months"]])
+    writer.writerow(["Risk Azaltımı — Önlenen Duruş (TL/yıl, beklenen)", opt["avoided_downtime_loss_p50_tl"]])
     writer.writerow(["27.12.2029 Belge Kademesi", cert["achieved_tier"]])
     writer.writerow([])
     writer.writerow(
@@ -656,7 +713,8 @@ def export_simulation_to_csv(sim_result: dict[str, Any]) -> str:
             "CAPEX (TL)",
             "Yıllık OPEX Değişimi (TL)",
             "Tekil Su Tasarrufu (m3/yıl)",
-            "Tahmini Geri Ödeme (Ay)",
+            "Finansal Geri Ödeme (Ay)",
+            "Katalog Tipik Geri Ödeme (Ay)",
             "SYGM / IFC Referansı",
         ]
     )
@@ -671,6 +729,7 @@ def export_simulation_to_csv(sim_result: dict[str, Any]) -> str:
                 m["annual_opex_change_tl"],
                 m["standalone_saved_m3"],
                 m["estimated_payback_months"],
+                m.get("catalog_typical_payback_months", 0.0),
                 m["nace_reference"],
             ]
         )

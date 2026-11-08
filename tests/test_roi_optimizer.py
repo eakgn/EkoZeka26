@@ -54,6 +54,27 @@ def test_knapsack_budget_constraint_and_kemalpasa_textile_scenario() -> None:
     assert "27.12.2029 Belge Kademesi" in csv_str
 
 
+def test_financial_npv_excludes_downtime_and_risk_is_separate() -> None:
+    sim = optimize_facility_roi(
+        osb_id="bursa_osb",
+        sector="metal",
+        annual_water_m3=430782,
+        water_source="groundwater_well",
+        daily_downtime_cost_tl=1500000,
+        capex_budget_tl=6000000,
+        target_year=2030,
+        scenario="BAU",
+    )
+    opt = sim["optimized_portfolio"]
+    pv_factor = sum(1.0 / (1.18**t) for t in range(1, 6))
+    expected_npv = opt["net_annual_financial_benefit_tl"] * pv_factor - opt["total_capex_tl"]
+    assert abs(opt["npv_5yr_tl"] - expected_npv) < 50.0
+    assert opt["risk_reduction"]["included_in_financial_npv"] is False
+    assert opt["risk_reduction"]["avoided_downtime_loss_p50_tl"] > 0
+    assert sim["do_nothing_projection"]["annual_normal_operating_cost_tl"] == sim["do_nothing_projection"]["annual_water_bill_tl"]
+    assert "cumulative_do_nothing_downtime_loss_tl" in sim["cashflow_5yr"]
+
+
 def test_groundwater_well_vs_grid_economics() -> None:
     sim_grid = optimize_facility_roi(
         osb_id="izmir_kemalpasa",

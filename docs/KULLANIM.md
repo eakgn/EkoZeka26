@@ -3,7 +3,7 @@
 ## 1. Platformun Amacı ve Kapsamı
 **AquaSanayi AI**, Türkiye'nin sanayi kalbi olan **Ege–Marmara–Konya Sanayi Koridoru** (ve WRI Aqueduct 4.0 ulusal tarama katmanındaki 639 poligon / 116 tekil `pfaf_id` havza) için:
 1. **Sekme 1 — Yatırım & Yer Seçimi:** Yeni fabrika yatırımı veya yeşil kredi değerlendirmesi için 0–100 şeffaf su kıtlığı risk puanını, 5 fiziksel/regülatif bileşen kırılımını, XGBoost+SHAP yaz pik sürücülerini ve 2026–2050 su dengesi projeksiyonunu sunar.
-2. **Sekme 2 — Mevcut Fabrika ROI & 2029 Yeşil Belge Simülatörü:** Mevcut bir fabrikanın su kaynağına (OSB şebekesi, kendi yeraltı kuyusu, yüzey suyu/baraj, karma veya İZSU belediye şebekesi), proses su dağılımına ve yatırım bütçesine göre **0-1 Knapsack** algoritmasıyla en yüksek 5 yıllık NPV'yi sağlayan SYGM/IFC teknik önlemlerini seçer ve **27.12.2029 Su Verimliliği Yönetmeliği (RG 32765)** kriter kontrol listesini değerlendirir.
+2. **Sekme 2 — Mevcut Fabrika ROI & 2029 Yeşil Belge Simülatörü:** Mevcut bir fabrikanın su kaynağına (OSB şebekesi, kendi yeraltı kuyusu, yüzey suyu/baraj, karma veya İZSU belediye şebekesi), proses su dağılımına ve yatırım bütçesine göre **0-1 Knapsack** algoritmasıyla en yüksek **finansal** 5 yıllık NPV'yi sağlayan SYGM/IFC teknik önlemlerini seçer; önlenen duruş riski ayrı gösterilir ve **27.12.2029 Su Verimliliği Yönetmeliği (RG 32765)** kriter kontrol listesini değerlendirir.
 
 **Kapsam katmanları:** Uygulama üç güven katmanı sunar: **Tier 0 — Ulusal tarama** (639 poligon / 116 tekil `pfaf_id`, yalnızca Aqueduct 4.0; yatırım ön taraması), **Tier 1 — Odak koridor** (İzmir Kemalpaşa/Aliağa/Atatürk, Manisa, Bursa, Kocaeli, Konya; yerel tarife/OSB profili) ve **Tier 2 — İzmir/Gediz canlı** (İZSU + SYGM). Ayrıntılı dürüstlük notu: `SPEC.md §13`.
 
@@ -24,9 +24,9 @@ Sunumda farklı bölgelerde ve sektörlerde su riskinin **farklı kök nedenlerd
 
 | Vaka | Kök Neden | Su Kaynağı & Tarife | Seçilen Önlemler | Net Tasarruf & Amortisman | 2029 Belge Kademesi |
 |---|---|---|---|---|---|
-| **1. Tofaş — Bursa** (`430.782 m³/yıl`, 4.409 çalışan) | Suyun **%100'ü yeraltı kuyularından**; otomotiv boyahane/proses hattı + Nilüfer Havzası akifer riski | Kendi Kuyusu (`24,80 TL/m³`) | `M01, M03, M04, M10` | `%35,8` (`154.091 m³`) · **4,4 ay** | **Yeşil Belge** |
-| **2. Vestel — Manisa** (`1.510.208 m³/yıl`, 29.000 çalışan) | Yüksek hacimli **şebeke + kuyu karması** (%71,4 şebeke); Manisa OSB tarifesi ve 2029 belgesi maliyet baskısı | Karma (`91,70 TL/m³`) | `M01, M02, M10` | `%24,0` (`362.450 m³`) · **2,3 ay** | **Yeşil Belge** |
-| **3. Petkim — Aliağa** (`14.230.105 m³/yıl`, 2.433 çalışan) | Dev ölçekli **yüzey suyu** (Güzelhisar) ve **%62 soğutma** buharlaşma yükü | Yüzey Suyu (`15,00 TL/m³`) | `M01, M04, M05, M10` (`M05` Kapalı Devre Soğutma) | `%54,8` (`7.793.829 m³`) · **7,7 ay** | **Turkuaz Belge** |
+| **1. Tofaş — Bursa** (`430.782 m³/yıl`, 4.409 çalışan) | Suyun **%100'ü yeraltı kuyularından**; otomotiv boyahane/proses hattı + Nilüfer Havzası akifer riski | Kendi Kuyusu (`24,80 TL/m³`) | `M01, M03, M04, M10` | `%35,8` (`154.091 m³`) · **17,3 ay finansal** | **Yeşil Belge** |
+| **2. Vestel — Manisa** (`1.510.208 m³/yıl`, 29.000 çalışan) | Yüksek hacimli **şebeke + kuyu karması** (%71,4 şebeke); Manisa OSB tarifesi ve 2029 belgesi maliyet baskısı | Karma (`91,70 TL/m³`) | `M01, M02, M10` | `%24,0` (`362.450 m³`) · **3,9 ay finansal** | **Yeşil Belge** |
+| **3. Petkim — Aliağa** (`14.230.105 m³/yıl`, 2.433 çalışan) | Dev ölçekli **yüzey suyu** (Güzelhisar) ve **%62 soğutma** buharlaşma yükü | Yüzey Suyu (`15,00 TL/m³`) | `M01, M05, M10` (`M05` Kapalı Devre Soğutma) | `%48,0` (`6.831.873 m³`) · **20,8 ay finansal** | **Yeşil Belge** |
 
 > **Dürüstlük notu:** Bu üç tesisin su çekimi/çalışan sayısı raporlardan doğrulanmıştır; ancak proses payları, günlük duruş maliyeti ve yatırım bütçesi kamuya açık olmadığı için kalibre varsayımdır. Arayüzde bu ayrım 🟢/🟡 rozetleriyle gösterilir.
 

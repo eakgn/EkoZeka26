@@ -4,7 +4,7 @@
 
 **AquaSanayi AI**, sanayi tesisleri, OSB yönetimleri, yatırım ajansları ve yeşil finansman sağlayan bankalar için geliştirilmiş **fizik-öncelikli + makine öğrenmesi destekli** bir karar destek platformudur. İklim projeksiyonlarını (ERA5 + 7 CMIP6 HighResMIP modeli), küresel/yerel hidrolojik verileri (WRI Aqueduct 4.0 Türkiye 639 poligon / 116 tekil hidrolojik havza + İZSU baraj/kuyu üretim serileri) ve Bakanlık (SYGM) NACE su verimliliği rehberlerini birleştirerek:
 1. **Yeni fabrika yatırımları için** Türkiye'nin **639 poligonunda (116 tekil `pfaf_id` havzası)** şeffaf bileşik su kesintisi riskini (`0–100`), P10/P50/P90 beklenen kısıt günlerini ve SHAP sürücülerini hesaplar,
-2. **Mevcut fabrikalar için** **27 Aralık 2029 Yeşil Su Verimliliği Belgesi** (RG 27.12.2024, Sayı: 32765) zorunluluğuna uyumu ve 5 yıllık NPV'yi maksimize eden **bütçe kısıtlı optimum önlem portföyünü (0-1 Knapsack + çarpımsal azalan verim)** optimize eder.
+2. **Mevcut fabrikalar için** **27 Aralık 2029 Yeşil Su Verimliliği Belgesi** (RG 27.12.2024, Sayı: 32765) zorunluluğuna uyumu ve 5 yıllık **finansal** NPV'yi maksimize eden **bütçe kısıtlı optimum önlem portföyünü (0-1 Knapsack + çarpımsal azalan verim)** optimize eder; önlenen duruş riski ayrı gösterilir.
 
 ---
 
@@ -54,7 +54,7 @@ uv run python -m ekozeka26.ml_engine --backtest
 | `risk_index.py` | **Şeffaf Bileşik Endüstriyel Kesinti Risk Skoru (`0–100`)**: Yeraltı düşüşü (`25p`) + Su stresi (`25p`) + SPEI/Kuraklık (`20p`) + Sektörel AWR (`15p`) + Oynaklık (`15p`) + Coğrafi sınır koruması | Her bileşenin puan katkısı ve formülü açık; Aqueduct "ölçüm" değil **resmî model** olarak etiketli; deniz/sınır dışı tıklamada en yakın kara havzası önerisi |
 | `ml_engine.py` | **XGBoost Mevsimsel/Mekânsal Ölçek İndirme (Annual→Monthly Peak Downscaler)** + **5-Katlı `GroupKFold(groups=pfaf_id)`** + **SHAP (`TreeExplainer`)** + **KMeans (`k=5` havza arketipi)** + **ERA5/GloFAS Gediz Backtest** | Naive `MAE=0,4789 (R²=-0,004)` → Ridge `MAE=0,2940 (R²=0,630)` → **XGBoost `MAE=0,1534, RMSE=0,4328, R²=0,7958` (-%68 hata)**; Gediz Backtest `R²=0,6732`; SHAP `<15 ms` |
 | `anomaly.py` | **Isolation Forest** (Liu vd. 2008) ile İZSU 2025 aylık üretim serisi (137 ham → 126 tekil tesis-ay) + 23 günlük baraj kesit deltası (`14.10.2026 → 06.11.2026`) | Kasım 2025 Tahtalı çöküşü (`6,91 → 1,62 Mm³`, `-%76,5`) ve kuyu payı sıçraması (`%69,3`, `Skor=0,5932`); Balçova 23 günde `-%7,43 puan` düşüş |
-| `roi_optimizer.py` | **0-1 Knapsack Kesin Çözüm** + Proses bazlı **çarpımsal azalan verim** ($S_p = 1 - \prod(1-r_i) \le \%78$) + Kuyu/Şebeke/Yüzey suyu ekonomisi + **CAPEX ölçek kalibrasyonu** + **27.12.2029 Belge Kademesi** | 12 SYGM/IFC önlemi; **Tofaş**: `%35,8` tasarruf, `4,4 ay`, Yeşil; **Vestel**: `%24,0`, `2,3 ay`, Yeşil; **Petkim**: `%54,8`, `7,7 ay`, Turkuaz |
+| `roi_optimizer.py` | **0-1 Knapsack Kesin Çözüm** + Proses bazlı **çarpımsal azalan verim** ($S_p = 1 - \prod(1-r_i) \le \%78$) + Kuyu/Şebeke/Yüzey suyu ekonomisi + **CAPEX ölçek kalibrasyonu** + **finansal NPV/geri ödeme** + ayrı **risk azaltımı** + **27.12.2029 Belge Kademesi** | 12 SYGM/IFC önlemi; **Tofaş**: `%35,8` tasarruf, **17,3 ay finansal**, Yeşil; **Vestel**: `%24,0`, **3,9 ay finansal**, Yeşil; **Petkim**: `%48,0`, **20,8 ay finansal**, Yeşil |
 | `llm_agent.py` | `google-genai` (`gemini-2.5-flash`) + **Sıfır Halüsinasyon Kilidi (`STRICT_JSON_LOCKED`)** + `<5 ms` çevrimdışı deterministik uzman şablonu | LLM hiçbir çarpma/bölme yapmaz; yalnızca doğrulanmış JSON çıktılarını raporlar |
 
 ---
@@ -105,6 +105,14 @@ curl -s "http://127.0.0.1:8000/api/izsu-live?refresh=true"
 ```
 
 `/api/izsu-live` yanıtı `source_mode` (`live_fetch` / `live_cache` / `verified_snapshot` / `fallback_snapshot`), `snapshot_date`, `age_days` ve `fallback_reason` alanlarını taşır. Canlı sayfa yalnızca baraj/kuyu doluluk kesitini içerdiği için aylık üretim serisi, 23 günlük kesit ve 2026 tarifeleri doğrulanmış snapshot'tan korunur; böylece canlı fetch başarısız olsa bile demo eksik veriyle çalışmaz.
+
+### 5.3 ROI Finansal Modeli (Dürüstlük Notu)
+- **Headline NPV/geri ödeme yalnızca sert nakit:** su faturası tasarrufu + OPEX tasarrufu − CAPEX. Önlenen üretim duruşu zararı **finansal NPV'ye dahil edilmez**; ayrı "risk azaltımı (beklenen)" kartında gösterilir.
+- **Neden:** Duruş zararı, kesinti günü tahminine ve `1.15 × tasarruf oranı` varsayımına dayanır; tarihsel fabrika kesinti verisi yoktur. Bu kalemi NPV'ye katmak geri ödemeyi 2–8 aya düşürüyordu; sektör benchmark'ları (EPA ~5 yıl, PNNL ~6 yıl, yerinde su geri kazanımı 3–7 yıl) ve katalog tipik süreleri (3,5–24 ay) ile çelişiyordu.
+- **Yeni finansal sonuçlar:** Tofaş **17,3 ay**, Vestel **3,9 ay**, Petkim **20,8 ay**. Risk azaltımı ayrı: Tofaş 12,77M TL/yıl, Vestel 22,77M TL/yıl, Petkim 231,89M TL/yıl.
+- **Tarife duyarlılığı:** Manisa OSB (118,50 TL/m³), Tofaş kuyu (24,80 TL/m³) ve Petkim yüzey suyu (15,00 TL/m³) kalibre varsayımdır. Tarife ±%40 değişirse Tofaş 12,4–28,9 ay, Vestel 2,8–6,4 ay, Petkim 17,1–39,9 ay aralığına kayar; Petkim'de %40 düşük tarifede NPV negatif olur.
+- **CAPEX ölçeklemesi:** 150.000 m³/yıl referans tesise göre doğrusal (0,5–100×). Bu bir mühendislik yaklaşımıdır; izleme/kaçak önlemleri su hacmiyle doğrusal ölçeklenmez.
+- **Petkim kademesi:** Finansal optimizasyon `M01, M05, M10` seçtiği için `%48,0` tasarruf ve **Yeşil** belge; risk-dahil eski portföy `M01, M04, M05, M10` ile **Turkuaz**'a ulaşıyordu. Turkuaz gönüllü üst kademedir; 2029 zorunlu Yeşil hedefi karşılanır.
 
 ---
 

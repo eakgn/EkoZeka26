@@ -639,8 +639,8 @@
   <main class="content">
     <div id="g-kpis" class="kpis">
       <div class="kpi">
-        <div class="k">Hiçbir şey yapılmazsa <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
-        <div class="info-box hidden">Önlem alınmazsa fabrikanın <b>yıllık</b> su kaynaklı maliyeti: su faturası + su kesintisi günlerinde kaybedilen üretim. Alt satırda iyi ve kurak yıl aralığı yer alır.</div>
+        <div class="k">Hiçbir şey yapılmazsa (risk) <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+        <div class="info-box hidden">Su faturası normal işletme maliyetidir; burada <b>yalnızca beklenen duruş riski</b> gösterilir. Alt satırda iyi ve kurak yıl aralığı, en altta su faturası ayrıca yer alır.</div>
         <div id="t2-dn-total" class="v hot">—</div>
         <div id="t2-dn-band" class="s">—</div>
         <div id="t2-dn-breakdown" class="n">—</div>
@@ -653,8 +653,8 @@
         <div id="t2-avoided-days" class="n">—</div>
       </div>
       <div class="kpi">
-        <div class="k">5 yıllık net kazanç <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
-        <div class="info-box hidden">Yatırımın 5 yılda bugünkü parayla getireceği net kazanç (NPV, %18 iskonto). <b>Geri dönüş</b>: yatırımın kendini kaç ayda ödediği.</div>
+        <div class="k">5 yıllık finansal net kazanç <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+        <div class="info-box hidden">Yalnızca <b>su faturası + OPEX tasarrufu − CAPEX</b> (NPV, %18 iskonto). Önlenen duruş zararı bu headline'a dahil değildir; ayrı risk kartında gösterilir. <b>Finansal geri dönüş</b>: yatırımın kendini kaç ayda ödediği.</div>
         <div id="t2-npv" class="v ok">—</div>
         <div id="t2-payback" class="s">—</div>
         <div id="t2-annual-benefit" class="n">—</div>
@@ -680,7 +680,7 @@
         <p id="t2-solver-info" class="small muted" style="margin:-4px 0 10px;">Hesaplanıyor…</p>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Önlem</th><th>Hat</th><th class="r">Tasarruf</th><th class="r">CAPEX TL</th><th class="r">OPEX TL/yıl</th><th class="r">Geri dönüş</th></tr></thead>
+            <thead><tr><th>Önlem</th><th>Hat</th><th class="r">Tasarruf</th><th class="r">CAPEX TL</th><th class="r">OPEX TL/yıl</th><th class="r">Finansal geri dönüş</th></tr></thead>
             <tbody id="t2-measures-tbody"></tbody>
           </table>
         </div>
@@ -688,9 +688,9 @@
 
       <section id="g-cashflow" class="card">
         <div class="card-head">
-          <div class="title">5 yıllık nakit akışı <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
+          <div class="title">5 yıllık finansal nakit akışı <button class="info-btn" aria-expanded="false" onclick="toggleInfo(this)">i</button></div>
         </div>
-        <div class="info-box hidden"><b>Yeşil çizgi</b>: yatırım yapılırsa biriken net kazanç (sıfırın üstüne çıktığı an yatırım geri dönmüştür). <b>Kil kesikli çizgi</b>: hiçbir şey yapılmazsa biriken kayıp. İki çizgi arasındaki fark, kararın değeridir.</div>
+        <div class="info-box hidden"><b>Yeşil çizgi</b>: yatırım yapılırsa biriken finansal net kazanç (su + OPEX; duruş riski hariç). <b>Kil kesikli çizgi</b>: hiçbir şey yapılmazsa biriken <b>duruş riski</b> (su faturası hariç). Su faturası normal işletme maliyeti olarak üstteki kartta ayrıca gösterilir.</div>
         <div class="chart" style="height:260px;"><canvas id="chart-cashflow"></canvas></div>
       </section>
     </div>
@@ -1153,15 +1153,15 @@
 
     $("t2-source-note").textContent = src.allocation_note;
     $("t2-source-prov").textContent = src.provenance || "";
-    $("t2-dn-total").textContent = `${fmtTL(dn.total_annual_exposure_tl.p50)}/yıl`;
-    $("t2-dn-band").textContent = `İyi yıl ${fmtTL(dn.total_annual_exposure_tl.p10)} · kurak ${fmtTL(dn.total_annual_exposure_tl.p90)}`;
-    $("t2-dn-breakdown").textContent = `Fatura ${fmtTL(dn.annual_water_bill_tl)} + ${dn.expected_cutback_days.p50} gün duruş ${fmtTL(dn.expected_downtime_loss_tl.p50)}`;
+    $("t2-dn-total").textContent = `${fmtTL(dn.annual_risk_exposure_tl)}/yıl`;
+    $("t2-dn-band").textContent = `İyi yıl ${fmtTL(dn.expected_downtime_loss_tl.p10)} · kurak ${fmtTL(dn.expected_downtime_loss_tl.p90)}`;
+    $("t2-dn-breakdown").textContent = `Normal işletme (su faturası) ${fmtTL(dn.annual_normal_operating_cost_tl)} · ${dn.expected_cutback_days.p50} gün duruş riski`;
     $("t2-saved-m3").textContent = `${fmtNum(opt.annual_water_saved_m3, 0)} m³`;
     $("t2-saved-pct").textContent = `Tüketimin %${fmtNum(opt.multiplicative_savings_breakdown.total_saving_pct, 1)}'i / yıl`;
-    $("t2-avoided-days").textContent = `${fmtNum(opt.avoided_cutback_days_p50, 1)} gün duruş önlenir · ${fmtTL(opt.avoided_downtime_loss_p50_tl)}`;
+    $("t2-avoided-days").textContent = `Risk azaltımı: ${fmtNum(opt.avoided_cutback_days_p50, 1)} gün · ${fmtTL(opt.avoided_downtime_loss_p50_tl)} (beklenen)`;
     $("t2-npv").textContent = `+${fmtTL(opt.npv_5yr_tl)}`;
-    $("t2-payback").textContent = `Geri dönüş ${fmtNum(opt.payback_months, 1)} ay`;
-    $("t2-annual-benefit").textContent = `Yıllık net kazanç ${fmtTL(opt.net_annual_financial_benefit_tl)}`;
+    $("t2-payback").textContent = `Finansal geri dönüş ${fmtNum(opt.payback_months, 1)} ay`;
+    $("t2-annual-benefit").textContent = `Yıllık finansal kazanç ${fmtTL(opt.net_annual_financial_benefit_tl)}`;
     $("t2-cert-tier").textContent = cert.achieved_tier;
     $("t2-cert-status").textContent = String(cert.compliance_status).split("(")[0].trim();
     $("t2-cert-status").title = cert.compliance_status;
@@ -1187,7 +1187,7 @@
         <td class="r num" style="color:var(--teal);">%${fmtNum(m.process_saving_rate_pct, 0)}</td>
         <td class="r num">${fmtNum(m.capex_tl, 0)}</td>
         <td class="r num">${m.annual_opex_change_tl > 0 ? "+" : ""}${fmtNum(m.annual_opex_change_tl, 0)}</td>
-        <td class="r num">${fmtNum(m.estimated_payback_months, 1)} ay</td>
+        <td class="r num">${fmtNum(m.estimated_payback_months, 1)} ay<div class="cell-sub">Katalog: ${fmtNum(m.catalog_typical_payback_months, 1)} ay</div></td>
       </tr>`).join("") : `<tr><td colspan="6" class="muted small">Bu bütçeyle seçilebilecek önlem yok.</td></tr>`;
 
     renderCashflowChart(sim.cashflow_5yr);
@@ -1201,8 +1201,8 @@
       data: {
         labels: cf.years.map(y => `${y}. yıl`),
         datasets: [
-          { label: "Yatırım yapılırsa", data: cf.cumulative_net_cashflow_tl, borderColor: P.teal, backgroundColor: "rgba(15,61,62,.07)", borderWidth: 2, pointRadius: 3, pointBackgroundColor: P.teal, fill: true },
-          { label: "Hiçbir şey yapılmazsa", data: cf.cumulative_do_nothing_loss_tl, borderColor: P.clay, borderDash: [5, 4], borderWidth: 1.6, pointRadius: 0, fill: false }
+          { label: "Yatırım yapılırsa (finansal)", data: cf.cumulative_net_cashflow_tl, borderColor: P.teal, backgroundColor: "rgba(15,61,62,.07)", borderWidth: 2, pointRadius: 3, pointBackgroundColor: P.teal, fill: true },
+          { label: "Hiçbir şey yapılmazsa (risk kaybı)", data: cf.cumulative_do_nothing_downtime_loss_tl, borderColor: P.clay, borderDash: [5, 4], borderWidth: 1.6, pointRadius: 0, fill: false }
         ]
       },
       options: {
@@ -1279,14 +1279,14 @@
       body: "Su miktarı, kaynak, duruş zararı, bütçe ve suyun proseslere dağılımı. Herhangi bir alan değiştiğinde sonuçlar otomatik hesaplanır.",
       points: ["Karma kaynakta şebeke/kuyu oranı kaydırıcıyla ayarlanır", "Raporu JSON veya CSV olarak indirebilirsiniz"] },
     { tab: 2, el: "g-kpis", chap: "Adım 2 · Fabrika", title: "Dört temel sonuç",
-      body: "Hiçbir şey yapılmazsa yıllık maliyet, yatırımla kazanılan su, 5 yıllık net kazanç ve 2029 belgesi durumu.",
-      points: ["Kil rakam: risk / kayıp", "Yeşil rakam: kazanç"] },
+      body: "Hiçbir şey yapılmazsa duruş riski, yatırımla kazanılan su, 5 yıllık finansal net kazanç ve 2029 belgesi durumu.",
+      points: ["Kil rakam: duruş riski", "Yeşil rakam: finansal kazanç"] },
     { tab: 2, el: "g-measures", chap: "Adım 2 · Fabrika", title: "Önerilen yatırımlar",
       body: "Bütçeyi aşmadan en yüksek getiriyi sağlayan önlem seti optimizasyonla seçilir. Her önlemin maliyeti ve geri dönüş süresi ayrı gösterilir.",
       points: ["Bütçe yetersizse uyarı çıkar", "Etiketler hat bazında toplam tasarruf"] },
     { tab: 2, el: "g-cashflow", chap: "Adım 2 · Fabrika", title: "Kararın değeri",
-      body: "Yatırım yapılırsa biriken kazanç ile yapılmazsa biriken kayıp yan yana. Aradaki fark yatırımı savunmanın en kısa yoludur.",
-      points: ["Yeşil çizgi sıfırı geçtiğinde yatırım geri döner"] },
+      body: "Yatırım yapılırsa biriken finansal kazanç ile yapılmazsa biriken duruş riski yan yana. Su faturası normal işletme maliyeti olarak ayrıca gösterilir.",
+      points: ["Yeşil çizgi sıfırı geçtiğinde finansal yatırım geri döner"] },
     { tab: 2, el: "g-criteria", chap: "Adım 2 · Fabrika", title: "2029 Su Verimliliği Belgesi",
       body: "27.12.2029'da zorunlu olan belgenin kriterleri tek tek kontrol edilir. Eksikler, yapılması gerekenlerin listesidir.",
       points: ["✓ sağlandı · ✕ eksik", "Ön değerlendirmedir, resmî denetim değildir"] },

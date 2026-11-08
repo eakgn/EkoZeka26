@@ -68,7 +68,7 @@
 - **Çıktılar:**
   1. **"Hiçbir Şey Yapmama" (Do-Nothing) Maliyet Kartı (2030/2050):** Yıllık su faturası + kuraklıkta beklenen kısıt günlerinden doğan **üretim kaybı (TL/yıl, P10–P50–P90 aralığı)** + 27.12.2029 Yeşil Su Verimliliği Belgesi uyumsuzluk riski.
   2. **Optimum Önlem Portföyü Tablosu (Bütçe Kısıtlı Optimizasyon):** Bakanlık (SYGM) NACE rehberleri ve IFC veritabanındaki 12+ endüstriyel önlem arasından, girilen CAPEX bütçesini aşmadan **5 yıllık NPV ve su tasarrufunu maksimize eden** seçilmiş önlemler listesi (yatırım maliyeti, proses bazlı azalan verimli net m³ tasarrufu, yıllık TL kazanç, geri ödeme süresi - ay/yıl).
-  3. **Nakit Akışı ve Başabaş (Payback) Grafiği:** 5 yıllık kümülatif nakit akışı (yatırım vs su faturası tasarrufu + önlenen üretim duruşu zararı).
+  3. **Nakit Akışı ve Başabaş (Payback) Grafiği:** 5 yıllık kümülatif **finansal** nakit akışı (yatırım vs su faturası + OPEX tasarrufu). Önlenen üretim duruşu zararı finansal NPV'ye dahil edilmez; ayrı **risk azaltımı (beklenen)** kartında gösterilir.
   4. **2029 Yeşil Su Verimliliği Belgesi Kademesi & Rapor Dışa Aktarımı:** Seçilen portföyle tesisin Mavi / Yeşil / Turkuaz kademelerinden hangisine ulaştığı; raporun `JSON` / `CSV` / yazdırılabilir formatta indirilmesi.
   5. **Gemini AI Yönetim Kurulu Özeti:** Hesaplanan kesin JSON çıktısını kaynak göstererek özetleyen, sayı uydurmayan yönetici raporu (API kapalıysa deterministik şablon yedekli).
 
@@ -124,7 +124,8 @@
   7. `roi_optimizer.py` (**Bütçe Kısıtlı Önlem Optimizasyonu**):
      - SYGM NACE rehberleri ve IFC vakalarından derlenmiş 12 somut endüstriyel önlem kataloğu (Soğutma kulesi kapalı devre dönüşümü, RO/UF atıksu geri kazanımı, durulama suyu kaskad/geri kazanımı, basınçlı otomatik nozullar, CIP optimizasyonu, akustik/IoT kaçak tespiti, yağmur suyu hasadı, kuru temizleme/süpürme prosesi, kondens geri kazanımı, ISO 46001 dijital sayaç izleme vb.).
      - **Azalan Verim (Multiplicative Savings) Kuralı:** Aynı alt-prosese (`p ∈ {cooling, process, boiler, domestic}`) uygulanan önlemlerin toplam tasarrufu asla toplanmaz; $S_p = 1 - \prod_{i \in M_p} (1 - r_i)$ ile hesaplanır ve sektörel teknik üst sınırla ($\le \%78$) kırpılır.
-     - **Optimizasyon:** Verilen `budget_tl` kısıtı altında 5 yıllık NPV'yi maksimize eden önlem alt kümesini (0-1 Knapsack / MILP kesin çözümü) bulur.
+     - **Optimizasyon:** Verilen `budget_tl` kısıtı altında 5 yıllık **finansal** NPV'yi (su faturası + OPEX tasarrufu − CAPEX) maksimize eden önlem alt kümesini (0-1 Knapsack / MILP kesin çözümü) bulur.
+     - **Finansal/risk ayrımı:** Önlenen üretim duruşu zararı finansal NPV'ye ve geri ödemeye **dahil edilmez**; ayrı "risk azaltımı (beklenen)" olarak raporlanır. Kesinti günü tahmini tarihsel fabrika verisiyle kalibre olmadığı için bu kalem garanti değil, senaryo göstergesidir.
   8. `llm_agent.py` (**Gemini AI Raporlayıcı + Offline Fallback**):
      - `google-genai` SDK (`.env` içinden `GEMINI_API_KEY`, model: `gemini-2.5-flash`).
      - Yalnızca hesaplama modüllerinin (`risk_index`, `roi_optimizer`) ürettiği kesin JSON verisini alır; sistem komutunda sayı uydurması yasaklanır.
@@ -198,6 +199,7 @@ Kullanıcının organizatörlere sorup teyit edebileceği tam liste:
 | K5 | Yapay Zeka: **Fizik-öncelikli + ML destekli** hibrit. Şeffaf bileşik risk indeksi (Aqueduct + SPEI + su dengesi); XGBoost **yanlılık düzeltme/ölçek indirme** (GroupKFold + SHAP); KMeans havza arketipleri; Isolation Forest İZSU anomalileri; MILP/Knapsack ROI; Gemini yalnızca raporlayıcı | İklim projeksiyonu fizik işidir; ML onu taklit etmez, eksik kalan yeri tamamlar. "Aqueduct'in gelecek değerini tahmin etme" döngüsel hedef hatası ortadan kalkar; her adım etiketli, doğrulanabilir ve açıklanabilir olur. LLM matematik yapmaz. |
 | K6 | **CarbonEmit ve benzeri ticari platformlardan tam bağımsızlık.** Veri girişi kendi açık şemamız (`facility.schema.json`) + örnek dosya; çıkış JSON/CSV dışa aktarım | Ticari SaaS'ın müşteri verisi/API'si erişilebilir değildir; sahte entegrasyon iddiası jüride itibar kaybı riskidir. "Eşlenebilir açık şema" dürüst ve savunulabilir konumlandırmadır; ürünü dışa bağımlılıktan kurtarır. |
 | K7 | Tüm dış veri ve API'ler için yerel önbellek (offline fallback) zorunlu | Canlı demoda internet/API/rate-limit kaynaklı çökme riskini sıfırlamak. |
+| K8 | ROI headline'ı **finansal** (su + OPEX − CAPEX); önlenen duruş riski ayrı ve NPV'ye dahil değil | Duruş zararı tarihsel kesinti verisiyle kalibre değil; NPV'ye katıldığında geri ödemeyi 2–8 aya düşürüp dış benchmark'larla (1,4–7 yıl) çelişiyordu. Finansal/risk ayrımı hem dürüst hem savunulabilir. |
 
 ---
 

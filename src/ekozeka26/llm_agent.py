@@ -53,11 +53,12 @@ def build_deterministic_board_report(sim_result: dict[str, Any]) -> dict[str, An
     markdown_text = f"""### 1. Yönetici Özeti ve Stratejik Karar
 **{fac['facility_name']}** ({fac['osb_name']}, Havza `#{fac['pfaf_id']}`) tesisi için **{fac['target_year']} ({fac['scenario']})** iklim projeksiyonu altında şeffaf bileşik su kesintisi risk skoru **`{risk['composite_risk_score']}/100` ({risk['risk_category']})** olarak hesaplanmıştır. Skoru sürükleyen birincil fiziksel faktörler **{top_comp['label']} (`+{top_comp['points']}` puan)** ve **{second_comp['label']} (`+{second_comp['points']}` puan)** bileşenleridir.
 
-### 2. "Hiçbir Şey Yapmama" (Do-Nothing) Finansal Maruziyeti
+### 2. "Hiçbir Şey Yapmama" (Do-Nothing) Maruziyeti
 - **Mevcut Su Kaynağı:** {src['source_label']}
-- **Yıllık Su Faturası Yükü:** `{dn['annual_water_bill_tl']:,.0f} TL/yıl` (`{fac['annual_water_m3']:,.0f} m³/yıl`)
+- **Normal İşletme Maliyeti (Su Faturası):** `{dn['annual_normal_operating_cost_tl']:,.0f} TL/yıl` (`{fac['annual_water_m3']:,.0f} m³/yıl`) — bu bir "kayıp" değil, mevcut işletme maliyetidir.
 - **Kuraklıkta Beklenen Üretim Duruşu:** Yılda **`{dn['expected_cutback_days']['p50']} gün`** (`P10–P90: {dn['expected_cutback_days']['p10']}–{dn['expected_cutback_days']['p90']} gün`)
-- **Toplam Yıllık Finansal Risk (Su Faturası + Duruş Zararı):** **`{dn['total_annual_exposure_tl']['p50']:,.0f} TL/yıl`** (`P10: {dn['total_annual_exposure_tl']['p10']:,.0f} TL` – `P90: {dn['total_annual_exposure_tl']['p90']:,.0f} TL/yıl`)
+- **Beklenen Duruş Riski:** **`{dn['annual_risk_exposure_tl']:,.0f} TL/yıl`** (`P10: {dn['expected_downtime_loss_tl']['p10']:,.0f} TL` – `P90: {dn['expected_downtime_loss_tl']['p90']:,.0f} TL/yıl`)
+- **Bilgi amaçlı toplam maruziyet (su faturası + duruş riski):** `{dn['total_annual_exposure_tl']['p50']:,.0f} TL/yıl`
 
 ### 3. Bütçe Kısıtlı Optimum Yatırım Portföyü (0-1 Knapsack & Azalan Verim)
 `{fac['capex_budget_tl']:,.0f} TL` yatırım bütçesi kısıtı altında çarpımsal azalan verim ($1 - \\prod(1-r_i)$) kuralıyla seçilen **{opt['selected_measures_count']} endüstriyel önlem** toplam **`{opt['total_capex_tl']:,.0f} TL` CAPEX** (`%{opt['budget_utilization_pct']}` bütçe kullanımı) gerektirmektedir:
@@ -65,8 +66,9 @@ def build_deterministic_board_report(sim_result: dict[str, Any]) -> dict[str, An
 
 ### 4. Finansal Geri Dönüş (ROI) ve 27.12.2029 Yasal Belge Uyumu
 - **Net Yıllık Su Tasarrufu:** **`{opt['annual_water_saved_m3']:,.0f} m³/yıl`** (**`%{opt['multiplicative_savings_breakdown']['total_saving_pct']}`** net çarpımsal tasarruf)
-- **Net Yıllık Finansal Kazanç:** **`{opt['net_annual_financial_benefit_tl']:,.0f} TL/yıl`** (`{opt['annual_water_bill_saving_tl']:,.0f} TL` su faturası + `{opt['avoided_downtime_loss_p50_tl']:,.0f} TL` önlenen üretim duruşu zararı)
-- **5 Yıllık Net Bugünkü Değer (NPV, %18 iskonto):** **`{opt['npv_5yr_tl']:,.0f} TL`** | **Geri Ödeme Süresi:** **`{opt['payback_months']} ay`**
+- **Net Yıllık Finansal Kazanç:** **`{opt['net_annual_financial_benefit_tl']:,.0f} TL/yıl`** (`{opt['annual_water_bill_saving_tl']:,.0f} TL` su faturası tasarrufu + net OPEX etkisi; **duruş riski dahil değil**)
+- **Risk Azaltımı (ayrı, beklenen):** `{opt['avoided_cutback_days_p50']} gün` · `{opt['avoided_downtime_loss_p50_tl']:,.0f} TL/yıl` — finansal NPV'ye dahil edilmez.
+- **5 Yıllık Finansal Net Bugünkü Değer (NPV, %18 iskonto):** **`{opt['npv_5yr_tl']:,.0f} TL`** | **Finansal Geri Ödeme Süresi:** **`{opt['payback_months']} ay`**
 - **27 Aralık 2029 Su Verimliliği Belgesi Kademesi:** **{cert['achieved_tier']}** — *{cert['compliance_status']}*
 """
 
@@ -74,7 +76,8 @@ def build_deterministic_board_report(sim_result: dict[str, Any]) -> dict[str, An
         "headline": (
             f"{fac['facility_name']}: {opt['total_capex_tl']:,.0f} TL yatırımla yılda "
             f"{opt['annual_water_saved_m3']:,.0f} m³ (%{opt['multiplicative_savings_breakdown']['total_saving_pct']}) "
-            f"su tasarrufu, {opt['payback_months']} ayda geri ödeme ve {cert['achieved_tier']} kazanımı."
+            f"su tasarrufu, {opt['payback_months']} ayda finansal geri ödeme ve {cert['achieved_tier']} kazanımı; "
+            f"duruş riski azaltımı ayrıca raporlanır."
         ),
         "risk_insight": (
             f"Havza #{fac['pfaf_id']} için {fac['target_year']} ({fac['scenario']}) risk skoru "
@@ -83,9 +86,10 @@ def build_deterministic_board_report(sim_result: dict[str, Any]) -> dict[str, An
             f"(P10={dn['expected_cutback_days']['p10']} – P90={dn['expected_cutback_days']['p90']} gün)."
         ),
         "financial_insight": (
-            f"Hiçbir önlem alınmazsa yıllık beklenen toplam maliyet {dn['total_annual_exposure_tl']['p50']:,.0f} TL "
-            f"iken, seçilen {opt['selected_measures_count']} önlemli portföy yılda "
-            f"{opt['net_annual_financial_benefit_tl']:,.0f} TL net kazanç ve 5 yılda {opt['npv_5yr_tl']:,.0f} TL NPV üretir."
+            f"Normal işletme maliyeti {dn['annual_normal_operating_cost_tl']:,.0f} TL/yıl ve beklenen duruş riski "
+            f"{dn['annual_risk_exposure_tl']:,.0f} TL/yıl iken, seçilen {opt['selected_measures_count']} önlemli portföy "
+            f"yılda {opt['net_annual_financial_benefit_tl']:,.0f} TL finansal kazanç ve 5 yılda "
+            f"{opt['npv_5yr_tl']:,.0f} TL finansal NPV üretir; duruş riski azaltımı ayrıca gösterilir."
         ),
         "regulatory_2029_insight": (
             f"27.12.2029 son tarihli Su Verimliliği Yönetmeliği (RG 32765) kapsamında tesis "
