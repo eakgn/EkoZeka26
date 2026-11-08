@@ -53,7 +53,7 @@ def build_deterministic_board_report(sim_result: dict[str, Any]) -> dict[str, An
     markdown_text = f"""### 1. Yönetici Özeti ve Stratejik Karar
 **{fac['facility_name']}** ({fac['osb_name']}, Havza `#{fac['pfaf_id']}`) tesisi için **{fac['target_year']} ({fac['scenario']})** iklim projeksiyonu altında şeffaf bileşik su kesintisi risk skoru **`{risk['composite_risk_score']}/100` ({risk['risk_category']})** olarak hesaplanmıştır. Skoru sürükleyen birincil fiziksel faktörler **{top_comp['label']} (`+{top_comp['points']}` puan)** ve **{second_comp['label']} (`+{second_comp['points']}` puan)** bileşenleridir.
 
-### 2. "Hiçbir Şey Yapmama" (Do-Nothing) Maruziyeti
+### 2. "Hiçbir Şey Yapmama" Maruziyeti
 - **Mevcut Su Kaynağı:** {src['source_label']}
 - **Normal İşletme Maliyeti (Su Faturası):** `{dn['annual_normal_operating_cost_tl']:,.0f} TL/yıl` (`{fac['annual_water_m3']:,.0f} m³/yıl`) — bu bir "kayıp" değil, mevcut işletme maliyetidir.
 - **Kuraklıkta Beklenen Üretim Duruşu:** Yılda **`{dn['expected_cutback_days']['p50']} gün`** (`P10–P90: {dn['expected_cutback_days']['p10']}–{dn['expected_cutback_days']['p90']} gün`)

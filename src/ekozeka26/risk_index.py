@@ -397,17 +397,23 @@ def compare_candidate_osbs(
     riskiest = results[-1] if results else None
     recommendation_text = ""
     if safest and riskiest:
-        diff_pts = round(riskiest["composite_risk_score"] - safest["composite_risk_score"], 1)
-        diff_days = round(
-            riskiest["expected_cutback_days"]["p50"] - safest["expected_cutback_days"]["p50"], 1
-        )
+        top_score = riskiest["composite_risk_score"]
+        top_group = [r for r in results if abs(r["composite_risk_score"] - top_score) < 1e-9]
+        top_names = [r["name"] for r in top_group]
+        if len(top_names) > 1:
+            names_txt = ", ".join(top_names[:-1]) + " ve " + top_names[-1]
+            riskiest_label = f"En yüksek riskli adaylar {names_txt} ({top_score}/100)"
+        else:
+            riskiest_label = f"En yüksek riskli aday olan {top_names[0]} ({top_score}/100)"
+        diff_pts = round(top_score - safest["composite_risk_score"], 1)
+        top_days_p50 = max(r["expected_cutback_days"]["p50"] for r in top_group)
+        diff_days = round(top_days_p50 - safest["expected_cutback_days"]["p50"], 1)
         recommendation_text = (
             f"Yatırım için en güvenli bölge: {safest['name']} (Risk Skoru: {safest['composite_risk_score']}/100, "
             f"Beklenen Kesinti: {safest['expected_cutback_days']['p50']} gün/yıl [P10–P90: "
             f"{safest['expected_cutback_days']['p10']}–{safest['expected_cutback_days']['p90']} gün]). "
-            f"En yüksek riskli aday olan {riskiest['name']} ({riskiest['composite_risk_score']}/100) ile "
-            f"karşılaştırıldığında risk skoru {diff_pts} puan daha düşük olup yılda ortalama {diff_days} gün "
-            f"daha az su kısıtı/üretim duruşu beklenmektedir."
+            f"{riskiest_label} ile karşılaştırıldığında risk skoru {diff_pts} puan daha düşük olup yılda ortalama "
+            f"{diff_days} gün daha az su kısıtı/üretim duruşu beklenmektedir."
         )
 
     return {
