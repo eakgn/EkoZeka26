@@ -7,6 +7,8 @@
 
 **Kapsam katmanları:** Uygulama üç güven katmanı sunar: **Tier 0 — Ulusal tarama** (639 poligon / 116 tekil `pfaf_id`, yalnızca Aqueduct 4.0; yatırım ön taraması), **Tier 1 — Odak koridor** (İzmir Kemalpaşa/Aliağa/Atatürk, Manisa, Bursa, Kocaeli, Konya; yerel tarife/OSB profili) ve **Tier 2 — İzmir/Gediz canlı** (İZSU + SYGM). Ayrıntılı dürüstlük notu: `SPEC.md §13`.
 
+**İZSU canlı/offline protokolü:** `/api/izsu-live` önce taze canlı önbelleği (`data/cache/izsu_live_snapshot.json`, 6 saat TTL), yoksa doğrulanmış `data/processed/izsu_snapshot.json`, o da yoksa `data/fallback/izsu_snapshot.json` kullanır. Canlı çekim için `uv run python -m ekozeka26.izsu_source --refresh`; başarısız olursa API çökmez ve `fallback_reason` döner.
+
 ---
 
 ## 2. Veri Gerçeklik ve Şeffaflık Rozetleri

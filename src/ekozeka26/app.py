@@ -9,7 +9,7 @@ Uç Noktalar (REST API):
 - `GET /api/predict-location` & `POST /api/predict-location` : Tıklanan (lat, lon) veya seçilen OSB için coğrafi sınır korumalı şeffaf risk + SHAP (<50 ms) + KMeans arketip + 7 gerçek CMIP6 HighResMIP modeli P10-P90 su dengesi serisi
 - `POST /api/simulate-roi` & `GET /api/simulate-roi` : Bütçe kısıtlı 0-1 Knapsack su verimliliği portföy optimizasyonu, kuyu/şebeke/yüzey suyu analizi ve 27.12.2029 Yeşil Belge kademesi
 - `POST /api/executive-summary` : Hesaplanan kesin JSON çıktısından Gemini / Deterministik Yönetim Kurulu Raporu
-- `GET /api/izsu-live` : İZSU 6 Kasım 2026 baraj dolulukları (%34,0 ağırlıklı vs %44,2 basit ort.), 23 günlük Balçova düşüşü (-7,43 puan) ve 137 ham satır → 126 tekil tesis-ay üretim kaydı üzerinde Isolation Forest anomali raporu
+- `GET /api/izsu-live` : İZSU baraj dolulukları (%34,0 ağırlıklı vs %44,2 basit ort.), 23 günlük Balçova düşüşü (-7,43 puan) ve 137 ham satır → 126 tekil tesis-ay üretim kaydı üzerinde Isolation Forest anomali raporu. Kaynak zinciri: taze canlı önbellek → doğrulanmış snapshot → fallback (`?refresh=true` ile canlı deneme)
 - `GET /api/facility-sample` : Açık tesis şeması (`facility.schema.json`) ve gerçek tesis profilleri (`tofas_bursa`, `vestel_manisa`, `petkim_aliaga`)
 - `GET /api/export/json` & `POST /api/export/json` : Açık şema uyumlu JSON rapor indirme
 - `GET /api/export/csv` & `POST /api/export/csv` : Kurumsal envanter eşlenebilir CSV rapor indirme
@@ -29,6 +29,7 @@ from pydantic import BaseModel, Field
 
 from ekozeka26.anomaly import detect_izsu_and_gediz_anomalies
 from ekozeka26.data_pipeline import PROCESSED_DIR, PROJECT_ROOT
+from ekozeka26.izsu_source import load_izsu_snapshot
 from ekozeka26.llm_agent import generate_executive_summary
 from ekozeka26.ml_engine import explain_basin_summer_peak_shap
 from ekozeka26.risk_index import (
@@ -484,12 +485,22 @@ def api_executive_summary(req: ExecutiveSummaryRequest) -> dict[str, Any]:
 
 
 @app.get("/api/izsu-live")
-def api_izsu_live() -> dict[str, Any]:
-    izsu = json.loads((PROCESSED_DIR / "izsu_snapshot.json").read_text(encoding="utf-8"))
+def api_izsu_live(refresh: bool = Query(default=False, description="Canlı İZSU sayfasını dene")) -> dict[str, Any]:
+    """
+    İZSU baraj/üretim verisini döner.
+
+    Kaynak zinciri: taze canlı önbellek → doğrulanmış snapshot → fallback.
+    `refresh=true` yalnızca açıkça istendiğinde canlı fetch dener; başarısız olursa
+    API çökmez, `fallback_reason` ile doğrulanmış snapshot'a düşer.
+    """
+    izsu = load_izsu_snapshot(prefer_live=refresh)
     anomalies = _get_anomaly_report()
     return {
-        "status": "verified_snapshot_and_anomaly_ready",
+        "status": "ok",
+        "source_mode": izsu.get("source_mode", "verified_snapshot"),
         "snapshot_date": izsu["snapshot_date"],
+        "age_days": izsu.get("age_days"),
+        "fallback_reason": izsu.get("fallback_reason"),
         "headline_metrics": izsu["headline_metrics"],
         "dams": izsu["dams"],
         "daily_production": izsu["daily_production"],

@@ -28,3 +28,6 @@ build/
 
 # Hackathon
 STATE.md.lock
+
+# İZSU canlı önbelleği (çalışma anında üretilir; offline fallback data/fallback/ altında)
+data/cache/izsu_live_snapshot.json

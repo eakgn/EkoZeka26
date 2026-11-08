@@ -84,6 +84,28 @@ uv run python -m ekozeka26.ml_engine --backtest
 - **SPEI/SPI:** Gerçek seri tek referans noktası (İzmir/Gediz) için hesaplanır; havza kartındaki `spei12_trend` bir proxy'dir ve UI'de "SPEI proxy" olarak etiketlenir.
 - **UI güven rozetleri:** "Odak koridor · yerel veri" ve "Ulusal · Aqueduct tarama" etiketleri hangi katmanda olduğunuzu söyler.
 
+### 5.2 İZSU Canlı Veri ve Offline Fallback Protokolü
+`/api/izsu-live` çalışma anında doğrudan İZSU'ya bağımlı değildir. Kaynak zinciri:
+
+1. **Taze canlı önbellek:** `data/cache/izsu_live_snapshot.json` (varsayılan TTL 6 saat).
+2. **Doğrulanmış snapshot:** `data/processed/izsu_snapshot.json` (6 Kasım 2026, tam aylık üretim + tarife katmanı).
+3. **Fallback:** `data/fallback/izsu_snapshot.json` (processed yoksa/bozuksa).
+
+Canlı çekim isteğe bağlıdır:
+
+```bash
+# Mevcut kaynak modunu ve önbellek yaşını göster
+uv run python -m ekozeka26.izsu_source --status
+
+# İZSU baraj sayfasını canlı çek; başarısız olursa doğrulanmış snapshot'a düş
+uv run python -m ekozeka26.izsu_source --refresh
+
+# API üzerinden canlı deneme (başarısız olursa fallback_reason döner)
+curl -s "http://127.0.0.1:8000/api/izsu-live?refresh=true"
+```
+
+`/api/izsu-live` yanıtı `source_mode` (`live_fetch` / `live_cache` / `verified_snapshot` / `fallback_snapshot`), `snapshot_date`, `age_days` ve `fallback_reason` alanlarını taşır. Canlı sayfa yalnızca baraj/kuyu doluluk kesitini içerdiği için aylık üretim serisi, 23 günlük kesit ve 2026 tarifeleri doğrulanmış snapshot'tan korunur; böylece canlı fetch başarısız olsa bile demo eksik veriyle çalışmaz.
+
 ---
 
 ## 6. Bilinen Zararsız Log Gürültüsü: `GET /v1/models → 404`

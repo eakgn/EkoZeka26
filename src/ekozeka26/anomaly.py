@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 
-from ekozeka26.data_pipeline import PROCESSED_DIR
+from ekozeka26.izsu_source import load_izsu_snapshot
 
 
 def detect_izsu_and_gediz_anomalies() -> dict[str, Any]:
@@ -32,8 +32,7 @@ def detect_izsu_and_gediz_anomalies() -> dict[str, Any]:
     ve 23 günlük baraj kesit deltası (14 Ekim -> 6 Kasım 2026) ile birleştirilmiş
     anomali raporunu döner.
     """
-    izsu_path = PROCESSED_DIR / "izsu_snapshot.json"
-    izsu = json.loads(izsu_path.read_text(encoding="utf-8"))
+    izsu = load_izsu_snapshot(prefer_live=False)
 
     records = izsu["monthly_production_2025"]
     df_raw = pd.DataFrame(records)
@@ -119,6 +118,8 @@ def detect_izsu_and_gediz_anomalies() -> dict[str, Any]:
 
     return {
         "detector": "IsolationForest (n_estimators=150, contamination=0.17) + 23-Günlük Baraj Kesit Deltası",
+        "data_source_mode": izsu.get("source_mode"),
+        "snapshot_date": izsu.get("snapshot_date"),
         "monthly_records_analyzed": len(df_raw),
         "unique_facility_months": len(df),
         "facilities_count": int(df["facility_name"].nunique()),
