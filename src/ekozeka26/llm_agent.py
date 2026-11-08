@@ -120,7 +120,7 @@ def generate_executive_summary(
         elapsed_ms = (time.perf_counter() - t0) * 1000.0
         return {
             "source_mode": "deterministic_expert_fallback",
-            "model_used": "AquaSanayi Deterministic Board Template v1.0 (Offline-Safe)",
+            "model_used": "Herhangi Bir Proje Deterministic Board Template v1.0 (Offline-Safe)",
             "latency_ms": round(elapsed_ms, 2),
             "hallucination_guard": "STRICT_JSON_LOCKED (Sıfır aritmetik uydurma)",
             **det_report,
@@ -159,7 +159,7 @@ def generate_executive_summary(
     elapsed_ms = (time.perf_counter() - t0) * 1000.0
     return {
         "source_mode": "deterministic_expert_fallback",
-        "model_used": "AquaSanayi Deterministic Board Template v1.0 (Offline Fallback)",
+        "model_used": "Herhangi Bir Proje Deterministic Board Template v1.0 (Offline Fallback)",
         "latency_ms": round(elapsed_ms, 2),
         "hallucination_guard": "STRICT_JSON_LOCKED (Sıfır aritmetik uydurma)",
         **det_report,

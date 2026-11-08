@@ -52,7 +52,7 @@ STATIC_DIR.mkdir(parents=True, exist_ok=True)
 SCHEMA_PATH = PROJECT_ROOT / "data" / "schema" / "facility.schema.json"
 
 app = FastAPI(
-    title="AquaSanayi AI — Endüstriyel Su Kıtlığı Risk, Yer Seçimi ve ROI Karar Platformu",
+    title="Herhangi Bir Proje — Endüstriyel Su Kıtlığı Risk, Yer Seçimi ve ROI Karar Platformu",
     version="1.0.0",
     description=(
         "EkoZeka26 Hackathonu: Fizik-öncelikli + ML destekli (WRI Aqueduct 4.0 + ERA5 + 7 CMIP6 + İZSU) "
@@ -144,7 +144,7 @@ def serve_index() -> HTMLResponse:
     index_file = STATIC_DIR / "index-v3.html"
     if index_file.exists():
         return HTMLResponse(index_file.read_text(encoding="utf-8"))
-    return HTMLResponse("<h1>AquaSanayi AI Çalışıyor</h1>")
+    return HTMLResponse("<h1>Herhangi Bir Proje Çalışıyor</h1>")
 
 
 @app.get("/favicon.ico", include_in_schema=False)
@@ -169,7 +169,7 @@ def health_alias() -> dict[str, Any]:
 def api_index() -> dict[str, Any]:
     """Kullanılabilir uç noktaların kısa dizini."""
     return {
-        "service": "AquaSanayi AI",
+        "service": "Herhangi Bir Proje",
         "docs": "/docs",
         "ui": "/",
         "endpoints": [
@@ -192,7 +192,7 @@ def api_health() -> dict[str, Any]:
     metrics = _get_model_metrics()
     return {
         "status": "ok",
-        "service": "AquaSanayi AI",
+        "service": "Herhangi Bir Proje",
         "offline_ready": True,
         "last_verified_data_date": "2026-11-06",
         "turkey_basins_count": 639,
@@ -544,7 +544,7 @@ def api_export_json_get(
     )
     return JSONResponse(
         content=sim,
-        headers={"Content-Disposition": 'attachment; filename="aquasanayi_roi_raporu.json"'},
+        headers={"Content-Disposition": 'attachment; filename="herhangi_bir_proje_roi_raporu.json"'},
     )
 
 
@@ -567,7 +567,7 @@ def api_export_json_post(req: ROISimulateRequest) -> JSONResponse:
     )
     return JSONResponse(
         content=sim,
-        headers={"Content-Disposition": 'attachment; filename="aquasanayi_roi_raporu.json"'},
+        headers={"Content-Disposition": 'attachment; filename="herhangi_bir_proje_roi_raporu.json"'},
     )
 
 
@@ -592,7 +592,7 @@ def api_export_csv_get(
     return PlainTextResponse(
         content=csv_text,
         media_type="text/csv; charset=utf-8",
-        headers={"Content-Disposition": 'attachment; filename="aquasanayi_roi_raporu.csv"'},
+        headers={"Content-Disposition": 'attachment; filename="herhangi_bir_proje_roi_raporu.csv"'},
     )
 
 
@@ -617,5 +617,5 @@ def api_export_csv_post(req: ROISimulateRequest) -> PlainTextResponse:
     return PlainTextResponse(
         content=csv_text,
         media_type="text/csv; charset=utf-8",
-        headers={"Content-Disposition": 'attachment; filename="aquasanayi_roi_raporu.csv"'},
+        headers={"Content-Disposition": 'attachment; filename="herhangi_bir_proje_roi_raporu.csv"'},
     )

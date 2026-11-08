@@ -689,7 +689,7 @@ def export_simulation_to_csv(sim_result: dict[str, Any]) -> str:
     opt = sim_result["optimized_portfolio"]
     cert = sim_result["certification_2029"]
 
-    writer.writerow(["# AquaSanayi AI — Endüstriyel Su Riski & ROI Optimizasyon Raporu (Açık Şema v1.0)"])
+    writer.writerow(["# Herhangi Bir Proje — Endüstriyel Su Riski & ROI Optimizasyon Raporu (Açık Şema v1.0)"])
     writer.writerow(["Tesis Adı", fac["facility_name"]])
     writer.writerow(["OSB / Lokasyon", f"{fac['osb_name']} (Havza #{fac['pfaf_id']})"])
     writer.writerow(["Sektör", fac["sector_label"]])

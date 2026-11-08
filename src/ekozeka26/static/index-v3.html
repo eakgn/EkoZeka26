@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AquaSanayi AI — Su Riski, Yer Seçimi ve 2029 ROI</title>
+  <title>Herhangi Bir Proje — Su Riski, Yer Seçimi ve 2029 ROI</title>
   <link rel="stylesheet" href="/static/vendor/leaflet.css" />
   <link rel="stylesheet" href="/static/vendor/fonts/fonts.css" />
   <script src="/static/vendor/leaflet.js"></script>
@@ -328,7 +328,7 @@
 
 <header>
   <div class="bar">
-    <div class="brand">AquaSanayi <span>AI</span></div>
+    <div class="brand">Herhangi Bir <span>Proje</span></div>
     <nav id="g-steps" class="steps" aria-label="Akış">
       <button id="btn-tab-1" class="step is-active" onclick="switchTab(1)" title="1. Yatırım & Yer Seçimi"><span class="n">1</span>Konum seç</button>
       <span class="step-arrow">→</span>
@@ -721,7 +721,7 @@
   </main>
 </div>
 
-<footer>AquaSanayi AI · WRI Aqueduct 4.0 · ERA5 · CMIP6 · İZSU · Veriler 6 Kasım 2026 itibarıyla</footer>
+<footer>Herhangi Bir Proje · WRI Aqueduct 4.0 · ERA5 · CMIP6 · İZSU · Veriler 6 Kasım 2026 itibarıyla</footer>
 
 <!-- Rehber -->
 <div id="tour-root" class="hidden">
@@ -1262,14 +1262,14 @@
     const res = await fetch(`/api/export/${fmt}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getTab2Payload()) });
     const url = URL.createObjectURL(await res.blob());
     const a = document.createElement("a");
-    a.href = url; a.download = `aquasanayi_roi_raporu.${fmt}`;
+    a.href = url; a.download = `herhangi_bir_proje_roi_raporu.${fmt}`;
     document.body.appendChild(a); a.click(); a.remove();
     URL.revokeObjectURL(url);
   }
 
   /* ---------- Rehber: spot ışıklı sunum ---------- */
   const TOUR = [
-    { tab: 1, el: null, chap: "Giriş", title: "AquaSanayi AI'ya hoş geldiniz",
+    { tab: 1, el: null, chap: "Giriş", title: "Herhangi Bir Proje'ye hoş geldiniz",
       body: "Bu platform bir sanayi yatırımcısının iki sorusunu yanıtlar: Fabrikamı nereye kurmalıyım ki susuz kalmayayım? Mevcut fabrikamda suya ne kadar yatırım yapmalıyım ve bu kendini öder mi?",
       points: ["Adım 1: Konumların su riskini karşılaştırın", "Adım 2: Seçilen konumda fabrikanın yatırım getirisini hesaplayın", "Her başlığın yanındaki (i) tam açıklamayı açar"] },
     { tab: 1, el: "g-steps", chap: "Gezinme", title: "İki adımlı akış",

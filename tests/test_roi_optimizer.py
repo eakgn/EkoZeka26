@@ -50,7 +50,7 @@ def test_knapsack_budget_constraint_and_kemalpasa_textile_scenario() -> None:
     assert sim["certification_2029"]["compliant_with_2029_green_mandate"] is True
 
     csv_str = export_simulation_to_csv(sim)
-    assert "AquaSanayi AI" in csv_str
+    assert "Herhangi Bir Proje" in csv_str
     assert "27.12.2029 Belge Kademesi" in csv_str
 
 

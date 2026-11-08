@@ -14,7 +14,7 @@ def test_all_rest_endpoints_200_ok_and_fast_fallback() -> None:
     r_ui = client.get("/")
     assert r_ui.status_code == 200
     html_text = r_ui.text
-    assert "AquaSanayi AI" in html_text
+    assert "Herhangi Bir Proje" in html_text
     assert "1. Yatırım & Yer Seçimi" in html_text
     assert "2. Mevcut Fabrika ROI & 2029 Yeşil Belge Simülatörü" in html_text
     assert "CarbonEmit" not in html_text  # Ticari platform bağımsızlığı kuralı
@@ -108,7 +108,7 @@ def test_all_rest_endpoints_200_ok_and_fast_fallback() -> None:
 
     r_exp_csv = client.get("/api/export/csv?osb_id=izmir_kemalpasa")
     assert r_exp_csv.status_code == 200
-    assert "AquaSanayi AI" in r_exp_csv.text
+    assert "Herhangi Bir Proje" in r_exp_csv.text
 
     # 10. Geçersiz girdi koruması (annual_water_m3 <= 0 -> 422)
     r_bad = client.post("/api/simulate-roi", json={"annual_water_m3": -10, "capex_budget_tl": 100000})

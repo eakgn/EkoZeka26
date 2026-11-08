@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<title>Herhangi Bir Proje — Jüri Sunumu</title>
+<style>
+@font-face{font-family:"Plex";font-style:normal;font-weight:400;src:url("../../src/ekozeka26/static/vendor/fonts/IBMPlexSans-Regular.woff2") format("woff2")}
+@font-face{font-family:"Plex";font-style:normal;font-weight:500;src:url("../../src/ekozeka26/static/vendor/fonts/IBMPlexSans-Medium.woff2") format("woff2")}
+@font-face{font-family:"Plex";font-style:normal;font-weight:600;src:url("../../src/ekozeka26/static/vendor/fonts/IBMPlexSans-SemiBold.woff2") format("woff2")}
+@font-face{font-family:"Plex";font-style:normal;font-weight:700;src:url("../../src/ekozeka26/static/vendor/fonts/IBMPlexSans-Bold.woff2") format("woff2")}
+@font-face{font-family:"PlexM";font-style:normal;font-weight:400;src:url("../../src/ekozeka26/static/vendor/fonts/IBMPlexMono-Regular.woff2") format("woff2")}
+@font-face{font-family:"PlexM";font-style:normal;font-weight:500;src:url("../../src/ekozeka26/static/vendor/fonts/IBMPlexMono-Medium.woff2") format("woff2")}
+
+:root{
+  --ink:#14201F; --paper:#FBFAF7; --teal:#0F3D3E; --sage:#6E9C95;
+  --clay:#C2542F; --line:#DCD8CF; --muted:#5F6B69; --wash:#F1EFE9;
+  --g:#2E7D5B; --b:#3B6FA0; --y:#B98A22;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#ddd;font-family:"Plex",sans-serif;color:var(--ink);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+@page{size:1280px 720px;margin:0}
+.slide{
+  position:relative;width:1280px;height:720px;background:var(--paper);
+  padding:44px 56px 38px;overflow:hidden;page-break-after:always;break-after:page;
+}
+.slide:last-child{page-break-after:auto;break-after:auto}
+.foot{position:absolute;left:56px;right:56px;bottom:16px;display:flex;justify-content:space-between;
+  font-family:"PlexM",monospace;font-size:10px;letter-spacing:.12em;color:#8A9491;text-transform:uppercase}
+.eyebrow{font-family:"PlexM",monospace;font-size:11px;letter-spacing:.22em;color:var(--clay);text-transform:uppercase;margin-bottom:10px}
+h1{font-size:40px;line-height:1.08;font-weight:600;letter-spacing:-.02em}
+h1 em{font-style:normal;color:var(--teal)}
+.sub{font-size:14px;color:var(--muted);margin-top:8px;line-height:1.45}
+.rule{height:1px;background:var(--line);margin:16px 0 20px}
+.mono{font-family:"PlexM",monospace;font-variant-numeric:tabular-nums}
+
+/* badges */
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.dg{background:var(--g)} .db{background:var(--b)} .dy{background:var(--y)}
+.badge{font-family:"PlexM",monospace;font-size:9px;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
+
+/* cover */
+.cover{background:var(--teal);color:#F4F1E9;padding:0}
+.cover .inner{position:absolute;left:64px;top:64px;right:64px;bottom:64px;display:flex;flex-direction:column;justify-content:space-between}
+.cover .tag{font-family:"PlexM",monospace;font-size:11px;letter-spacing:.24em;color:#9FC0B8}
+.cover h1{font-size:74px;font-weight:600;letter-spacing:-.035em;line-height:.98;margin-top:18px}
+.cover h1 span{color:#E7A98C}
+.cover .lede{font-size:17px;line-height:1.5;color:#CFDDD8;max-width:640px;margin-top:22px}
+.cover .who{display:flex;gap:36px;align-items:flex-end;border-top:1px solid rgba(255,255,255,.18);padding-top:18px}
+.cover .who div{font-size:12px;color:#9FC0B8;line-height:1.6}
+.cover .who b{display:block;color:#F4F1E9;font-size:14px;font-weight:500}
+.cover .ghost{position:absolute;right:-10px;bottom:-56px;font-family:"PlexM",monospace;font-size:300px;
+  font-weight:500;color:rgba(255,255,255,.05);letter-spacing:-.06em;line-height:1}
+.cover .pill{display:inline-block;border:1px solid rgba(255,255,255,.28);border-radius:99px;padding:6px 13px;
+  font-family:"PlexM",monospace;font-size:10px;letter-spacing:.14em;color:#CFDDD8;margin-right:8px}
+
+/* stat cards */
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:3px;padding:18px 18px 16px}
+.card .num{font-family:"PlexM",monospace;font-size:46px;font-weight:500;letter-spacing:-.04em;line-height:1}
+.card .num.sm{font-size:36px}
+.card .lab{font-size:12px;line-height:1.4;color:var(--muted);margin-top:10px}
+.card .src{margin-top:12px;padding-top:9px;border-top:1px dashed var(--line)}
+.card.dark{background:var(--teal);border-color:var(--teal);color:#F4F1E9}
+.card.dark .num{color:#fff}.card.dark .lab{color:#B9CDC7}.card.dark .src{border-color:rgba(255,255,255,.18)}
+.card.clay .num{color:var(--clay)}
+.card.teal .num{color:var(--teal)}
+
+.strip{margin-top:18px;background:var(--wash);border-left:3px solid var(--clay);padding:14px 18px;
+  display:flex;justify-content:space-between;align-items:center;gap:24px}
+.strip .l{font-size:13px;line-height:1.45;color:var(--ink)}
+.strip .r{font-family:"PlexM",monospace;font-size:12px;color:var(--muted);text-align:right;white-space:nowrap}
+
+/* two cards */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.qcard{background:#fff;border:1px solid var(--line);border-radius:3px;padding:24px 26px;display:flex;flex-direction:column;min-height:250px}
+.qcard .k{font-family:"PlexM",monospace;font-size:10px;letter-spacing:.18em;color:var(--clay)}
+.qcard h2{font-size:26px;font-weight:600;line-height:1.15;margin-top:10px;letter-spacing:-.02em}
+.qcard p{font-size:13px;line-height:1.5;color:var(--muted);margin-top:10px}
+.qcard .arrow{margin-top:auto;padding-top:14px;font-size:12.5px;color:var(--teal);border-top:1px solid var(--line);line-height:1.5}
+
+/* pipeline */
+.pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:4px}
+.pbox{background:#fff;border:1px solid var(--line);border-top:3px solid var(--sage);padding:12px 12px 11px;border-radius:2px}
+.pbox:nth-child(5){border-top-color:var(--clay)}
+.pbox .n{font-family:"PlexM",monospace;font-size:9px;letter-spacing:.14em;color:#9AA4A1}
+.pbox .t{font-size:13px;font-weight:600;margin-top:4px;color:var(--teal)}
+.pbox .d{font-size:10.8px;line-height:1.42;color:var(--muted);margin-top:6px}
+
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;margin-top:6px}
+.role{display:flex;gap:9px;font-size:12px;line-height:1.42}
+.role b{color:var(--teal);font-weight:600}
+.role .idx{font-family:"PlexM",monospace;font-size:10px;color:var(--clay);padding-top:1px;min-width:12px}
+
+.callout{background:var(--teal);color:#F4F1E9;padding:16px 18px;border-radius:2px}
+.callout .k{font-family:"PlexM",monospace;font-size:9px;letter-spacing:.16em;color:#9FC0B8}
+.callout p{font-size:12.5px;line-height:1.5;margin-top:7px;color:#E4EDEA}
+.callout b{color:#E7A98C}
+
+/* table */
+table{width:100%;border-collapse:collapse}
+th{font-family:"PlexM",monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#8A9491;
+  text-align:right;padding:0 8px 8px;border-bottom:1px solid var(--line);font-weight:400}
+th:first-child,td:first-child{text-align:left;padding-left:0}
+td{font-size:12px;padding:10px 8px;border-bottom:1px solid var(--line);text-align:right;color:var(--muted)}
+td.n{font-family:"PlexM",monospace;color:var(--ink)}
+tr.hi td{background:#F7F5EF}
+tr.hi td.n{color:var(--teal);font-weight:500}
+
+.bars{margin-top:4px}
+.bar{margin-bottom:16px}
+.bar .top{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px}
+.bar .top b{font-family:"PlexM",monospace;color:var(--ink);font-weight:500}
+.bar .track{height:14px;background:var(--wash);border-radius:2px;overflow:hidden}
+.bar .fill{height:100%;background:var(--sage)}
+.bar.hi .fill{background:var(--teal)}
+.bar.hi .top b{color:var(--teal)}
+
+.chips{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}
+.chip{background:#fff;border:1px solid var(--line);padding:10px 12px;border-radius:2px}
+.chip .v{font-family:"PlexM",monospace;font-size:17px;color:var(--teal);letter-spacing:-.02em}
+.chip .l{font-size:9.5px;color:var(--muted);margin-top:3px;line-height:1.35}
+
+/* three columns */
+.cols3{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:22px}
+.colhead{font-family:"PlexM",monospace;font-size:10px;letter-spacing:.16em;color:var(--clay);text-transform:uppercase;
+  padding-bottom:7px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.bigrow{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.bigrow .v{font-family:"PlexM",monospace;font-size:21px;letter-spacing:-.03em;color:var(--teal);min-width:150px;white-space:nowrap}
+.bigrow .t{font-size:11px;line-height:1.38;color:var(--muted)}
+ul.plain{list-style:none}
+ul.plain li{font-size:11.5px;line-height:1.45;color:var(--muted);padding-left:13px;position:relative;margin-bottom:9px}
+ul.plain li:before{content:"";position:absolute;left:0;top:6px;width:5px;height:5px;background:var(--clay);border-radius:50%}
+ul.plain li b{color:var(--ink);font-weight:500}
+
+/* closing */
+.close{background:var(--teal);color:#F4F1E9;display:flex;flex-direction:column;justify-content:center;padding:0 96px}
+.close .k{font-family:"PlexM",monospace;font-size:11px;letter-spacing:.24em;color:#9FC0B8}
+.close h1{font-size:46px;line-height:1.12;color:#F4F1E9;margin-top:18px;max-width:960px;letter-spacing:-.03em}
+.close h1 span{color:#E7A98C}
+.close .nums{display:flex;gap:48px;margin-top:38px;border-top:1px solid rgba(255,255,255,.18);padding-top:22px}
+.close .nums .v{font-family:"PlexM",monospace;font-size:30px;color:#fff}
+.close .nums .l{font-size:11px;color:#9FC0B8;margin-top:3px;line-height:1.35}
+.close .end{margin-top:34px;display:flex;justify-content:space-between;align-items:flex-end;font-size:12px;color:#9FC0B8}
+.close .end b{color:#F4F1E9;font-weight:500}
+
+.small{font-size:10.5px;color:#6B7674;line-height:1.45}
+.tagline{font-family:"PlexM",monospace;font-size:10px;letter-spacing:.12em;color:var(--clay);text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<!-- 1 · COVER -->
+<section class="slide cover">
+  <div class="ghost">34,0</div>
+  <div class="inner">
+    <div>
+      <div class="tag">EKOZEKA26 · İZMİR · 8 KASIM 2026</div>
+      <h1>Herhangi Bir <span>Proje</span></h1>
+      <p class="lede">Endüstriyel su kıtlığı riski, yer seçimi ve 2029 Yeşil Su Verimliliği Belgesi için karar platformu.</p>
+    </div>
+    <div>
+      <div style="margin-bottom:22px">
+        <span class="pill">7 GERÇEK CMIP6 MODELİ</span>
+        <span class="pill">639 POLİGON · 116 HAVZA</span>
+        <span class="pill">3 GERÇEK TESİS</span>
+      </div>
+      <div class="who">
+        <div><b>Ege Akgün</b>DEÜ Bilgisayar Bilimleri</div>
+        <div><b>github.com/eakgn/EkoZeka26</b>Public repo · 23 test geçiyor</div>
+        <div><b>5 dakika</b>Canlı demo + bu deste</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · PROBLEM -->
+<section class="slide">
+  <div class="eyebrow">01 · Problem</div>
+  <h1>Kriz gelecek tahmini değil, <em>sayaçta</em>.</h1>
+  <p class="sub">İzmir, 6 Kasım 2026. Beş barajın basit ortalaması %44,24 diyor; kapasite ağırlıklı gerçek <b>%34,01</b>.</p>
+  <div class="rule"></div>
+
+  <div class="grid4">
+    <div class="card clay">
+      <div class="num">%34,0</div>
+      <div class="lab">İzmir barajları kapasite-ağırlıklı doluluk<br><span class="mono" style="font-size:11px">257,17 / 756,19 Mm³</span></div>
+      <div class="src"><span class="dot dg"></span><span class="badge">ÖLÇÜLMÜŞ · İZSU</span></div>
+    </div>
+    <div class="card">
+      <div class="num">%28,0</div>
+      <div class="lab">Gördes Barajı — kapasitenin %58'ini tek başına tutuyor</div>
+      <div class="src"><span class="dot dg"></span><span class="badge">ÖLÇÜLMÜŞ · İZSU</span></div>
+    </div>
+    <div class="card">
+      <div class="num">%62,9</div>
+      <div class="lab">Gediz'de kuraklıkta sanayi tahsisi kesintisi<br><span class="mono" style="font-size:11px">%85,9 → %37,1</span></div>
+      <div class="src"><span class="dot dg"></span><span class="badge">RESMÎ PLAN · SYGM</span></div>
+    </div>
+    <div class="card dark">
+      <div class="num">404 <span style="font-size:20px">TL/m³</span></div>
+      <div class="lab">İZSU sanayi tarifesi · geri kazanılmış su 11,95 TL/m³</div>
+      <div class="src"><span class="dot dg"></span><span class="badge">RESMÎ TARİFE · 01.06.2026</span></div>
+    </div>
+  </div>
+
+  <div class="strip">
+    <div class="l"><b>27 Aralık 2029:</b> OSB'ler ve Ek-2 NACE listesindeki 50+ çalışanlı fabrikalar Yeşil Su Verimliliği Belgesi almak zorunda. <span class="mono" style="font-size:11px;color:#8A9491">RG 27.12.2024 · No. 32765</span></div>
+    <div class="r">Suyun hacimce %79'u tarımda.<br>Ama fatura m³ başına sanayide.</div>
+  </div>
+
+  <div class="foot"><span>Herhangi Bir Proje · EkoZeka26</span><span>02 / 09</span></div>
+</section>
+
+<!-- 3 · USER -->
+<section class="slide">
+  <div class="eyebrow">02 · Kullanıcı ve değer önerisi</div>
+  <h1>İki soru, <em>tek karar</em>.</h1>
+  <div class="rule"></div>
+
+  <div class="grid2">
+    <div class="qcard">
+      <div class="k">SORU 1 · YENİ YATIRIM</div>
+      <h2>Fabrikamı nereye kurayım?</h2>
+      <p>Yatırımcı, İZKA gibi yatırım ajansları ve proje finansmanı veren bankalar için.</p>
+      <div class="arrow">639 poligon · 116 tekil havza · 0–100 şeffaf risk · P10–P90 kesinti günü · SHAP sürücüleri</div>
+    </div>
+    <div class="qcard">
+      <div class="k">SORU 2 · MEVCUT TESİS</div>
+      <h2>Ne yapmalıyım, kaça mal olur?</h2>
+      <p>Tesis yöneticisi, sürdürülebilirlik müdürü, leasing ve yeşil kredi kurumları için.</p>
+      <div class="arrow">12 SYGM/IFC önlemi · bütçe kısıtlı Knapsack · 5 yıllık finansal NPV · 2029 belge kademesi</div>
+    </div>
+  </div>
+
+  <div class="strip" style="margin-top:20px">
+    <div class="l"><b>Kim öder?</b> 416 OSB yönetimi · 68.000+ fabrika · yeşil kredi veren bankalar. Bugün yalnızca <b>27 Yeşil OSB</b> ve <b>3 ISO 46001</b> belgeli OSB var — pazarın %93'ü dönüşmedi.</div>
+    <div class="r"><span class="dot dg"></span>OSBÜK / TSE</div>
+  </div>
+
+  <div class="foot"><span>Herhangi Bir Proje · EkoZeka26</span><span>03 / 09</span></div>
+</section>
+
+<!-- 4 · MODEL -->
+<section class="slide">
+  <div class="eyebrow">03 · Model</div>
+  <h1>Fizik önce, <em>ML etiketli yerde</em>.</h1>
+  <p class="sub">İklimi fizikle kuruyoruz; makine öğrenmesini yalnızca etiketin gerçekten olduğu işe koyuyoruz.</p>
+  <div class="rule"></div>
+
+  <div class="pipe">
+    <div class="pbox"><div class="n">01 · VERİ</div><div class="t">Çok kaynaklı</div><div class="d">Aqueduct 4.0 · ERA5 1940–2025 · 7 CMIP6 HighResMIP · İZSU canlı · SYGM/IFC 12 önlem</div></div>
+    <div class="pbox"><div class="n">02 · FİZİK</div><div class="t">İklim motoru</div><div class="d">FAO-56 Penman-Monteith / Hargreaves ET₀ · her model için ayrı QDM · SPI-3/12 · SPEI-3/12</div></div>
+    <div class="pbox"><div class="n">03 · İNDEKS</div><div class="t">Şeffaf risk</div><div class="d">5 bileşen, 0–100. Her katkı ekranda; kara kutu değil.</div></div>
+    <div class="pbox"><div class="n">04 · ML</div><div class="t">4 rol, 4 gerekçe</div><div class="d">XGBoost ölçek indirme · KMeans arketip · Isolation Forest anomali · Gemini rapor</div></div>
+    <div class="pbox"><div class="n">05 · KARAR</div><div class="t">Optimizasyon</div><div class="d">0-1 Knapsack · çarpımsal azalan verim ≤ %78 · 2029 belge kademesi</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:26px;margin-top:20px">
+    <div>
+      <div class="colhead">Yapay zekâ nerede, neden</div>
+      <div class="roles">
+        <div class="role"><span class="idx">01</span><div><b>XGBoost:</b> kaba yıllık projeksiyonu yaz pik aylarına indirir. Fabrikanın suyu temmuzda kesilir.</div></div>
+        <div class="role"><span class="idx">02</span><div><b>KMeans:</b> 639 birimi 5 havza arketipine ayırır; "sizin profiliniz" karşılaştırması.</div></div>
+        <div class="role"><span class="idx">03</span><div><b>Isolation Forest:</b> İZSU üretim serisinde baraj çöküşü ve kuyu yüklenmesini yakalar.</div></div>
+        <div class="role"><span class="idx">04</span><div><b>Gemini:</b> yalnızca doğrulanmış JSON'u metne çevirir; hiçbir çarpma/bölme yapmaz.</div></div>
+      </div>
+    </div>
+    <div class="callout">
+      <div class="k">BİLEREK YAPMADIĞIMIZ</div>
+      <p>Aqueduct 2050'yi XGBoost'a tahmin ettirmek <b>döngüsel hedef</b> olurdu: model yeni bilgi üretmez, mevcut sayıyı taklit eder. Üstelik 639 satır denetimli öğrenme için az. O yüzden risk indeksi <b>kural tabanlı ve denetlenebilir</b>; ML yalnızca etiketli yerde.</p>
+    </div>
+  </div>
+
+  <div class="foot"><span>Herhangi Bir Proje · EkoZeka26</span><span>04 / 09</span></div>
+</section>
+
+<!-- 5 · PROOF -->
+<section class="slide">
+  <div class="eyebrow">04 · Doğrulama</div>
+  <h1>Aynı havza hem eğitimde hem testte <em>yok</em>.</h1>
+  <p class="sub">5-katlı GroupKFold, grup = <span class="mono">pfaf_id</span>. 116 havza × 12 ay = 1.392 havza-ay satırı; mekânsal sızıntı sıfır.</p>
+  <div class="rule"></div>
+
+  <div style="display:grid;grid-template-columns:1.05fr 1fr;gap:40px">
+    <div>
+      <table>
+        <tr><th>Model</th><th>MAE</th><th>RMSE</th><th>R²</th></tr>
+        <tr><td>Naive — kaba yıllık</td><td class="n">0,4789</td><td class="n">0,9598</td><td class="n">−0,004</td></tr>
+        <tr><td>Ridge — doğrusal</td><td class="n">0,2940</td><td class="n">0,5827</td><td class="n">0,630</td></tr>
+        <tr class="hi"><td><b>XGBoost downscaler</b></td><td class="n">0,1534</td><td class="n">0,4328</td><td class="n">0,7958</td></tr>
+      </table>
+      <p class="small" style="margin-top:12px">Hata naive'e göre <b style="color:#0F3D3E">%68,0 düşük</b>. Etiketler yerinde ölçüm değil, WRI Aqueduct'in yayımlanmış aylık model çıktısıdır — bunu açıkça yazıyoruz.</p>
+      <div class="chips" style="grid-template-columns:repeat(3,1fr)">
+        <div class="chip"><div class="v">0,593–0,919</div><div class="l">5 fold R² aralığı (en kötü fold dahil)</div></div>
+        <div class="chip"><div class="v">0,6732</div><div class="l">Gediz 1984–2025 debi backtest R²</div></div>
+        <div class="chip"><div class="v">23 / 2 ms</div><div class="l">geçen test · SHAP çıkarımı</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="colhead">MAE — düşük daha iyi</div>
+      <div class="bars">
+        <div class="bar"><div class="top"><span>Naive</span><b>0,4789</b></div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+        <div class="bar"><div class="top"><span>Ridge</span><b>0,2940</b></div><div class="track"><div class="fill" style="width:61.4%"></div></div></div>
+        <div class="bar hi"><div class="top"><span>XGBoost</span><b>0,1534</b></div><div class="track"><div class="fill" style="width:32.0%"></div></div></div>
+      </div>
+      <div class="callout" style="margin-top:18px">
+        <div class="k">GERÇEK VAKADA DENENDİ</div>
+        <p>Tofaş, Vestel ve Petkim'in <b>2024 kamuya açık rapor</b> su hacimleriyle uçtan uca çalıştırıldı. Kurgu senaryo yok.</p>
+      </div>
+      <p class="small" style="margin-top:12px">Anomali modeli etiketsiz olduğu için precision/recall vermiyoruz; bilinen Kasım 2025 Tahtalı çöküşüyle doğrulandı.</p>
+    </div>
+  </div>
+
+  <div class="foot"><span>Herhangi Bir Proje · EkoZeka26</span><span>05 / 09</span></div>
+</section>
+
+<!-- 6 · IMPACT / LIMITS / ETHICS -->
+<section class="slide">
+  <div class="eyebrow">05 · Etki, sınırlar, etik</div>
+  <h1>Üçünü de <em>ekranda</em> söylüyoruz.</h1>
+  <div class="rule"></div>
+
+  <div class="cols3">
+    <div>
+      <div class="colhead">Çevresel ve finansal etki</div>
+      <div class="bigrow"><span class="v">7,35M m³</span><span class="t">yılda tatlı su tasarrufu — 3 gerçek tesis. İzmir'in tüm baraj kapasitesinin <b>~%1'i</b>.</span></div>
+      <div class="bigrow"><span class="v">258 bin m³</span><span class="t">yılda akifer suyu — yenilenmesi en zor kısım.</span></div>
+      <div class="bigrow"><span class="v">242,9M TL</span><span class="t">5 yıllık net NPV; 193,8M TL CAPEX. Her 1 TL yatırım 1,25 TL net kazanç.</span></div>
+      <div class="bigrow"><span class="v">267,4M TL</span><span class="t">yılda önlenen duruş riski — <b>ayrı</b> gösterilir, garanti değildir.</span></div>
+      <p class="small" style="margin-top:6px">Karbon: ~1,0–1,6 bin tCO₂/yıl (0,3–0,5 kWh/m³ × 0,44 kg/kWh, kalibre faktör). Alan/tür metriği yok: bu bir habitat değil, verimlilik ürünü.</p>
+    </div>
+
+    <div>
+      <div class="colhead">Sınırlar — sesli söylüyoruz</div>
+      <ul class="plain">
+        <li><b>Tek iklim noktası:</b> ERA5/CMIP6 İzmir'den alınır; Bursa/Konya P−ET₀ eğrisi ikincil güvenilirlikte.</li>
+        <li><b>639 poligon = 116 havza:</b> ulusal katman ön tarama, yerinde ölçüm değil.</li>
+        <li><b>Kesinti günü sezgisel:</b> tarihsel fabrika kesinti verisi kamuya açık değil; P10–P90 gösterge.</li>
+        <li><b>CAPEX doğrusal ölçek:</b> 150.000 m³/yıl referansa göre; izleme önlemlerinde iyimser olabilir.</li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="colhead">Etik ve hukuk</div>
+      <ul class="plain">
+        <li><b>KVKK:</b> kişisel veri yok, yalnız tesis verisi. Gemini'ye sadece agregat JSON gider; kapatılabilir.</li>
+        <li><b>Yeşil aklama:</b> her sayı <span class="dot dg"></span>ölçülmüş / <span class="dot db"></span>resmî model / <span class="dot dy"></span>kalibre varsayım olarak etiketli.</li>
+        <li><b>Yanlış alarm bedeli:</b> temkinli skor gereksiz CAPEX doğurur; bu yüzden tarife ±%40 duyarlılık bandı veriyoruz.</li>
+        <li><b>Belge:</b> 2029 kontrolü ön değerlendirmedir, resmî denetim değildir.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="foot"><span>Herhangi Bir Proje · EkoZeka26</span><span>06 / 09</span></div>
+</section>
+
+<!-- 7 · CLOSING -->
+<section class="slide close">
+  <div class="k">KAPANIŞ</div>
+  <h1>Su krizini durdurmanın en hızlı yolu, su tasarrufunu fabrika için <span>en kârlı yatırım</span> haline getirmek.</h1>
+  <div class="nums">
+    <div><div class="v">7,35M m³</div><div class="l">yılda tasarruf<br>3 gerçek tesis</div></div>
+    <div><div class="v">242,9M TL</div><div class="l">5 yıllık net NPV<br>193,8M TL yatırımla</div></div>
+    <div><div class="v">27.12.2029</div><div class="l">Yeşil Su Verimliliği<br>Belgesi zorunlu</div></div>
+  </div>
+  <div class="end">
+    <div><b>Ege Akgün</b> · DEÜ Bilgisayar Bilimleri · github.com/eakgn/EkoZeka26</div>
+    <div>Hangi sayıyı isterseniz açayım →</div>
+  </div>
+</section>
+
+<!-- 8 · APPENDIX A: CASES -->
+<section class="slide">
+  <div class="eyebrow">Ek A · Üç gerçek vaka</div>
+  <h1>2024 kamuya açık rapor verileriyle <em>uçtan uca</em>.</h1>
+  <p class="sub">Su hacmi ve çalışan sayısı şirket raporlarından; proses payı, duruş maliyeti ve bütçe şeffaf kalibre varsayımdır.</p>
+  <div class="rule"></div>
+
+  <table>
+    <tr>
+      <th>Tesis</th><th>Su m³/yıl</th><th>Kaynak</th><th>Risk</th><th>Duruş riski</th>
+      <th>Portföy</th><th>Tasarruf</th><th>CAPEX</th><th>NPV</th><th>Geri ödeme</th><th>2029</th>
+    </tr>
+    <tr>
+      <td><b>Tofaş</b> · Bursa</td><td class="n">430.782</td><td>%100 kuyu</td><td class="n">53,7</td><td class="n">31,05M</td>
+      <td class="n">M01 M03 M04 M10</td><td class="n">%35,8</td><td class="n">5,71M</td><td class="n">+6,64M</td><td class="n">17,3 ay</td><td class="n" style="color:#2E7D5B">Yeşil</td>
+    </tr>
+    <tr>
+      <td><b>Vestel</b> · Manisa</td><td class="n">1.510.208</td><td>%71 şebeke</td><td class="n">80,2</td><td class="n">82,5M</td>
+      <td class="n">M01 M02 M10</td><td class="n">%24,0</td><td class="n">10,67M</td><td class="n">+93,27M</td><td class="n">3,9 ay</td><td class="n" style="color:#2E7D5B">Yeşil</td>
+    </tr>
+    <tr>
+      <td><b>Petkim</b> · Aliağa</td><td class="n">14.230.105</td><td>yüzey suyu</td><td class="n">68,2</td><td class="n">420,0M</td>
+      <td class="n">M01 M05 M10</td><td class="n">%48,0</td><td class="n">177,41M</td><td class="n">+142,97M</td><td class="n">20,8 ay</td><td class="n" style="color:#2E7D5B">Yeşil</td>
+    </tr>
+  </table>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px">
+    <div class="card" style="padding:14px 16px"><div class="num sm" style="color:#0F3D3E">154.091 m³</div><div class="lab">Tofaş tasarrufu · 12,77M TL/yıl risk azaltımı</div></div>
+    <div class="card" style="padding:14px 16px"><div class="num sm" style="color:#0F3D3E">362.450 m³</div><div class="lab">Vestel tasarrufu · 22,77M TL/yıl risk azaltımı</div></div>
+    <div class="card" style="padding:14px 16px"><div class="num sm" style="color:#0F3D3E">6.831.873 m³</div><div class="lab">Petkim tasarrufu · 231,89M TL/yıl risk azaltımı</div></div>
+  </div>
+
+  <div class="foot"><span>Herhangi Bir Proje · EkoZeka26</span><span>08 / 09</span></div>
+</section>
+
+<!-- 9 · APPENDIX B: NUMBER CARD -->
+<section class="slide">
+  <div class="eyebrow">Ek B · Jüri sayı kartı</div>
+  <h1>Her sayının <em>kaynağı</em> var.</h1>
+  <div class="rule"></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:36px">
+    <div>
+      <div class="colhead">Tarife duyarlılığı — finansal geri ödeme</div>
+      <table>
+        <tr><th>Tesis</th><th>0,6× tarife</th><th>Baz</th><th>1,4× tarife</th></tr>
+        <tr><td>Tofaş</td><td class="n">28,9 ay</td><td class="n"><b>17,3 ay</b></td><td class="n">12,4 ay</td></tr>
+        <tr><td>Vestel</td><td class="n">6,4 ay</td><td class="n"><b>3,9 ay</b></td><td class="n">2,8 ay</td></tr>
+        <tr><td>Petkim</td><td class="n">39,9 ay</td><td class="n"><b>20,8 ay</b></td><td class="n">17,1 ay</td></tr>
+      </table>
+      <p class="small" style="margin-top:10px">Petkim'de 0,6× tarifede NPV −13,8M TL'ye döner. Bu yüzden tek sayı değil, bant veriyoruz.</p>
+
+      <div class="colhead" style="margin-top:20px">Model vs katalog — Tofaş</div>
+      <table>
+        <tr><th>Önlem</th><th>Model</th><th>Katalog tipik</th></tr>
+        <tr><td>M01 Basınçlı nozullar</td><td class="n">7,6 ay</td><td class="n">3,5 ay</td></tr>
+        <tr><td>M03 Kaskad durulama</td><td class="n">16,6 ay</td><td class="n">11,0 ay</td></tr>
+        <tr><td>M04 Buhar kondensi</td><td class="n">25,2 ay</td><td class="n">9,0 ay</td></tr>
+        <tr><td>M10 RO konsantre</td><td class="n">18,6 ay</td><td class="n">10,5 ay</td></tr>
+      </table>
+    </div>
+
+    <div>
+      <div class="colhead">Doğrulama ve kapsam</div>
+      <table>
+        <tr><th>Gösterge</th><th>Değer</th><th>Kaynak</th></tr>
+        <tr><td>XGBoost downscaler</td><td class="n">R² 0,7958</td><td class="n">GroupKFold</td></tr>
+        <tr><td>Hata düşüşü</td><td class="n">%68,0</td><td class="n">vs Naive</td></tr>
+        <tr><td>Gediz backtest</td><td class="n">R² 0,6732</td><td class="n">ERA5 + GloFAS</td></tr>
+        <tr><td>Test</td><td class="n">23 passed</td><td class="n">pytest</td></tr>
+        <tr><td>Kapsam</td><td class="n">639 / 116</td><td class="n">Aqueduct 4.0</td></tr>
+        <tr><td>İklim topluluğu</td><td class="n">7 model</td><td class="n">CMIP6 HR</td></tr>
+        <tr><td>İZSU anomali</td><td class="n">0,5932</td><td class="n">Isolation Forest</td></tr>
+      </table>
+
+      <div class="colhead" style="margin-top:20px">Veri soyu ve lisans</div>
+      <p class="small">WRI Aqueduct 4.0 (CC BY 4.0) · Open-Meteo ERA5 / CMIP6 / GloFAS (CC BY 4.0) · İZSU kamu açık verisi · SYGM NACE rehberleri ve IFC 2017 (atıflı katsayılar, PDF dağıtılmaz) · Tofaş / Vestel / Petkim 2024 raporları. Ticari platform bağımlılığı yok.</p>
+
+      <div class="callout" style="margin-top:16px">
+        <div class="k">TEK CÜMLELİK SINIR</div>
+        <p>Bu bir <b>ön tarama ve yatırım karar</b> platformudur; yerinde ölçüm, resmî belge denetimi veya ISO 14046 doğrulaması değildir.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Herhangi Bir Proje · EkoZeka26</span><span>09 / 09</span></div>
+</section>
+
+<script>
+/* Tarayıcıda sunum yedeği: #3 gibi hash ile tek slayt, ok tuşlarıyla gezinme */
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var cur = 0;
+  function only(i){
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function(s, j){
+      s.style.display = (j === cur) ? 'block' : 'none';
+      s.style.pageBreakAfter = 'auto';
+    });
+    document.body.style.background = '#14201F';
+    history.replaceState(null, '', '#' + (cur + 1));
+  }
+  if (location.hash) {
+    var n = parseInt(location.hash.slice(1), 10);
+    if (n >= 1 && n <= slides.length) only(n - 1);
+  }
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); only(cur + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); only(cur - 1); }
+    if (e.key === 'Home') only(0);
+    if (e.key === 'End') only(slides.length - 1);
+  });
+})();
+</script>
+</body>
+</html>
